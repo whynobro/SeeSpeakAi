@@ -17,7 +17,7 @@ test in the app          and steps                      |        ^
 1. **Report.** The learner starts one of two ways:
    - **Speech therapist report:** type in (or later, photograph) what the therapist wants practiced: the sounds and the goals.
    - **Test in the app:** the hearing check plus a few starting words. The app makes the report itself.
-2. **Curated plan.** The report goes to the brain: Claude (`claude-opus-5-5`), called from our server with our API key. It returns a plan: which sounds, in what order, which words, what the goal is for each.
+2. **Curated plan.** The report goes to the brain: Claude (`claude-sonnet-5-5`), called from our server with our API key. It returns a plan: which sounds, in what order, which words, what the goal is for each.
 3. **Training.** The learner works through the plan on the training screen. Three views of the same sound:
    - **Mouth:** pictures of where the tongue and lips go.
    - **Graph:** their sound drawn live next to the target.
@@ -53,9 +53,9 @@ test in the app          and steps                      |        ^
 - **Each person runs their own AI agent in their own copy of the repo.** The agents do not talk to each other. They stay in sync because they all read the same files:
   1. `AGENTS.md`: the rules and each lane's folders (Claude Code reads it through `CLAUDE.md`).
   2. Your lane file in `docs/lanes/`.
-  3. This file.
+  3. This file, and `docs/HACKATHON.md` (contest rules, deadlines, rubric).
   4. `src/lib/types.ts`: the contract every lane builds against.
 - **Scope is by folder.** Michael: `src/lib/`, `src/hooks/`, `src/app/api/`, `src/app/lab/`. Mason: screens in `src/app/`, `src/components/`, `public/`. Holly: `src/content/`, `docs/pitch/`, `docs/research.md`. An agent that needs something outside its folders asks its person, who asks the owner.
 - **Work flows through issues and pull requests.** Pick an issue with your lane label, branch, open a pull request, wait for the green check, squash merge. Then everyone runs `git pull origin main`.
-- **To start:** "Read AGENTS.md, docs/PLAN.md and docs/lanes/<your file>, then do issue #N."
+- **To start:** "Read AGENTS.md, docs/HACKATHON.md, docs/PLAN.md and docs/lanes/<your file>, then do issue #N."
 - **When the plan changes:** change this file and the contract in one pull request, and post the link in team chat.

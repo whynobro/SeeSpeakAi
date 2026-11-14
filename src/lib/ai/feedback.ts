@@ -72,7 +72,7 @@ export async function buildFeedback(req: FeedbackRequest): Promise<CoachFeedback
     cueText: CUES[req.target],
   });
   const reply = await askClaudeForJson({
-    model: process.env.SEESPEAK_FEEDBACK_MODEL || 'claude-haiku-5-5',
+    model: process.env.SEESPEAK_FEEDBACK_MODEL || 'claude-sonnet-5-5',
     system: FEEDBACK_SYSTEM,
     user,
     maxTokens: 300,

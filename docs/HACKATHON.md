@@ -73,6 +73,15 @@ We have not recorded which challenge we are entering. Decide, then write it here
 4. Be ready to show the AI doing something the product needs, live.
 5. Have the pricing answer ready: who pays, how much, and the first 10 users by name or place.
 
+## Team decisions so far (from Saturday's team meetings)
+
+- The demo is shown live, not as a video. We demo from a laptop browser.
+- Fingerspelling and sign pictures are dropped from the app for this weekend.
+- The user is a college-age adult. First outside user: a Cal Poly ASL Club member, Saturday 6:00 PM video call.
+- Framing: practice between speech therapy sessions. Never "replaces a speech therapist".
+- The learner enters their age group at the start, and the plan and wording follow it.
+- Ideas raised, not decided: a feedback prompt inside the app, and reading public forum posts for user needs.
+
 ## Help
 
 Discord, the help desk outside the room (HQ is Business 0126), or anyone with an organizer badge.

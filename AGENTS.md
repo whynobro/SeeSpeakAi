@@ -2,6 +2,16 @@
 
 Rules for AI coding agents working in this repo. Your user is one of three teammates. Each owns one lane.
 
+## Before you start (every session)
+
+Read [docs/HACKATHON.md](docs/HACKATHON.md) and [docs/PLAN.md](docs/PLAN.md) before you plan or write anything. This is a contest entry. Work that breaks a contest rule or misses a deadline is worth nothing. The short version:
+
+- **Final submission closes Sunday Nov 15, 12:00 PM Pacific.** Our own feature freeze is 11:00 AM. If a task cannot be finished and merged before then, tell your user and cut it down.
+- **Never make up users, quotes, test results or numbers.** Not in the app, not in docs, not in the pitch, not as sample data that could be mistaken for real. If you do not have a real one, leave a clearly marked blank and tell your user.
+- **Everything is built this weekend.** Do not copy in older project code. Open-source libraries are fine: add any new one to the disclosure list in `docs/HACKATHON.md`.
+- **Weigh every task against the rubric** in `docs/HACKATHON.md`. 45 of 100 points are for real users and a path to customers, 25 for a live, working, easy product. Tell your user when a task does not help any row.
+- **The demo is live, from the production link.** Never fake a flow. Never leave `main` broken.
+
 ## Safety rules (read first)
 
 1. **Stay in your user's lane folders.** Ask your user which lane they own. Lanes:
