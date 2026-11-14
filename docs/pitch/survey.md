@@ -2,7 +2,7 @@
 
 Owner: Holly. Status: DRAFT. Live form: https://forms.gle/ZRWoTHGfT6QrjE3w7 (Holly's Google account, published Sat Nov 14). The questions below are what the form contains. About 3 minutes to answer. No names, no email, nobody under 18.
 
-Form settings: do not collect email addresses, do not require sign-in, no required questions except the first two.
+Form settings: do not collect email addresses, do not require sign-in, no required questions except the first (age and consent). Every other question can be skipped. Responses go to the Google Sheet "SeeSpeak feedback survey (Responses)" in Holly's Drive.
 
 ## Form title and opening
 
@@ -17,7 +17,7 @@ This form is anonymous. We do not ask for your name or email. Please do not writ
 ## Questions
 
 1. **I am 18 or older and I agree to share my answers anonymously.** (Yes. Required. If not, the form ends.)
-2. **Which of these describe you? Pick all that fit.** (Required)
+2. **Which of these describe you? Pick all that fit.**
    - Deaf
    - Hard of hearing
    - Parent or family member of a deaf or hard-of-hearing child
