@@ -10,14 +10,17 @@ import {
   MAX_GAP_FRAMES,
   MIN_HISS_MS,
   MIN_RECORDING_MS,
+  MIN_SUSTAINED_MS,
   MIN_VOICED_MS,
   MISS_CONFIDENCE,
   NOISE_MIN_FRAMES,
   NOISE_QUIET_SHARE,
   NOISE_REL_LEVEL,
+  ONSET_SKIP_MS,
   SILENCE_LEVEL,
   SH_CENTROID_HZ,
   S_CENTROID_HZ,
+  SUSTAIN_REL_LEVEL,
   TOO_QUIET_LEVEL,
   VOICED_RATIO_MAX,
   VOICED_REL_LEVEL,
@@ -116,6 +119,107 @@ function missScore(word: PracticeWord, warnings: string[], confidence: number): 
   };
 }
 
+/** What the scoring found in a recording, shared by `scoreAttempt` and `describeRuns`. */
+interface Analysis {
+  hopMs: number;
+  maxLevel: number;
+  isHiss: boolean[];
+  haveVowel: boolean;
+  vowelStart: number;
+  vowelEnd: number;
+  runs: Run[];
+}
+
+function analyse(frames: FrameFeatures[]): Analysis {
+  const maxLevel = Math.max(...frames.map((f) => f.level));
+  const hopMs = hopMsOf(frames);
+  // All loudness checks are relative to the loudest frame, so the mic gain does not matter.
+  const hissFloor = Math.max(SILENCE_LEVEL, HISS_REL_LEVEL * maxLevel);
+  const voicedFloor = Math.max(SILENCE_LEVEL, VOICED_REL_LEVEL * maxLevel);
+  const isHiss = frames.map((f) => f.level >= hissFloor && f.hissRatio >= HISS_RATIO_MIN);
+  const voicedIdx: number[] = [];
+  frames.forEach((f, i) => {
+    if (f.level >= voicedFloor && f.hissRatio <= VOICED_RATIO_MAX) voicedIdx.push(i);
+  });
+  // The vowel: need enough voiced frames to trust it.
+  const haveVowel = voicedIdx.length * hopMs >= MIN_VOICED_MS;
+  return {
+    hopMs,
+    maxLevel,
+    isHiss,
+    haveVowel,
+    vowelStart: haveVowel ? voicedIdx[0] : -1,
+    vowelEnd: haveVowel ? voicedIdx[voicedIdx.length - 1] : -1,
+    runs: findRuns(isHiss),
+  };
+}
+
+function runLengthMs(frames: FrameFeatures[], r: Run, hopMs: number): number {
+  return frames[r.end].tMs - frames[r.start].tMs + hopMs;
+}
+
+/**
+ * How many ms of a run hold their level. The first ONSET_SKIP_MS are skipped (the burst of a stop), then
+ * frames count when they are at least SUSTAIN_REL_LEVEL of the loudest frame left. A stop release fades,
+ * so little of it counts. A real "s" keeps its level, so most of it counts.
+ */
+function sustainedMsOf(frames: FrameFeatures[], r: Run, hopMs: number): number {
+  const from = frames[r.start].tMs + ONSET_SKIP_MS;
+  const levels: number[] = [];
+  for (let i = r.start; i <= r.end; i++) if (frames[i].tMs >= from) levels.push(frames[i].level);
+  if (levels.length === 0) return 0;
+  const peak = Math.max(...levels);
+  return levels.filter((l) => l >= SUSTAIN_REL_LEVEL * peak).length * hopMs;
+}
+
+function placedOk(a: Analysis, r: Run, word: PracticeWord): boolean {
+  if (!a.haveVowel) return true; // cannot place it, so accept any (a warning is added by the caller)
+  if (word.position === 'start') return r.end < a.vowelStart;
+  if (word.position === 'end') return r.start > a.vowelEnd;
+  return r.start > a.vowelStart && r.end < a.vowelEnd; // middle: between voiced parts
+}
+
+function meanOf(values: number[]): number | null {
+  return values.length === 0 ? null : values.reduce((x, y) => x + y, 0) / values.length;
+}
+
+/** One hiss run, with the numbers and the rule results, for the /lab page. */
+export interface RunInfo {
+  startMs: number;
+  lengthMs: number;
+  meanCentroidHz: number | null;
+  meanPosition: number | null;
+  peakLevel: number;
+  sustainedMs: number;
+  /** Rule results. `inPlace` is null when no word was given. */
+  passed: { longEnough: boolean; held: boolean; inPlace: boolean | null };
+}
+
+/** List every hiss run found in a recording, with what each rule said. Pass a word to check placement. */
+export function describeRuns(frames: FrameFeatures[], word?: PracticeWord): RunInfo[] {
+  if (frames.length === 0) return [];
+  const a = analyse(frames);
+  return a.runs.map((r) => {
+    const own: FrameFeatures[] = [];
+    for (let i = r.start; i <= r.end; i++) if (a.isHiss[i]) own.push(frames[i]);
+    const lengthMs = runLengthMs(frames, r, a.hopMs);
+    const sustainedMs = sustainedMsOf(frames, r, a.hopMs);
+    return {
+      startMs: frames[r.start].tMs,
+      lengthMs,
+      meanCentroidHz: meanOf(own.flatMap((f) => (f.centroidHz === null ? [] : [f.centroidHz]))),
+      meanPosition: meanOf(own.flatMap((f) => positionFromCentroid(f.centroidHz) ?? [])),
+      peakLevel: Math.max(...own.map((f) => f.level)),
+      sustainedMs,
+      passed: {
+        longEnough: lengthMs >= MIN_HISS_MS,
+        held: sustainedMs >= MIN_SUSTAINED_MS,
+        inPlace: word ? placedOk(a, r, word) : null,
+      },
+    };
+  });
+}
+
 /** Score one spoken word: was the target sound there, in the right place? */
 export function scoreAttempt(frames: FrameFeatures[], word: PracticeWord): AttemptScore {
   const warnings: string[] = [];
@@ -130,44 +234,34 @@ export function scoreAttempt(frames: FrameFeatures[], word: PracticeWord): Attem
   if (maxLevel < TOO_QUIET_LEVEL)
     warnings.push('The recording was very quiet. Try holding the phone closer.');
 
-  const hopMs = hopMsOf(frames);
-  const totalMs = frames[frames.length - 1].tMs - frames[0].tMs + hopMs;
+  const hopMs0 = hopMsOf(frames);
+  const totalMs = frames[frames.length - 1].tMs - frames[0].tMs + hopMs0;
   if (totalMs < MIN_RECORDING_MS)
     warnings.push('The recording was very short. Say the whole word and try again.');
   if (roomIsNoisy(frames, maxLevel)) {
     warnings.push('The room seems noisy, so the result may be wrong. Try somewhere quieter.');
   }
 
-  // All loudness checks are relative to the loudest frame, so the mic gain does not matter.
-  const hissFloor = Math.max(SILENCE_LEVEL, HISS_REL_LEVEL * maxLevel);
-  const voicedFloor = Math.max(SILENCE_LEVEL, VOICED_REL_LEVEL * maxLevel);
-  const isHiss = frames.map((f) => f.level >= hissFloor && f.hissRatio >= HISS_RATIO_MIN);
-  const voicedIdx: number[] = [];
-  frames.forEach((f, i) => {
-    if (f.level >= voicedFloor && f.hissRatio <= VOICED_RATIO_MAX) voicedIdx.push(i);
-  });
-
-  // The vowel: need enough voiced frames to trust it.
-  const haveVowel = voicedIdx.length * hopMs >= MIN_VOICED_MS;
-  const vowelStart = haveVowel ? voicedIdx[0] : -1;
-  const vowelEnd = haveVowel ? voicedIdx[voicedIdx.length - 1] : -1;
-  if (!haveVowel) {
+  const a = analyse(frames);
+  const { hopMs, isHiss } = a;
+  if (!a.haveVowel) {
     warnings.push('I could not find the vowel, so I could not check where in the word the hiss was.');
   }
 
-  const runLengthMs = (r: Run): number => frames[r.end].tMs - frames[r.start].tMs + hopMs;
-  const long = findRuns(isHiss).filter((r) => runLengthMs(r) >= MIN_HISS_MS);
-  const inPlace = long.filter((r) => {
-    if (!haveVowel) return true; // cannot place it, so accept any (a warning was added above)
-    if (word.position === 'start') return r.end < vowelStart;
-    if (word.position === 'end') return r.start > vowelEnd;
-    return r.start > vowelStart && r.end < vowelEnd; // middle: between voiced parts
-  });
+  const long = a.runs.filter((r) => runLengthMs(frames, r, hopMs) >= MIN_HISS_MS);
+  const inPlace = long.filter((r) => placedOk(a, r, word));
+  // A hiss that fades away is the puff after a "t" or "k", not an "s" or "sh": it must hold its level.
+  const held = inPlace.filter((r) => sustainedMsOf(frames, r, hopMs) >= MIN_SUSTAINED_MS);
+  if (inPlace.length > 0 && held.length === 0) {
+    warnings.push('That sounded like a short burst, not a held hiss. Hold the hiss longer.');
+  }
 
-  if (inPlace.length === 0) return missScore(word, warnings, MISS_CONFIDENCE);
+  if (held.length === 0) return missScore(word, warnings, MISS_CONFIDENCE);
 
   // If several runs qualify, the longest one is the most likely to be the real sound.
-  const run = inPlace.reduce((best, r) => (runLengthMs(r) > runLengthMs(best) ? r : best));
+  const run = held.reduce((best, r) =>
+    runLengthMs(frames, r, hopMs) > runLengthMs(frames, best, hopMs) ? r : best,
+  );
   const positions: number[] = [];
   for (let i = run.start; i <= run.end; i++) {
     if (!isHiss[i]) continue;
@@ -178,7 +272,7 @@ export function scoreAttempt(frames: FrameFeatures[], word: PracticeWord): Attem
 
   const meterPosition = positions.reduce((a, b) => a + b, 0) / positions.length;
   const heardSound = meterPosition >= BOUNDARY ? 's' : 'sh';
-  const hissMs = runLengthMs(run);
+  const hissMs = runLengthMs(frames, run, hopMs);
   const distanceTerm = Math.min(1, Math.abs(meterPosition - BOUNDARY) / CONFIDENCE_FULL_DISTANCE);
   const lengthTerm = Math.min(1, hissMs / CONFIDENCE_FULL_HISS_MS);
   const confidence = clamp01(
