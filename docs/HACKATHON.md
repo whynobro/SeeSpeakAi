@@ -56,7 +56,7 @@ A chatbot added for show scores about 3 of 15 on the AI row. See "What the AI do
 - Startup launch award: validated demand.
 - Best use of AI: the product breaks without the AI.
 
-We have not recorded which challenge we are entering. Decide, then write it here.
+**Our choice (Saturday, not yet confirmed):** the team thinks we are entering the CPVC challenge. Its exact name is not confirmed: check the portal, then fix this line. Entering a challenge needs a **demo video under two minutes**. Nobody owns the video yet.
 
 ## AI and tools to disclose
 
