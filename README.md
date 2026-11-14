@@ -4,6 +4,12 @@ Practice the speech sounds your ears miss.
 
 If you cannot hear high sounds like "s" and "sh", you cannot copy them. So "cats" becomes "cat" and "sip" blurs into "ship". Speech therapy helps, but sessions are short and far apart, and practice at home has no feedback. SeeSpeak is the practice in between: say a word to your phone, and it shows you, by color, by a live meter and by vibration, whether the sound was there.
 
+## Live demo
+
+Production: https://seespeak.vercel.app (follows `main`). The tuning page is https://seespeak.vercel.app/lab.
+
+Pull request preview links ask for a Vercel login until Michael turns that off in the Vercel project settings. Until then, test on the production link after your pull request merges.
+
 ## How it works
 
 1. **Report.** Start from a speech therapist's report (the sounds and goals they set), or take the test in the app (a one-minute hearing check plus a few starting words).
