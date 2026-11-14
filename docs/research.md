@@ -63,6 +63,16 @@ Facts we rely on, with sources. Owner: Holly. Add a source for every new claim. 
 - There is no evidence that learning ASL affects spoken English pronunciation. Do not link them.
 - Full notes: the evidence-gap report, sections 1 to 7 (kept outside the repo by Holly).
 
+## Feedback design and games (checked Nov 14)
+
+- After each try, show the result plus one cue about what to change ("hold it longer"). Too much detail makes learners depend on the feedback, and fewer, summary-style results help skills last ([Maas 2008](<https://pubs.asha.org/doi/10.1044/1058-0360(2008/025)>), read through secondary summaries). Evidence in speech is small.
+- Color must never be the only signal ([WCAG 1.4.1](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html)).
+- Praise for effort keeps children trying ([PMC3921229](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3921229/)). Gentle misses are a design choice, not proven for deaf or hard-of-hearing kids.
+- Common "s" errors in hard-of-hearing speech: stopping ("sun" said as "tun"), a "ts" sound, a weak or short "s", and "s" drifting toward "sh". They differ in burst, hiss length and pitch ([JSLHR 2017](https://pubs.asha.org/doi/10.1044/2017_JSLHR-S-16-0125)). Our detection limits are our own, not published norms.
+- Apple's AirPods Pro Hearing Test is for ages 18 and up. It saves an audiogram (250 Hz to 8 kHz) in the Health app, which can export a PDF ([Apple](https://support.apple.com/en-us/120991)). A web app cannot read Apple Health, so users type the numbers or upload the PDF.
+- Pitch and rhythm feedback: one 1978 study of 14 hard-of-hearing children found intonation training helped and rhythm training less. Too weak to build on this weekend.
+- No study found on streaks, badges or red/green signals for deaf or hard-of-hearing kids. Games here are design judgment. The supported link is that more practice goes with more progress (McLeod 2023, above).
+
 ## Not proven (say so if asked)
 
 - That SeeSpeak, or any visual "s" meter, improves speech in hard-of-hearing teens or adults. No trial exists.
