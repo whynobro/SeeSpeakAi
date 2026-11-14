@@ -27,7 +27,7 @@ test in the app          and steps                      |        ^
 
 ## Three things that keep this honest (read before you build or pitch)
 
-- **The phone measures. The brain explains.** Claude cannot hear audio. The phone measures the sound (was the hiss there, which hiss, how long) and gives an instant verdict. Those numbers, never the audio, go to the brain, which turns them into feedback and plan changes. So the instant color and vibration come from the phone, and the brain's sentence arrives a moment later.
+- **The phone measures. The brain explains.** Claude cannot hear audio. The phone measures the sound (was the hiss there, which hiss, how long) and gives an instant verdict. Those numbers, never the audio, go to the brain, which turns them into feedback and plan changes. So the instant color and vibration come from the phone, and the brain's sentence arrives a moment later. The brain now also receives the shape of the sound over the word (a handful of numbers such as how the hiss drifted and how steady it was), still never the audio.
 - **Only "s" and "sh" get a verdict today.** A therapist report can name any sound. The plan includes it, but marks it "show how, no score" (`scored: false`) unless it is "s" or "sh". Never show a verdict for a sound we cannot measure.
 - **It works with no key.** Every brain call has a built-in fallback (`source: 'rules'`). No key or a failed call must never break the demo.
 

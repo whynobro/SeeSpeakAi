@@ -1,6 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { getLastRecording } from '@/lib/audio/lastRecording';
+import { summarizeTrace } from '@/lib/scoring/trace';
 import type { AttemptScore, CoachFeedback, FeedbackRequest, PracticeWord } from '@/lib/types';
 
 /** How many past tries on the same word are sent to the brain. */
@@ -9,7 +11,7 @@ const MAX_RECENT = 10;
 /**
  * The brain's sentence after a try. Screens call `ask(word, score)` right after `scoreAttempt`, show
  * `feedback.message` and `feedback.cue` when they arrive, and follow `feedback.nextAction`.
- * Only score numbers are sent to the server, never audio. If the call fails, `feedback` stays null and
+ * Only numbers (the scores and the shape of the sound) are sent to the server, never audio. If the call fails, `feedback` stays null and
  * the screen simply shows the verdict without a sentence.
  */
 export function useCoachFeedback() {
@@ -36,7 +38,14 @@ export function useCoachFeedback() {
     setFeedback(null);
     setLoading(true);
     try {
-      const body: FeedbackRequest = { target: word.target, word: word.text, recent: recent.current.scores };
+      // The shape of the sound over the last recording: numbers only, never audio.
+      const trace = summarizeTrace(getLastRecording().frames, word);
+      const body: FeedbackRequest = {
+        target: word.target,
+        word: word.text,
+        recent: recent.current.scores,
+        trace,
+      };
       const response = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },

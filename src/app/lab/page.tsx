@@ -5,6 +5,7 @@ import { SoundMeter } from '@/components/SoundMeter';
 import { WORD_BANK } from '@/content/words';
 import { useSoundMeter } from '@/hooks/useSoundMeter';
 import { describeRuns, scoreAttempt } from '@/lib/scoring';
+import { summarizeTrace } from '@/lib/scoring/trace';
 import { ShareTests } from './ShareTests';
 import type { AttemptScore, FrameFeatures, PracticeWord, TargetSound, WordPosition } from '@/lib/types';
 
@@ -13,6 +14,9 @@ const YES = (b: boolean | null) => (b === null ? 'n/a' : b ? 'pass' : 'FAIL');
 function fmt(n: number | null | undefined, digits = 3): string {
   return n === null || n === undefined ? '-' : n.toFixed(digits);
 }
+
+/** JSON.stringify helper: three decimals is plenty for a pasted line. */
+const roundNumbers = (_key: string, v: unknown) => (typeof v === 'number' ? Math.round(v * 1000) / 1000 : v);
 
 export default function LabPage() {
   const meter = useSoundMeter();
@@ -76,6 +80,7 @@ export default function LabPage() {
     const runs = describeRuns(frames, word);
     const lines = [
       `sampleRate: ${sampleRate ?? '-'} Hz, frames: ${frames.length}, scored as: ${target} at ${position}`,
+      `trace: ${JSON.stringify(summarizeTrace(frames, word), roundNumbers)}`,
       runs.length === 0 ? 'no hiss runs found' : `hiss runs found: ${runs.length}`,
       ...runs.map(
         (r, i) =>

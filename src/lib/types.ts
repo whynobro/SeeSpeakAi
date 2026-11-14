@@ -61,6 +61,19 @@ export interface FrameFeatures {
   hissRatio: number; // share of the frame's energy that is above 2 kHz, 0 to 1
   centroidHz: number | null; // "center of pitch" of the hiss band, null when there is no hiss
 }
+/** The shape of the hiss over one try, boiled down to a few numbers. Never audio. */
+export interface TraceSummary {
+  hissMs: number; // length of the scored hiss run
+  heldMs: number; // how much of it held its level
+  positionStart: number; // meter position (0 = "sh", 1 = "s") in the first third of the hiss
+  positionMid: number;
+  positionEnd: number; // last third
+  drift: number; // positionEnd - positionStart. Negative = slid toward "sh"
+  steadiness: number; // 0 (very wobbly loudness) to 1 (smooth)
+  hissToVowel: number; // hiss loudness divided by vowel loudness
+  gapMs: number | null; // silence between the vowel and the hiss, null if no vowel found
+  vowelMs: number;
+}
 /** Live meter value for one frame. */
 export interface SoundReading {
   hissing: boolean; // true while an "s" or "sh" type hiss is being made
@@ -171,6 +184,7 @@ export interface FeedbackRequest {
   target: TargetSound;
   word: string;
   recent: AttemptScore[]; // oldest first, newest last, at most 10
+  trace?: TraceSummary | null; // the shape of the latest try only
 }
 /** Steps 3 to 4. What the brain says after a try. */
 export interface CoachFeedback {
