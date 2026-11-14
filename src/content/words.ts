@@ -11,7 +11,8 @@ import type { PracticeWord, TargetSound, WordPosition } from '@/lib/types';
  *    toys. Plurals set baseWord ("cat" for "cats").
  *  - No spelling traps where "s" is spoken as "sh", "zh" or "z": sugar, sure, measure, is, has, nose, rose.
  *  - No "s" clusters at the start: stop, snake.
- *  - No word with both hisses.
+ *  - No word with both hisses, and only one target sound per word: "socks" has an "s" at each end, so the
+ *    first "s" can be mistaken for the ending.
  *  - contrastWord is the same word with the other hiss, only when a real word exists (sip/ship).
  *  - id is the lower-case word and must be unique. sign stays null until signed cards are reviewed.
  *
@@ -36,7 +37,7 @@ export const WORD_BANK: PracticeWord[] = [
   w('books', 's', 'end', 'book'),
   w('ducks', 's', 'end', 'duck'),
   w('boats', 's', 'end', 'boat'),
-  w('socks', 's', 'end', 'sock'),
+  w('rocks', 's', 'end', 'rock'),
   w('maps', 's', 'end', 'map'),
   w('bats', 's', 'end', 'bat'),
   w('lips', 's', 'end', 'lip'),
