@@ -1,4 +1,5 @@
 import { buildFeedback } from '@/lib/ai/feedback';
+import { cleanTrace } from '@/lib/ai/validate';
 import type { AttemptScore, FeedbackRequest } from '@/lib/types';
 
 // Server only: the key must never reach the browser. Numbers only: no audio, no names. Nothing is stored.
@@ -22,5 +23,8 @@ export async function POST(request: Request) {
   const recent = (body.recent as AttemptScore[])
     .filter((a) => a && (a.verdict === 'hit' || a.verdict === 'close' || a.verdict === 'miss'))
     .slice(-10);
-  return Response.json(await buildFeedback({ target: body.target, word: body.word.slice(0, 40), recent }));
+  const trace = cleanTrace(body.trace);
+  return Response.json(
+    await buildFeedback({ target: body.target, word: body.word.slice(0, 40), recent, trace }),
+  );
 }
