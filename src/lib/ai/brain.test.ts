@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { buildFeedback, feedbackFromRules } from '@/lib/ai/feedback';
 import { buildPlan, planFromRules } from '@/lib/ai/plan';
 import { parseJsonReply } from '@/lib/ai/client';
-import { mergeFeedback, mergePlan } from '@/lib/ai/validate';
+import { cleanTrace, mergeFeedback, mergePlan } from '@/lib/ai/validate';
 import { WORD_BANK } from '@/content/words';
 import type { AssessmentReport, AttemptScore, FeedbackRequest } from '@/lib/types';
 
@@ -137,5 +137,63 @@ describe('no API key', () => {
   });
   it('buildFeedback returns the rules feedback', async () => {
     expect((await buildFeedback(req)).source).toBe('rules');
+  });
+});
+
+describe('mergeFeedback technical-text guard', () => {
+  const base = feedbackFromRules(req);
+  it('falls back to the rules for numbers with units or banned words', () => {
+    for (const message of [
+      'Your hiss lasted 120 ms.',
+      'It sat near 4 kHz.',
+      'It was about 3500Hz.',
+      'The pitch was low.',
+      'The centroid moved.',
+      'Wrong frequency.',
+    ]) {
+      expect(mergeFeedback(base, { message, cue: null })).toBe(base);
+    }
+    expect(mergeFeedback(base, { message: 'Ok.', cue: 'Hold it 200 ms.' })).toBe(base);
+  });
+  it('still accepts plain words and ordinary numbers', () => {
+    const f = mergeFeedback(base, { message: 'Try it 3 times, nice and long.', cue: null });
+    expect(f.source).toBe('ai');
+  });
+});
+
+describe('cleanTrace', () => {
+  const ok = {
+    hissMs: 250,
+    heldMs: 200,
+    positionStart: 0.8,
+    positionMid: 0.7,
+    positionEnd: 0.6,
+    drift: -0.2,
+    steadiness: 0.9,
+    hissToVowel: 0.2,
+    gapMs: 40,
+    vowelMs: 200,
+  };
+  it('keeps a good trace, allows a null gap, and clamps out-of-range numbers', () => {
+    expect(cleanTrace(ok)).toEqual(ok);
+    expect(cleanTrace({ ...ok, gapMs: null })?.gapMs).toBeNull();
+    const clamped = cleanTrace({ ...ok, positionStart: 4, drift: -9, hissMs: 99999, hissToVowel: 500 });
+    expect(clamped).toMatchObject({ positionStart: 1, drift: -1, hissMs: 10000, hissToVowel: 100 });
+  });
+  it('drops a malformed trace instead of failing', () => {
+    for (const bad of [
+      null,
+      'x',
+      [],
+      {},
+      { ...ok, hissMs: 'long' },
+      { ...ok, drift: NaN },
+      { ...ok, gapMs: 'x' },
+    ]) {
+      expect(cleanTrace(bad)).toBeNull();
+    }
+    const missing: Record<string, unknown> = { ...ok };
+    delete missing.vowelMs;
+    expect(cleanTrace(missing)).toBeNull();
   });
 });

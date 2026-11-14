@@ -122,14 +122,23 @@ Read what the AI changed before you push. You are responsible for it.
 - `/lab` is the tuning page. It shows the raw numbers behind the meter. Use it to test a new voice before trusting a score.
 - Test in a quiet spot first, then in a noisy one. The demo room will be noisy.
 
-## Sharing your test tries (so the scoring can be tuned)
+## Test tries are saved for the team (so the scoring can be tuned)
 
-1. Open `/lab` on the phone or laptop you test with. Tick **Share my test results with the SeeSpeak team** and type a nickname or initials.
-2. From then on, every try on that device, on `/lab` and on the practice screen, sends its numbers to our private store. Never your voice.
-3. The most useful tries are on `/lab`: set "Score as", press Start, say the word, press Stop, then tap what you really said ("I said the s", "I left the s out", ...). That tells us if the verdict was right. Try each word both ways.
-4. Only ask someone outside the team to switch it on after you have told them what it sends. It is off for everyone by default.
+1. Open `/lab`. Pick the word in **Word to test**, press Start, say it, press Stop. That try is saved straight away: numbers only, never your voice.
+2. Then tap what you really said ("I said the s", "I left the s out", ...). That is what tells us if the verdict was right. Try each word both ways, for example "cats" and "cat".
+3. Type a nickname or initials once so we can tell voices apart.
+4. To also save your tries on the practice screen, tick that box on `/lab`. It is off by default, and off for every real learner.
+5. The page tells people their tries are saved and published. Do not send an outside user to `/lab` without saying so first.
 
-Michael's side: `node scripts/pull-attempts.mjs` downloads every try to `data/attempts.jsonl` (git-ignored) and prints how often the verdict was right.
+Reading the log (you or your AI): it is published every 15 minutes to the `test-log` branch.
+
+```bash
+git fetch origin test-log
+git show origin/test-log:summary.md      # how often the verdict was right, and which tries were wrong
+git show origin/test-log:attempts.jsonl  # every try, one JSON object per line
+```
+
+Or read it on GitHub: switch the branch menu to `test-log`. Michael can refresh it at once with `gh workflow run test-log.yml`.
 
 ## Deploy
 

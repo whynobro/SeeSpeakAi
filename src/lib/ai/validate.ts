@@ -1,5 +1,5 @@
 import { WORD_BANK } from '@/content/words';
-import type { CoachFeedback, PlanStep, PracticePlan, PracticeWord } from '@/lib/types';
+import type { CoachFeedback, PlanStep, PracticePlan, PracticeWord, TraceSummary } from '@/lib/types';
 
 // Built from a char code so this file never contains the character itself.
 const EM_DASH = new RegExp(`\\s*${String.fromCharCode(0x2014)}\\s*`, 'g');
@@ -13,6 +13,9 @@ const MAX_AI_WORDS = 12;
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
+
+/** Numbers with units ("120 ms", "4kHz") and technical words must never reach the learner. */
+const TECHNICAL_TEXT = /\d\s*(ms|k?hz)\b|\b(pitch|centroid|frequenc(y|ies))\b/i;
 
 /** A usable string: non-empty after trimming, within the cap. Em dashes become commas. Otherwise null. */
 export function cleanText(value: unknown, max: number): string | null {
@@ -74,12 +77,38 @@ export function mergePlan(rulesPlan: PracticePlan, aiJson: unknown): PracticePla
 export function mergeFeedback(rulesFeedback: CoachFeedback, aiJson: unknown): CoachFeedback {
   if (!isRecord(aiJson)) return rulesFeedback;
   const message = cleanText(aiJson.message, MAX_MESSAGE);
-  if (!message) return rulesFeedback;
+  if (!message || TECHNICAL_TEXT.test(message)) return rulesFeedback;
   let cue = rulesFeedback.cue;
   if (aiJson.cue === null) cue = null;
   else {
     const text = cleanText(aiJson.cue, MAX_CUE);
+    if (text && TECHNICAL_TEXT.test(text)) return rulesFeedback;
     if (text) cue = text;
   }
   return { source: 'ai', message, cue, nextAction: rulesFeedback.nextAction };
+}
+
+function num(value: unknown, min: number, max: number): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : null;
+}
+
+/** Every field must be a finite number: clamp it to a sane range. Anything malformed drops the trace. */
+export function cleanTrace(raw: unknown): TraceSummary | null {
+  if (typeof raw !== 'object' || raw === null) return null;
+  const t = raw as Record<string, unknown>;
+  const gapMs = t.gapMs === null ? null : num(t.gapMs, 0, 10000);
+  const out = {
+    hissMs: num(t.hissMs, 0, 10000),
+    heldMs: num(t.heldMs, 0, 10000),
+    positionStart: num(t.positionStart, 0, 1),
+    positionMid: num(t.positionMid, 0, 1),
+    positionEnd: num(t.positionEnd, 0, 1),
+    drift: num(t.drift, -1, 1),
+    steadiness: num(t.steadiness, 0, 1),
+    hissToVowel: num(t.hissToVowel, 0, 100),
+    vowelMs: num(t.vowelMs, 0, 10000),
+  };
+  if (gapMs === null && t.gapMs !== null) return null;
+  if (Object.values(out).some((v) => v === null)) return null;
+  return { ...(out as Omit<TraceSummary, 'gapMs'>), gapMs };
 }
