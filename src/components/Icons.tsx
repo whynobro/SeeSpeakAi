@@ -106,6 +106,15 @@ export function EarIcon({ crossed = false, ...props }: IconProps & { crossed?: b
   );
 }
 
+export function ClipboardIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="5" y="4" width="14" height="17" rx="2" />
+      <path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3" />
+    </Svg>
+  );
+}
+
 export function HomeIcon(props: IconProps) {
   return (
     <Svg {...props}>
