@@ -35,7 +35,7 @@ Tailwind is v4 and React is 19. Check their docs when unsure.
 | `src/lib/store/`    | On-device storage and `progressFor`                                   | tech    |
 | `src/lib/feedback/` | Vibration patterns                                                    | tech    |
 | `src/lib/ai/`       | The brain: `buildPlan`, `buildFeedback` (server only), rule fallbacks | tech    |
-| `src/hooks/`        | `useSoundMeter`: what screens use to listen                           | tech    |
+| `src/hooks/`        | `useSoundMeter` (listen), `useCoachFeedback` (the brain's sentence)   | tech    |
 | `src/app/api/`      | `POST /api/plan`, `POST /api/feedback`, `POST /api/practice-list`     | tech    |
 | `src/app/lab/`      | Debug page for tuning on real voices                                  | tech    |
 | `src/app/page.tsx`  | Landing page                                                          | screens |
