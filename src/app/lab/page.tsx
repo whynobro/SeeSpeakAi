@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { SoundMeter } from '@/components/SoundMeter';
 import { useSoundMeter } from '@/hooks/useSoundMeter';
-import { scoreAttempt } from '@/lib/scoring';
+import { describeRuns, scoreAttempt } from '@/lib/scoring';
 import type { AttemptScore, FrameFeatures, PracticeWord, TargetSound, WordPosition } from '@/lib/types';
+
+const YES = (b: boolean | null) => (b === null ? 'n/a' : b ? 'pass' : 'FAIL');
 
 function fmt(n: number | null | undefined, digits = 3): string {
   return n === null || n === undefined ? '-' : n.toFixed(digits);
@@ -16,12 +18,15 @@ export default function LabPage() {
   const [target, setTarget] = useState<TargetSound>('s');
   const [position, setPosition] = useState<WordPosition>('start');
   const [score, setScore] = useState<AttemptScore | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [sampleRate, setSampleRate] = useState<number | null>(null);
 
   const listening = meter.status === 'listening';
   const busy = meter.status === 'starting';
 
   async function onToggle() {
     if (listening) {
+      setSampleRate(meter.sampleRate);
       setFrames(meter.stop());
       setScore(null);
     } else {
@@ -31,9 +36,8 @@ export default function LabPage() {
     }
   }
 
-  function onScore() {
-    if (!frames) return;
-    const word: PracticeWord = {
+  const word = useMemo<PracticeWord>(
+    () => ({
       id: 'lab-word',
       text: target === 's' ? 'sip' : 'ship',
       target,
@@ -41,8 +45,43 @@ export default function LabPage() {
       baseWord: null,
       contrastWord: null,
       sign: null,
-    };
+    }),
+    [target, position],
+  );
+
+  function onScore() {
+    if (!frames) return;
     setScore(scoreAttempt(frames, word));
+    setCopied(false);
+  }
+
+  // Short plain text a person can read aloud or paste into a chat.
+  const summary = useMemo(() => {
+    if (!frames) return '';
+    const runs = describeRuns(frames, word);
+    const lines = [
+      `sampleRate: ${sampleRate ?? '-'} Hz, frames: ${frames.length}, scored as: ${target} at ${position}`,
+      runs.length === 0 ? 'no hiss runs found' : `hiss runs found: ${runs.length}`,
+      ...runs.map(
+        (r, i) =>
+          `run ${i + 1}: start ${fmt(r.startMs, 0)} ms, length ${fmt(r.lengthMs, 0)} ms, ` +
+          `centroid ${fmt(r.meanCentroidHz, 0)} Hz, position ${fmt(r.meanPosition, 2)}, ` +
+          `peak level ${fmt(r.peakLevel, 3)}, held ${fmt(r.sustainedMs, 0)} ms; ` +
+          `long enough ${YES(r.passed.longEnough)}, held ${YES(r.passed.held)}, ` +
+          `in place ${YES(r.passed.inPlace)}`,
+      ),
+    ];
+    return lines.join('\n');
+  }, [frames, word, sampleRate, target, position]);
+
+  async function onCopy() {
+    const text = `${summary}\n\n${JSON.stringify(score ?? scoreAttempt(frames ?? [], word), null, 2)}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
   }
 
   const rows: [string, string][] = [
@@ -124,11 +163,19 @@ export default function LabPage() {
               Score
             </button>
           </div>
+          <pre className="overflow-x-auto rounded-xl bg-black/10 p-3 text-xs dark:bg-white/10">{summary}</pre>
           {score && (
             <pre className="overflow-x-auto rounded-xl bg-black/10 p-3 text-xs dark:bg-white/10">
               {JSON.stringify(score, null, 2)}
             </pre>
           )}
+          <button
+            type="button"
+            onClick={onCopy}
+            className="min-h-12 rounded-xl border-2 border-current px-5 font-bold"
+          >
+            {copied ? 'Copied' : 'Copy results'}
+          </button>
         </section>
       )}
     </main>
