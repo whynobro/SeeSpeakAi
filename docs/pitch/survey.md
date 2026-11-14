@@ -12,7 +12,7 @@ We are three Cal Poly students at a weekend hackathon. We are building a free pr
 
 The idea: you say a word to your phone, and the screen shows you whether a high sound like "s" or "sh" was there. A meter moves while you speak, and the result is shown with a color, a word and a vibration, never by sound alone. The words to practice are picked from your own hearing test. Your voice stays on your phone. It is not therapy, and its quick hearing check is not a medical hearing test. Sign language is welcome, and nobody should feel they have to practice speech.
 
-This form is anonymous. We do not ask for your name or email. Please answer only if you are 18 or older. We will share totals and short anonymous comments in our pitch on Sunday, Nov 15.
+This form is anonymous. We do not ask for your name or email. Please do not write names, contact details or medical details in your answers. Please answer only if you are 18 or older. We will share totals and short anonymous comments in our pitch on Sunday, Nov 15.
 
 ## Questions
 
@@ -26,6 +26,7 @@ This form is anonymous. We do not ask for your name or email. Please answer only
    - Teacher of deaf and hard-of-hearing students
    - ASL learner or interpreter
    - None of these
+   - Prefer not to say
 3. **If you are deaf or hard of hearing: what do you use? Pick all that fit.**
    - Hearing aids / Cochlear implant / Neither / Prefer not to say
 4. **How do you (or your child, or the people you work with) mostly communicate?**
