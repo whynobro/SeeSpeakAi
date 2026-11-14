@@ -37,6 +37,26 @@ export const MIN_VOICED_MS = 40;
  */
 export const MIN_HISS_MS = 70;
 
+/**
+ * Stop-release check, part 1: skip this many ms at the start of a hiss run before judging how steady it is.
+ * The click of a "t" or "k" burst (and a stop burst glued to a real "s") sits there. Starting value from
+ * synthetic sounds, to be tuned on real voices.
+ */
+export const ONSET_SKIP_MS = 30;
+
+/**
+ * Stop-release check, part 2: after the onset, a frame counts as "held" when its level is at least this
+ * fraction of the loudest frame in the same run. A real "s" holds its level; a stop release fades away.
+ * Starting value from synthetic sounds, to be tuned on real voices.
+ */
+export const SUSTAIN_REL_LEVEL = 0.5;
+
+/**
+ * Stop-release check, part 3: a hiss run needs at least this many ms of held frames to count as a held
+ * hiss and not a release. Starting value from synthetic sounds, to be tuned on real voices.
+ */
+export const MIN_SUSTAINED_MS = 60;
+
 /** A hiss run may bridge this many non-hiss frames (real "s" sounds flicker a little). */
 export const MAX_GAP_FRAMES = 1;
 

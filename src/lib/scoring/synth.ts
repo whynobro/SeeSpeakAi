@@ -135,3 +135,33 @@ export function scale(x: Float32Array, gain: number): Float32Array {
   for (let i = 0; i < x.length; i++) out[i] = x[i] * gain;
   return out;
 }
+
+/**
+ * The noise that follows a stop sound ("t" or "k") when it is released with a puff of air, as in an
+ * aspirated "cat" or "duck". It starts with a sharp, loud burst and then fades away, so it is loudest
+ * at the start. That fading shape is what tells it apart from a real "s", which holds a steady level.
+ *  - 't' flavour: energy mostly above 4 kHz (alveolar, close to an "s").
+ *  - 'k' flavour: energy around 2 to 4 kHz (velar, close to an "sh").
+ * `decayRate` is how many fade time constants fit in the length: 3 fades to about 5 percent by the end,
+ * a smaller number gives a flatter, longer-lasting release (a harder case for scoring).
+ */
+export function stopRelease(flavour: 't' | 'k', ms: number, sampleRate: number, decayRate = 3): Float32Array {
+  const n = samplesFor(ms, sampleRate);
+  const high = Math.min(8000, sampleRate / 2 - 100);
+  const noise =
+    flavour === 't' ? bandNoise(n, sampleRate, 4000, high, 41) : bandNoise(n, sampleRate, 2000, 4000, 53);
+  const tau = Math.max(1, n / decayRate);
+  const spike = samplesFor(5, sampleRate); // the sharp onset: twice as loud for the first 5 ms
+  const out = new Float32Array(n);
+  for (let i = 0; i < n; i++) out[i] = noise[i] * Math.exp(-i / tau) * (i < spike ? 2 : 1);
+  // Scale so the first 20 ms (the loud part) is about 0.3 of the vowel loudness, with no fade in.
+  const head = out.subarray(0, Math.min(n, samplesFor(20, sampleRate)));
+  const gain = rms(head) > 0 ? (VOWEL_RMS * 0.3) / rms(head) : 0;
+  const fade = Math.min(Math.floor(n / 2), samplesFor(FADE_MS, sampleRate));
+  for (let i = 0; i < n; i++) {
+    let g = gain;
+    if (i >= n - fade) g *= (n - 1 - i) / fade;
+    out[i] *= g;
+  }
+  return out;
+}
