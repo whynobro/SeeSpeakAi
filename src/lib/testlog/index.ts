@@ -4,9 +4,10 @@ import type { AttemptScore, FrameFeatures, PracticeWord, TargetSound, WordPositi
 
 /**
  * Shared test log, for the team and for people who agree to help us tune.
- * OFF by default. A person switches it on at /lab on their own device. While it is on, every try on that
- * device sends its numbers (never audio, never a full name) to our private store, so the scoring can be
- * tuned on real voices. Real learners who never open /lab are never logged.
+ * Every try made on /lab is saved (numbers only, never audio, never a full name) unless the person
+ * switches that off on the page. /lab is our tuning page and says so. Tries on the practice screen are
+ * only saved when a tester switched that on at /lab. Real learners who never open /lab are never logged.
+ * The saved tries are copied to the public `test-log` branch of the repo, so nothing private goes in.
  */
 
 /** What the tester says they really said. This is the "right answer" that tuning needs. */
@@ -17,6 +18,7 @@ export type PackedFrame = [number, number, number, number];
 
 export interface TestLogEntry {
   v: 1;
+  attemptId: string; // the same for every entry about one try, so a later answer replaces the first
   at: string; // ISO timestamp
   tester: string; // random id made on the device
   label: string; // optional nickname or initials the tester typed, never a full name
@@ -33,6 +35,7 @@ export interface TestLogEntry {
 }
 
 const KEY_ON = 'seespeak.testlog.on';
+const KEY_LAB = 'seespeak.testlog.lab';
 const KEY_TESTER = 'seespeak.testlog.tester';
 const KEY_LABEL = 'seespeak.testlog.label';
 const MAX_FRAMES = 600; // about 12 seconds
@@ -55,8 +58,19 @@ function write(key: string, value: string): void {
   }
 }
 
+/** Practice-screen sharing: off unless a tester switched it on. */
 export function isSharing(): boolean {
   return read(KEY_ON) === '1';
+}
+/** Lab sharing: ON unless someone switched it off. /lab is our tuning page, not a learner screen. */
+export function isLabSharing(): boolean {
+  return read(KEY_LAB) !== '0';
+}
+export function setLabSharing(on: boolean): void {
+  write(KEY_LAB, on ? '1' : '0');
+}
+export function newAttemptId(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 export function setSharing(on: boolean): void {
   write(KEY_ON, on ? '1' : '0');
@@ -105,6 +119,7 @@ export function buildEntry(input: {
   label: string;
   device: string;
   at: string;
+  attemptId: string;
 }): TestLogEntry {
   const word: PracticeWord = {
     text: input.word.id,
@@ -115,6 +130,7 @@ export function buildEntry(input: {
   };
   return {
     v: 1,
+    attemptId: input.attemptId,
     at: input.at,
     tester: input.tester,
     label: input.label,
@@ -151,9 +167,10 @@ export function shareLabAttempt(
   score: AttemptScore,
   frames: FrameFeatures[],
   sampleRate: number | null,
-  said: Said,
+  said: Said | null,
+  attemptId: string,
 ): Promise<boolean> {
-  if (!isSharing()) return Promise.resolve(false);
+  if (!isLabSharing()) return Promise.resolve(false);
   return send(
     buildEntry({
       page: 'lab',
@@ -166,6 +183,7 @@ export function shareLabAttempt(
       label: getLabel(),
       device: typeof navigator === 'undefined' ? '' : navigator.userAgent,
       at: new Date().toISOString(),
+      attemptId,
     }),
   );
 }
@@ -187,6 +205,7 @@ export function sharePracticeAttempt(wordId: string, target: TargetSound, score:
       label: getLabel(),
       device: typeof navigator === 'undefined' ? '' : navigator.userAgent,
       at: new Date().toISOString(),
+      attemptId: newAttemptId(),
     }),
   );
 }
