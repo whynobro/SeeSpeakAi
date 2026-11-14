@@ -1,40 +1,39 @@
 @import 'tailwindcss';
 
 /*
- * The SeeSpeak look. Colors and type are picked once, here.
- * Screens use the Tailwind names (bg-surface, text-muted, bg-accent, bg-hit ...), never raw hex values.
- * Every "-ink" color is the text color that sits on top of its partner and keeps high contrast.
+ * The SeeSpeak look: bright blue on white, chunky "clay" cards and buttons with a darker bottom edge.
+ * Colors and type are picked once, here. Screens use the Tailwind names (bg-surface, text-muted, bg-accent ...),
+ * never raw hex values. Light only, so contrast stays predictable in bright light.
+ *
+ * Contrast rules (WCAG AA, checked):
+ * - "-ink" and "-strong" colors are for text. They pass 4.5:1 on their partner fill.
+ * - accent-ink (white) on accent passes 4.55:1: use it only at 16px bold or larger.
+ * - accent, violet, hit and miss fills are for icons, edges and large text, not small text.
  */
 :root {
-  --background: #faf8f4; /* warm paper */
-  --foreground: #1a1a1f; /* ink */
+  color-scheme: light;
+  --background: #eef1fc; /* soft blue-white page */
+  --foreground: #1b1f3b; /* ink, 14:1 on the page */
   --surface: #ffffff; /* cards */
-  --muted: #55555f; /* small print */
-  --line: #d6d2c8; /* quiet borders */
-  --accent: #3730a3; /* main buttons and the meter marker */
-  --accent-ink: #ffffff;
-  --hit: #166534; /* result: the sound was there */
-  --hit-ink: #ffffff;
+  --muted: #5b6178; /* small print, 5.4:1 on the page */
+  --line: #d5dcf3; /* quiet borders and the card's bottom edge */
+  --accent: #2f6fed; /* main buttons, the meter marker */
+  --accent-ink: #ffffff; /* text on accent: 16px bold or larger only */
+  --accent-edge: #1f4fbf; /* pressed edge under accent, and small accent text (7:1 on white) */
+  --accent-soft: #eaf0fe; /* light blue tint */
+  --violet: #7b61ff; /* used sparingly: large text and fills only */
+  --violet-edge: #5a3fdb; /* edge under violet, and violet text (5.7:1 on violet-soft) */
+  --violet-soft: #f0ecff;
+  --hit: #1e8e57; /* result: the sound was there. Icons, borders, fills. */
+  --hit-ink: #ffffff; /* text or icon on a hit fill: large only */
+  --hit-strong: #166534; /* hit text on hit-soft, 6.3:1 */
+  --hit-soft: #e3f6ec;
   --close: #fbbf24; /* result: the other hiss */
-  --close-ink: #1a1a1f;
-  --miss: #b42318; /* result: no hiss yet. Used for outlines and icons, not big fills. */
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #111114;
-    --foreground: #f3f1ec;
-    --surface: #1c1c21;
-    --muted: #a8a8b3;
-    --line: #3a3a42;
-    --accent: #a5b4fc;
-    --accent-ink: #111114;
-    --hit: #4ade80;
-    --hit-ink: #052e16;
-    --close: #fbbf24;
-    --close-ink: #1a1a1f;
-    --miss: #fca5a5;
-  }
+  --close-ink: #1b1f3b;
+  --close-edge: #c98f0a;
+  --miss: #d64545; /* result: no hiss yet. Outlines and icons, not big fills. */
+  --miss-ink: #b42318; /* miss text, 5.6:1 on miss-soft */
+  --miss-soft: #fde8e8;
 }
 
 @theme inline {
@@ -45,13 +44,32 @@
   --color-line: var(--line);
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
+  --color-accent-edge: var(--accent-edge);
+  --color-accent-soft: var(--accent-soft);
+  --color-violet: var(--violet);
+  --color-violet-edge: var(--violet-edge);
+  --color-violet-soft: var(--violet-soft);
   --color-hit: var(--hit);
   --color-hit-ink: var(--hit-ink);
+  --color-hit-strong: var(--hit-strong);
+  --color-hit-soft: var(--hit-soft);
   --color-close: var(--close);
   --color-close-ink: var(--close-ink);
+  --color-close-edge: var(--close-edge);
   --color-miss: var(--miss);
-  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --color-miss-ink: var(--miss-ink);
+  --color-miss-soft: var(--miss-soft);
+  --font-sans: var(--font-jakarta), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Clay edges: a solid darker band under a card or button. No blur, no glow. */
+  --shadow-clay: 0 6px 0 var(--line);
+  --shadow-edge-line: 0 4px 0 var(--line);
+  --shadow-edge-accent: 0 4px 0 var(--accent-edge);
+  --shadow-edge-violet: 0 4px 0 var(--violet-edge);
+  --shadow-edge-hit: 0 4px 0 var(--hit-strong);
+  --shadow-edge-close: 0 4px 0 var(--close-edge);
+  --shadow-edge-miss: 0 4px 0 var(--miss-ink);
 }
 
 @theme {
@@ -77,4 +95,13 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+}
+
+/* One clear focus ring everywhere, visible on white and on the blue-white page. In the base layer, so a
+   heading that only takes focus from code (outline-none) can still turn it off. */
+@layer base {
+  :focus-visible {
+    outline: 3px solid var(--accent-edge);
+    outline-offset: 3px;
+  }
 }

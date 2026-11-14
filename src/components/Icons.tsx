@@ -95,3 +95,55 @@ export function ShareIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function EarIcon({ crossed = false, ...props }: IconProps & { crossed?: boolean }) {
+  return (
+    <Svg {...props}>
+      <path d="M6 8.5a6 6 0 1 1 12 0c0 6-6 6-6 10a3 3 0 0 1-6 0" />
+      <path d="M15 8.5a3 3 0 1 0-6 0" />
+      {crossed && <path d="M3 3l18 18" />}
+    </Svg>
+  );
+}
+
+export function HomeIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M3 11l9-7 9 7M5 10v10h14V10" />
+    </Svg>
+  );
+}
+
+export function ArrowLeftIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M19 12H5M11 6l-6 6 6 6" />
+    </Svg>
+  );
+}
+
+export function MicIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="9" y="3" width="6" height="11" rx="3" />
+      <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+    </Svg>
+  );
+}
+
+export function LightbulbIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M9 18h6M10 21h4" />
+      <path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z" />
+    </Svg>
+  );
+}
+
+export function TrashIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+    </Svg>
+  );
+}
