@@ -1,3 +1,9 @@
 # Pitch
 
-Owner: Holly. Files to add here: `story.md` (the one user and the one story), `demo-script.md` (timed script and rubric table), `user-tests.md` (who tried it, numbers, quotes with permission).
+Owner: Holly.
+
+- `story.md`: the one user and the one story.
+- `demo-script.md`: timed script, the honest "what does the AI do" answer, payer and price, rubric table.
+- `user-tests.md`: who tried it, numbers, quotes with permission. Also the volunteer voices table.
+- `zoom-session-guide.md`: how we run a feedback call.
+- `survey.md`: the anonymous feedback form and the post text.
