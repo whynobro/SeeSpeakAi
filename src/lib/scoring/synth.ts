@@ -165,3 +165,13 @@ export function stopRelease(flavour: 't' | 'k', ms: number, sampleRate: number, 
   }
   return out;
 }
+
+/** A hiss that starts as one sound and ends as the other: `first` for half the time, then `second`. */
+export function hissSlide(
+  first: 's' | 'sh',
+  second: 's' | 'sh',
+  ms: number,
+  sampleRate: number,
+): Float32Array {
+  return concat(hiss(first, ms / 2, sampleRate), hiss(second, ms / 2, sampleRate));
+}

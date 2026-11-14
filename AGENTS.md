@@ -40,7 +40,7 @@ Tailwind is v4 and React is 19. Check their docs when unsure.
 | ------------------- | ---------------------------------------------------------------------------- | ------- |
 | `src/lib/types.ts`  | Shared contract (hot file)                                                   | all     |
 | `src/lib/audio/`    | Mic capture (`mic.ts`), FFT, sound features per frame                        | tech    |
-| `src/lib/scoring/`  | `readFrame`, `scoreAttempt`, `LIMITATIONS`, thresholds, test sounds          | tech    |
+| `src/lib/scoring/`  | `readFrame`, `scoreAttempt`, `summarizeTrace`, thresholds, test sounds       | tech    |
 | `src/lib/profile/`  | `pickTargets(profile)`: hearing profile to sounds to practice                | tech    |
 | `src/lib/store/`    | On-device storage and `progressFor`                                          | tech    |
 | `src/lib/testlog/`  | Opt-in shared test log (`/lab` switch), sends try numbers to `/api/attempts` | tech    |

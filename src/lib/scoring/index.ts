@@ -41,7 +41,7 @@ function clamp01(x: number): number {
 }
 
 /** Map a centroid in Hz to the meter: 0 is "sh", 1 is "s", straight line between the two anchors. */
-function positionFromCentroid(centroidHz: number | null): number | null {
+export function positionFromCentroid(centroidHz: number | null): number | null {
   if (centroidHz === null) return null;
   return clamp01((centroidHz - SH_CENTROID_HZ) / (S_CENTROID_HZ - SH_CENTROID_HZ));
 }
@@ -53,7 +53,7 @@ export function readFrame(frame: FrameFeatures): SoundReading {
 }
 
 /** A stretch of hiss frames, by index into the frames array. */
-interface Run {
+export interface Run {
   start: number;
   end: number;
 }
@@ -120,7 +120,7 @@ function missScore(word: PracticeWord, warnings: string[], confidence: number): 
 }
 
 /** What the scoring found in a recording, shared by `scoreAttempt` and `describeRuns`. */
-interface Analysis {
+export interface Analysis {
   hopMs: number;
   maxLevel: number;
   isHiss: boolean[];
@@ -130,7 +130,7 @@ interface Analysis {
   runs: Run[];
 }
 
-function analyse(frames: FrameFeatures[]): Analysis {
+export function analyse(frames: FrameFeatures[]): Analysis {
   const maxLevel = Math.max(...frames.map((f) => f.level));
   const hopMs = hopMsOf(frames);
   // All loudness checks are relative to the loudest frame, so the mic gain does not matter.
@@ -154,7 +154,7 @@ function analyse(frames: FrameFeatures[]): Analysis {
   };
 }
 
-function runLengthMs(frames: FrameFeatures[], r: Run, hopMs: number): number {
+export function runLengthMs(frames: FrameFeatures[], r: Run, hopMs: number): number {
   return frames[r.end].tMs - frames[r.start].tMs + hopMs;
 }
 
@@ -163,7 +163,7 @@ function runLengthMs(frames: FrameFeatures[], r: Run, hopMs: number): number {
  * frames count when they are at least SUSTAIN_REL_LEVEL of the loudest frame left. A stop release fades,
  * so little of it counts. A real "s" keeps its level, so most of it counts.
  */
-function sustainedMsOf(frames: FrameFeatures[], r: Run, hopMs: number): number {
+export function sustainedMsOf(frames: FrameFeatures[], r: Run, hopMs: number): number {
   const from = frames[r.start].tMs + ONSET_SKIP_MS;
   const levels: number[] = [];
   for (let i = r.start; i <= r.end; i++) if (frames[i].tMs >= from) levels.push(frames[i].level);
@@ -220,6 +220,38 @@ export function describeRuns(frames: FrameFeatures[], word?: PracticeWord): RunI
   });
 }
 
+/** The runs that pass each rule in turn: long enough and in place, then also held. */
+function candidateRuns(frames: FrameFeatures[], a: Analysis, word: PracticeWord) {
+  const long = a.runs.filter((r) => runLengthMs(frames, r, a.hopMs) >= MIN_HISS_MS);
+  const inPlace = long.filter((r) => placedOk(a, r, word));
+  // A hiss that fades away is the puff after a "t" or "k", not an "s" or "sh": it must hold its level.
+  const held = inPlace.filter((r) => sustainedMsOf(frames, r, a.hopMs) >= MIN_SUSTAINED_MS);
+  return { inPlace, held };
+}
+
+/** If several runs qualify, the longest one is the most likely to be the real sound. */
+function longestRun(frames: FrameFeatures[], runs: Run[], hopMs: number): Run {
+  return runs.reduce((best, r) =>
+    runLengthMs(frames, r, hopMs) > runLengthMs(frames, best, hopMs) ? r : best,
+  );
+}
+
+/**
+ * The hiss run `scoreAttempt` would score for this word, or null when none qualifies. With
+ * `fallbackToAny`, a recording whose hiss is in the wrong place or too short still gives its longest run.
+ */
+export function pickRun(
+  frames: FrameFeatures[],
+  a: Analysis,
+  word: PracticeWord,
+  fallbackToAny = false,
+): Run | null {
+  const { held } = candidateRuns(frames, a, word);
+  if (held.length > 0) return longestRun(frames, held, a.hopMs);
+  if (fallbackToAny && a.runs.length > 0) return longestRun(frames, a.runs, a.hopMs);
+  return null;
+}
+
 /** Score one spoken word: was the target sound there, in the right place? */
 export function scoreAttempt(frames: FrameFeatures[], word: PracticeWord): AttemptScore {
   const warnings: string[] = [];
@@ -248,20 +280,14 @@ export function scoreAttempt(frames: FrameFeatures[], word: PracticeWord): Attem
     warnings.push('I could not find the vowel, so I could not check where in the word the hiss was.');
   }
 
-  const long = a.runs.filter((r) => runLengthMs(frames, r, hopMs) >= MIN_HISS_MS);
-  const inPlace = long.filter((r) => placedOk(a, r, word));
-  // A hiss that fades away is the puff after a "t" or "k", not an "s" or "sh": it must hold its level.
-  const held = inPlace.filter((r) => sustainedMsOf(frames, r, hopMs) >= MIN_SUSTAINED_MS);
+  const { inPlace, held } = candidateRuns(frames, a, word);
   if (inPlace.length > 0 && held.length === 0) {
     warnings.push('That sounded like a short burst, not a held hiss. Hold the hiss longer.');
   }
 
   if (held.length === 0) return missScore(word, warnings, MISS_CONFIDENCE);
 
-  // If several runs qualify, the longest one is the most likely to be the real sound.
-  const run = held.reduce((best, r) =>
-    runLengthMs(frames, r, hopMs) > runLengthMs(frames, best, hopMs) ? r : best,
-  );
+  const run = longestRun(frames, held, hopMs);
   const positions: number[] = [];
   for (let i = run.start; i <= run.end; i++) {
     if (!isHiss[i]) continue;
