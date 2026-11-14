@@ -1,6 +1,6 @@
 # Lane: Screens + design (Mason)
 
-Hand this file to your AI agent. Say: "Read AGENTS.md and docs/lanes/screens.md, then do issue #N."
+Hand this file to your AI agent. Say: "Read AGENTS.md, docs/HACKATHON.md, docs/PLAN.md and docs/lanes/screens.md, then do issue #N."
 
 ## Goal
 

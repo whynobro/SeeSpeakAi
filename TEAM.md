@@ -105,9 +105,9 @@ Stuck? Ask in team chat, or ask your AI: "Help me resolve this merge conflict. D
 
 Open your AI coding agent in the repo folder and say:
 
-> Read AGENTS.md, docs/PLAN.md and docs/lanes/<your file>, then do issue #N.
+> Read AGENTS.md, docs/HACKATHON.md, docs/PLAN.md and docs/lanes/<your file>, then do issue #N.
 
-Example: "Read AGENTS.md, docs/PLAN.md and docs/lanes/screens.md, then do issue #5."
+Example: "Read AGENTS.md, docs/HACKATHON.md, docs/PLAN.md and docs/lanes/screens.md, then do issue #5."
 
 Each person's AI works only in that person's copy of the repo. The agents do not talk to each other. They stay in sync through the files on GitHub, so pull `main` often and put anything a teammate needs to know in a pull request, not only in your chat.
 
@@ -121,6 +121,15 @@ Read what the AI changed before you push. You are responsible for it.
 - Vibration works on Android phones only. iPhones have no vibration for web pages. Demo on an Android phone if we can get one. Every vibration also shows on screen.
 - `/lab` is the tuning page. It shows the raw numbers behind the meter. Use it to test a new voice before trusting a score.
 - Test in a quiet spot first, then in a noisy one. The demo room will be noisy.
+
+## Sharing your test tries (so the scoring can be tuned)
+
+1. Open `/lab` on the phone or laptop you test with. Tick **Share my test results with the SeeSpeak team** and type a nickname or initials.
+2. From then on, every try on that device, on `/lab` and on the practice screen, sends its numbers to our private store. Never your voice.
+3. The most useful tries are on `/lab`: set "Score as", press Start, say the word, press Stop, then tap what you really said ("I said the s", "I left the s out", ...). That tells us if the verdict was right. Try each word both ways.
+4. Only ask someone outside the team to switch it on after you have told them what it sends. It is off for everyone by default.
+
+Michael's side: `node scripts/pull-attempts.mjs` downloads every try to `data/attempts.jsonl` (git-ignored) and prints how often the verdict was right.
 
 ## Deploy
 

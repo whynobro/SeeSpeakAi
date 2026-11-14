@@ -2,7 +2,7 @@
 
 Owner: Holly. Status: DRAFT. Live form: https://forms.gle/ZRWoTHGfT6QrjE3w7 (Holly's Google account, published Sat Nov 14). The questions below are what the form contains. About 3 minutes to answer. No names, no email, nobody under 18.
 
-Form settings: do not collect email addresses, do not require sign-in, no required questions except the first two.
+Form settings: do not collect email addresses, do not require sign-in, no required questions except the first (age and consent). Every other question can be skipped. Responses go to the Google Sheet "SeeSpeak feedback survey (Responses)" in Holly's Drive.
 
 ## Form title and opening
 
@@ -12,12 +12,12 @@ We are three Cal Poly students at a weekend hackathon. We are building a free pr
 
 The idea: you say a word to your phone, and the screen shows you whether a high sound like "s" or "sh" was there. A meter moves while you speak, and the result is shown with a color, a word and a vibration, never by sound alone. The words to practice are picked from your own hearing test. Your voice stays on your phone. It is not therapy, and its quick hearing check is not a medical hearing test. Sign language is welcome, and nobody should feel they have to practice speech.
 
-This form is anonymous. We do not ask for your name or email. Please answer only if you are 18 or older. We will share totals and short anonymous comments in our pitch on Sunday, Nov 15.
+This form is anonymous. We do not ask for your name or email. Please do not write names, contact details or medical details in your answers. Please answer only if you are 18 or older. We will share totals and short anonymous comments in our pitch on Sunday, Nov 15.
 
 ## Questions
 
 1. **I am 18 or older and I agree to share my answers anonymously.** (Yes. Required. If not, the form ends.)
-2. **Which of these describe you? Pick all that fit.** (Required)
+2. **Which of these describe you? Pick all that fit.**
    - Deaf
    - Hard of hearing
    - Parent or family member of a deaf or hard-of-hearing child
@@ -26,6 +26,7 @@ This form is anonymous. We do not ask for your name or email. Please answer only
    - Teacher of deaf and hard-of-hearing students
    - ASL learner or interpreter
    - None of these
+   - Prefer not to say
 3. **If you are deaf or hard of hearing: what do you use? Pick all that fit.**
    - Hearing aids / Cochlear implant / Neither / Prefer not to say
 4. **How do you (or your child, or the people you work with) mostly communicate?**

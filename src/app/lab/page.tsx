@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { SoundMeter } from '@/components/SoundMeter';
 import { useSoundMeter } from '@/hooks/useSoundMeter';
 import { describeRuns, scoreAttempt } from '@/lib/scoring';
+import { ShareTests } from './ShareTests';
 import type { AttemptScore, FrameFeatures, PracticeWord, TargetSound, WordPosition } from '@/lib/types';
 
 const YES = (b: boolean | null) => (b === null ? 'n/a' : b ? 'pass' : 'FAIL');
@@ -16,7 +17,7 @@ export default function LabPage() {
   const meter = useSoundMeter();
   const [frames, setFrames] = useState<FrameFeatures[] | null>(null);
   const [target, setTarget] = useState<TargetSound>('s');
-  const [position, setPosition] = useState<WordPosition>('start');
+  const [position, setPosition] = useState<WordPosition>('end');
   const [score, setScore] = useState<AttemptScore | null>(null);
   const [copied, setCopied] = useState(false);
   const [sampleRate, setSampleRate] = useState<number | null>(null);
@@ -178,6 +179,8 @@ export default function LabPage() {
           </button>
         </section>
       )}
+
+      <ShareTests word={word} frames={frames} sampleRate={sampleRate} />
     </main>
   );
 }
