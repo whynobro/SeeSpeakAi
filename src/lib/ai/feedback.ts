@@ -1,4 +1,6 @@
 import { CUES } from '@/content/cues';
+import { askClaudeForJson } from '@/lib/ai/client';
+import { mergeFeedback } from '@/lib/ai/validate';
 import type { CoachFeedback, FeedbackRequest } from '@/lib/types';
 
 /** Built-in feedback, used when there is no key or the AI call fails. Pure, so it is easy to test. */
@@ -36,13 +38,45 @@ export function feedbackFromRules(req: FeedbackRequest): CoachFeedback {
   return say(`No "${target}" heard that time. Make the hiss longer.`, cues.touch, 'repeat');
 }
 
+const FEEDBACK_SYSTEM = `You are a warm practice coach for a learner practicing the "s" or "sh" speech sound between speech therapy sessions.
+You get numbers only, never audio. The app has already decided the verdict for the latest try (latestVerdict). Do not contradict it: if it is "hit" do not say it was missed, if it is "miss" or "close" do not say it was right.
+Rules:
+- One or two short, plain, kind sentences, at most 240 characters. Never say the learner is broken or needs fixing.
+- "cue" is one thing to change with the mouth (at most 200 characters), or null. Base it on cueText when you can.
+- This is not therapy and not a diagnosis. Do not use em dashes.
+Reply with JSON only, no other text, in exactly this shape:
+{"message": string, "cue": string | null}`;
+
 /**
  * Steps 3 to 4 of the loop: the brain reads the scores from the last tries and says what to do next.
  * It receives numbers only (verdict, meter position, hiss length). It never receives audio.
- * TODO(tech lane): when ANTHROPIC_API_KEY is set, send `req` to Claude and ask for a CoachFeedback as
- * JSON in plain, kind words. Keep `nextAction` from `feedbackFromRules` unless Claude gives a valid one.
- * Fall back to `feedbackFromRules` on any error or if the call takes more than 3 seconds. Server side only.
+ * The rules answer is always built first. Claude only rewords message and cue, see mergeFeedback.
+ * Falls back to the rules answer on any error or after 3 seconds. Server side only.
  */
 export async function buildFeedback(req: FeedbackRequest): Promise<CoachFeedback> {
-  return feedbackFromRules(req);
+  const rules = feedbackFromRules(req);
+  const last = req.recent[req.recent.length - 1];
+  const user = JSON.stringify({
+    target: req.target,
+    word: req.word,
+    latestVerdict: last?.verdict ?? null,
+    recent: req.recent.slice(-10).map((a) => ({
+      verdict: a.verdict,
+      heard: a.heard,
+      meterPosition: a.meterPosition,
+      hissMs: a.hissMs,
+      confidence: a.confidence,
+    })),
+    rulesMessage: rules.message,
+    rulesCue: rules.cue,
+    cueText: CUES[req.target],
+  });
+  const reply = await askClaudeForJson({
+    model: process.env.SEESPEAK_FEEDBACK_MODEL || 'claude-haiku-5-5',
+    system: FEEDBACK_SYSTEM,
+    user,
+    maxTokens: 300,
+    timeoutMs: 3_000,
+  });
+  return mergeFeedback(rules, reply);
 }

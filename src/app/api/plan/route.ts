@@ -9,6 +9,9 @@ function strings(value: unknown, max: number): string[] {
     .map((x) => x.slice(0, 40));
 }
 
+// The Claude call can take up to 20 seconds, so give the function room before the host cuts it off.
+export const maxDuration = 30;
+
 // Server only: the key must never reach the browser. The report must arrive with names already removed.
 // Nothing sent here is stored.
 export async function POST(request: Request) {

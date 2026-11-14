@@ -1,4 +1,6 @@
-import { wordsFor } from '@/content/words';
+import { WORD_BANK, wordsFor } from '@/content/words';
+import { askClaudeForJson } from '@/lib/ai/client';
+import { mergePlan } from '@/lib/ai/validate';
 import { pickTargets } from '@/lib/profile';
 import type { AssessmentReport, PlanStep, PracticePlan, TargetSound } from '@/lib/types';
 
@@ -76,13 +78,59 @@ export function planFromRules(report: AssessmentReport, now: Date = new Date()):
   };
 }
 
+const PLAN_SYSTEM = `You write a short practice plan for a learner who is practicing speech sounds between speech therapy sessions.
+Rules:
+- Use plain, kind English for the learner's age group (child, teen or adult).
+- This is opt-in practice. It is not therapy, not a diagnosis and not a hearing test.
+- Never describe the learner as broken, wrong or needing to be fixed.
+- Do not use em dashes.
+- You may only reorder the steps, and rewrite "summary", each "why" and each "goal". Each text is at most 300 characters.
+- For steps with "scored": true, choose and order "wordIds" ONLY from that sound's list in allowedWordIds. Pick at least 4. Never invent words.
+- Do not add, remove or rename sounds.
+Reply with JSON only, no other text, in exactly this shape:
+{"summary": string, "steps": [{"sound": string, "why": string, "goal": string, "wordIds": string[]}]}
+Use an empty wordIds array for steps that are not scored.`;
+
 /**
- * Step 2 of the loop: the brain turns a report into a curated plan.
- * TODO(tech lane): when ANTHROPIC_API_KEY is set, send the report (names already removed) to Claude
- * (`claude-opus-5-5`), ask for a PracticePlan as JSON, check every step and word against the rules in
- * src/content/words.ts, force `scored: false` on any sound that is not a TargetSound, and fall back to
- * `planFromRules` on any error. Server side only.
+ * Step 2 of the loop: the brain turns a report into a curated plan. The rules plan is always built first.
+ * Claude (when a key is set) can only reorder and reword it, see mergePlan. Server side only.
  */
 export async function buildPlan(report: AssessmentReport): Promise<PracticePlan> {
-  return planFromRules(report);
+  const rulesPlan = planFromRules(report);
+  const allowed: Record<string, string[]> = {};
+  for (const step of rulesPlan.steps) {
+    if (step.scored) allowed[step.sound] = WORD_BANK.filter((w) => w.target === step.sound).map((w) => w.id);
+  }
+  const ling = report.profile?.ling;
+  const user = JSON.stringify({
+    report: {
+      therapistSounds: report.therapistSounds,
+      therapistNotes: report.therapistNotes,
+      ageGroup: report.ageGroup,
+      interests: report.interests,
+      baseline: report.baseline,
+      lingSoundsNotHeard: ling
+        ? Object.entries(ling)
+            .filter(([, heard]) => !heard)
+            .map(([sound]) => sound)
+        : [],
+    },
+    rulesPlan: rulesPlan.steps.map((s) => ({
+      sound: s.sound,
+      scored: s.scored,
+      why: s.why,
+      goal: s.goal,
+      wordIds: s.words.map((w) => w.id),
+    })),
+    rulesSummary: rulesPlan.summary,
+    allowedWordIds: allowed,
+  });
+  const reply = await askClaudeForJson({
+    model: process.env.SEESPEAK_PLAN_MODEL || 'claude-opus-5-5',
+    system: PLAN_SYSTEM,
+    user,
+    maxTokens: 2000,
+    timeoutMs: 20_000,
+  });
+  return mergePlan(rulesPlan, reply);
 }
