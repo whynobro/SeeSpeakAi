@@ -14,6 +14,10 @@ The app says the right things to the right people, real people have tried it, an
 - `docs/research.md`: facts with sources, and what we must not claim.
 - The HearFit proposal (in the Hackathon-Practice repo) with the rubric table and prior-art notes.
 
+## The plan
+
+Read [docs/PLAN.md](../PLAN.md) first: report -> curated plan -> training -> feedback -> goal. Your part: make sure each step asks for the right things, says the right things, and helps the right people. Two questions only you can answer this weekend: what does a real speech therapist report contain (so the report form asks for the right fields), and does the feedback sound like something a good therapist would say?
+
 ## Build list (in priority order)
 
 1. **Pick the one user and the one story.**

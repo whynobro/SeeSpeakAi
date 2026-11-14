@@ -19,11 +19,11 @@ For Michael, Holly and Mason. Short and practical.
 
 ## Lanes
 
-| Person            | GitHub             | Lane                    | Owns                                                                                       |
-| ----------------- | ------------------ | ----------------------- | ------------------------------------------------------------------------------------------ |
-| Michael Fischbach | `whynobro`         | Tech + integration      | `src/lib/`, `src/hooks/`, `src/app/api/`, `src/app/lab/`, env and keys, deploy             |
-| Mason Di Leo      | `dileomason-stack` | Screens + design        | `src/app/` pages (all but `api/` and `lab/`), `src/components/`, `public/`, styling        |
-| Holly Steen       | `steenholly12`     | Content, users + pitch  | `src/content/`, `docs/pitch/`, `docs/research.md`, user testing, the final say on wording  |
+| Person            | GitHub             | Lane                   | Owns                                                                                      |
+| ----------------- | ------------------ | ---------------------- | ----------------------------------------------------------------------------------------- |
+| Michael Fischbach | `whynobro`         | Tech + integration     | `src/lib/`, `src/hooks/`, `src/app/api/`, `src/app/lab/`, env and keys, deploy            |
+| Mason Di Leo      | `dileomason-stack` | Screens + design       | `src/app/` pages (all but `api/` and `lab/`), `src/components/`, `public/`, styling       |
+| Holly Steen       | `steenholly12`     | Content, users + pitch | `src/content/`, `docs/pitch/`, `docs/research.md`, user testing, the final say on wording |
 
 Your lane file (the build list for you and your AI) is in `docs/lanes/`:
 `tech.md`, `screens.md`, `content-pitch.md`.
@@ -105,9 +105,11 @@ Stuck? Ask in team chat, or ask your AI: "Help me resolve this merge conflict. D
 
 Open your AI coding agent in the repo folder and say:
 
-> Read AGENTS.md and docs/lanes/<your file>, then do issue #N.
+> Read AGENTS.md, docs/PLAN.md and docs/lanes/<your file>, then do issue #N.
 
-Example: "Read AGENTS.md and docs/lanes/screens.md, then do issue #5."
+Example: "Read AGENTS.md, docs/PLAN.md and docs/lanes/screens.md, then do issue #5."
+
+Each person's AI works only in that person's copy of the repo. The agents do not talk to each other. They stay in sync through the files on GitHub, so pull `main` often and put anything a teammate needs to know in a pull request, not only in your chat.
 
 Starter issues are on the GitHub Issues tab. Labels: `lane:tech`, `lane:ui`, `lane:content`.
 

@@ -123,3 +123,59 @@ export interface PracticeListResponse {
   words: PracticeWord[];
   source: 'ai' | 'word-bank'; // word-bank = built-in fallback when no key or the call fails
 }
+
+// ---------- The loop: report -> plan -> training -> feedback -> goal ----------
+
+/** Step 1. The starting information: a speech therapist's report, or the test taken in the app. */
+export interface AssessmentReport {
+  source: 'therapist' | 'in-app-test';
+  /** Therapist route: the sounds the therapist wants practiced, as written. May include sounds we cannot score yet. */
+  therapistSounds: string[];
+  /** Therapist route: goals or notes, with every name removed before it leaves the device. */
+  therapistNotes: string;
+  /** In-app route: the hearing check. */
+  profile: HearingProfile | null;
+  /** In-app route: starting accuracy per scored sound, 0 to 1, from the first practice words. */
+  baseline: Partial<Record<TargetSound, number>>;
+  ageGroup: 'child' | 'teen' | 'adult';
+  interests: string[];
+  createdAt: string; // ISO timestamp
+}
+/** Step 3. The three ways the training screen can show a sound. */
+export type TrainingView = 'mouth' | 'graph' | 'frequency';
+/** One sound in the plan. */
+export interface PlanStep {
+  sound: string; // "s", "sh", or another sound named in a therapist report
+  /** true only when the app can check this sound (it is a TargetSound). false = show how, no verdict. */
+  scored: boolean;
+  why: string; // one plain sentence for the learner
+  stages: PracticeStage[];
+  views: TrainingView[];
+  words: PracticeWord[]; // empty when not scored
+  goal: string; // e.g. "Say the s sound in 8 of 10 words"
+}
+/** Step 2. The curated plan the brain makes from the report. */
+export interface PracticePlan {
+  id: string;
+  createdAt: string; // ISO timestamp
+  source: 'ai' | 'rules'; // rules = built-in fallback when there is no key or the call fails
+  summary: string; // two or three plain sentences
+  steps: PlanStep[];
+}
+/** Body of POST /api/plan. Returns a PracticePlan. */
+export interface PlanRequest {
+  report: AssessmentReport;
+}
+/** Body of POST /api/feedback. Numbers only: the brain never receives audio. Returns a CoachFeedback. */
+export interface FeedbackRequest {
+  target: TargetSound;
+  word: string;
+  recent: AttemptScore[]; // oldest first, newest last, at most 10
+}
+/** Steps 3 to 4. What the brain says after a try. */
+export interface CoachFeedback {
+  source: 'ai' | 'rules';
+  message: string; // one or two plain sentences
+  cue: string | null; // one thing to change with the mouth, if any
+  nextAction: 'repeat' | 'easier' | 'next-word' | 'next-stage';
+}

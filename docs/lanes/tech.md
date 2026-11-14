@@ -14,11 +14,20 @@ A real person says a word into a phone and gets a verdict they can trust: the ta
 - `src/lib/profile/`: `pickTargets(profile)` from a Ling Six check or audiogram thresholds.
 - `src/lib/store/`: on-device storage and `progressFor`.
 - `src/lib/feedback/`: `buzz(verdict)`, `canVibrate()`.
+- `src/lib/ai/plan.ts` and `POST /api/plan`: report to curated plan. `src/lib/ai/feedback.ts` and `POST /api/feedback`: recent scores to feedback. Both run on built-in rules today, with a marked place for the Claude call.
 - `src/lib/ai/practiceList.ts` and `POST /api/practice-list`: return the built-in word bank for now.
 - `src/hooks/useSoundMeter.ts`: start, stop, live reading, captured frames.
 - `/lab`: live numbers behind the meter, and "score as" for a captured recording.
 
+## The plan
+
+Read [docs/PLAN.md](../PLAN.md) first: report -> curated plan -> training -> feedback -> goal. Your part is the measuring and the brain.
+
 ## Build list (in priority order)
+
+0. **The brain (do this right after item 1).**
+   Put `ANTHROPIC_API_KEY` in Vercel. In `src/lib/ai/plan.ts`, call Claude (`claude-opus-5-5`) to turn an `AssessmentReport` into a `PracticePlan`. In `src/lib/ai/feedback.ts`, call Claude with the recent scores to write a `CoachFeedback`. Both already work from built-in rules: keep those as the fallback, check everything Claude returns, and never let a sound that is not "s" or "sh" be marked `scored: true`.
+   Done when: with a key, `/api/plan` and `/api/feedback` return `source: 'ai'`; without one they return `source: 'rules'`; feedback comes back in under 3 seconds or falls back.
 
 1. **Tune on real voices.**
    Open `/lab` on a phone (Vercel link). Have 5 people (men, women, a child if possible) say "sss", "shh", "cat", "cats", "sip", "ship". Write down the centroid numbers. Set the anchors and thresholds in `src/lib/scoring/constants.ts` from the data.

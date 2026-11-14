@@ -16,6 +16,15 @@ A first-time user understands the app in 10 seconds and can finish one practice 
 - `useSoundMeter()` from `src/hooks/` (Michael's lane): gives you `status`, `reading` (is there a hiss, where on the sh-to-s line, how loud), `start()` and `stop()`. You never touch the microphone yourself.
 - All wording comes from `src/content/` (Holly's lane): `COPY`, `CUES`, `WORD_BANK`.
 
+## The plan
+
+Read [docs/PLAN.md](../PLAN.md) first: report -> curated plan -> training -> feedback -> goal. Your part is every screen in that loop. The data shapes you build against are in `src/lib/types.ts`: `AssessmentReport`, `PracticePlan`, `PlanStep`, `TrainingView`, `CoachFeedback`.
+
+- Step 1 screens: a start screen with two choices, "I have a speech therapist report" (a short form: sounds, goals, age group, interests) and "Test in the app" (the hearing check that exists, then a few starting words).
+- Step 2 screen: the plan. `fetch('/api/plan', { method: 'POST', body: JSON.stringify({ report }) })` returns a `PracticePlan`. Show the summary, each sound with its why and goal, and a start button. Sounds with `scored: false` get a "show how, no score" label.
+- Step 3 screen: training, with three views of the sound (`TrainingView`): mouth, graph, frequency. After each try, POST the recent scores to `/api/feedback` and show the returned `message` and `cue` in a feedback card. Follow `nextAction`.
+- Step 4 screen: progress toward the goal.
+
 ## Build list (in priority order)
 
 1. **Practice screen.**
