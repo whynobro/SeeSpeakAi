@@ -1,6 +1,6 @@
 # Feedback survey and post text
 
-Owner: Holly. Status: DRAFT. Paste the questions into a Google Form. About 3 minutes to answer. No names, no email, nobody under 18.
+Owner: Holly. Status: DRAFT. Live form: https://forms.gle/ZRWoTHGfT6QrjE3w7 (Holly's Google account, published Sat Nov 14). The questions below are what the form contains. About 3 minutes to answer. No names, no email, nobody under 18.
 
 Form settings: do not collect email addresses, do not require sign-in, no required questions except the first two.
 
@@ -10,7 +10,7 @@ Form settings: do not collect email addresses, do not require sign-in, no requir
 
 We are three Cal Poly students at a weekend hackathon. We are building a free practice tool for hard-of-hearing people who _choose_ to work on spoken English. We would like your honest opinion, including "this is a bad idea".
 
-The idea: you say a word to your phone, and the screen shows you whether a high sound like "s" or "sh" was there. A meter moves while you speak, and the result is shown with a color, a word and a vibration, never by sound alone. The words to practice are picked from your own hearing test. Your voice stays on your phone. It is not therapy and not a hearing test. Sign language is welcome, and nobody should feel they have to practice speech.
+The idea: you say a word to your phone, and the screen shows you whether a high sound like "s" or "sh" was there. A meter moves while you speak, and the result is shown with a color, a word and a vibration, never by sound alone. The words to practice are picked from your own hearing test. Your voice stays on your phone. It is not therapy, and its quick hearing check is not a medical hearing test. Sign language is welcome, and nobody should feel they have to practice speech.
 
 This form is anonymous. We do not ask for your name or email. Please answer only if you are 18 or older. We will share totals and short anonymous comments in our pitch on Sunday, Nov 15.
 
@@ -76,13 +76,13 @@ What it is not: it is not therapy, not a hearing test, and not a message that an
 
 We are hearing students, so we may have this wrong. If the idea is unwelcome, or the way we describe it is off, we would like to know that too.
 
-The form is anonymous, takes about 3 minutes, and is for adults 18 and older: (link)
+The form is anonymous, takes about 3 minutes, and is for adults 18 and older: https://forms.gle/ZRWoTHGfT6QrjE3w7
 
 I will read every reply here as well. Thank you.
 
 **Short version (chat groups, Discord, GroupMe):**
 
-Cal Poly students here, building a hackathon project: a phone tool that shows on screen whether your "s" or "sh" was there, for hard-of-hearing people who choose to practice spoken English. Not therapy, opt-in, sign welcome. We want honest opinions, good or bad. Anonymous, 3 minutes, 18 and older: (link)
+Cal Poly students here, building a hackathon project: a phone tool that shows on screen whether your "s" or "sh" was there, for hard-of-hearing people who choose to practice spoken English. Not therapy, opt-in, sign welcome. We want honest opinions, good or bad. Anonymous, 3 minutes, 18 and older: https://forms.gle/ZRWoTHGfT6QrjE3w7
 
 ## How we will report the answers
 
