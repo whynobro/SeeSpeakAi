@@ -1,0 +1,136 @@
+'use client';
+
+import { useState } from 'react';
+import { SoundMeter } from '@/components/SoundMeter';
+import { useSoundMeter } from '@/hooks/useSoundMeter';
+import { scoreAttempt } from '@/lib/scoring';
+import type { AttemptScore, FrameFeatures, PracticeWord, TargetSound, WordPosition } from '@/lib/types';
+
+function fmt(n: number | null | undefined, digits = 3): string {
+  return n === null || n === undefined ? '-' : n.toFixed(digits);
+}
+
+export default function LabPage() {
+  const meter = useSoundMeter();
+  const [frames, setFrames] = useState<FrameFeatures[] | null>(null);
+  const [target, setTarget] = useState<TargetSound>('s');
+  const [position, setPosition] = useState<WordPosition>('start');
+  const [score, setScore] = useState<AttemptScore | null>(null);
+
+  const listening = meter.status === 'listening';
+  const busy = meter.status === 'starting';
+
+  async function onToggle() {
+    if (listening) {
+      setFrames(meter.stop());
+      setScore(null);
+    } else {
+      setFrames(null);
+      setScore(null);
+      await meter.start();
+    }
+  }
+
+  function onScore() {
+    if (!frames) return;
+    const word: PracticeWord = {
+      id: 'lab-word',
+      text: target === 's' ? 'sip' : 'ship',
+      target,
+      position,
+      baseWord: null,
+      contrastWord: null,
+      sign: null,
+    };
+    setScore(scoreAttempt(frames, word));
+  }
+
+  const rows: [string, string][] = [
+    ['sampleRate', meter.sampleRate === null ? '-' : `${meter.sampleRate} Hz`],
+    ['level', fmt(meter.latest?.level)],
+    ['hissLevel', fmt(meter.latest?.hissLevel)],
+    ['hissRatio', fmt(meter.latest?.hissRatio)],
+    ['centroidHz', fmt(meter.latest?.centroidHz, 0)],
+    ['hissing', meter.reading ? String(meter.reading.hissing) : '-'],
+    ['position', fmt(meter.reading?.position)],
+  ];
+
+  return (
+    <main className="mx-auto flex w-full max-w-xl flex-col gap-6 p-4">
+      <p className="text-sm">Lab: for tuning. Audio stays on this device.</p>
+
+      <button
+        type="button"
+        onClick={onToggle}
+        disabled={busy}
+        className="min-h-16 rounded-2xl bg-blue-700 px-6 text-2xl font-bold text-white disabled:opacity-60"
+      >
+        {busy ? 'Starting...' : listening ? 'Stop' : 'Start'}
+      </button>
+
+      {meter.error && (
+        <p role="alert" className="rounded-xl bg-red-700 p-4 font-bold text-white">
+          {meter.error}
+        </p>
+      )}
+
+      <SoundMeter reading={meter.reading} />
+
+      <table className="w-full font-mono text-sm">
+        <tbody>
+          {rows.map(([name, value]) => (
+            <tr key={name} className="border-b border-current/20">
+              <th scope="row" className="py-1 text-left font-normal">
+                {name}
+              </th>
+              <td className="py-1 text-right">{value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {frames && (
+        <section className="flex flex-col gap-4">
+          <p className="font-mono text-sm">Frames captured: {frames.length}</p>
+          <div className="flex flex-wrap items-end gap-4">
+            <label className="flex flex-col gap-1 text-sm font-bold">
+              Score as
+              <select
+                value={target}
+                onChange={(e) => setTarget(e.target.value as TargetSound)}
+                className="min-h-12 rounded-lg border-2 border-current bg-transparent px-2"
+              >
+                <option value="s">s</option>
+                <option value="sh">sh</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 text-sm font-bold">
+              Position
+              <select
+                value={position}
+                onChange={(e) => setPosition(e.target.value as WordPosition)}
+                className="min-h-12 rounded-lg border-2 border-current bg-transparent px-2"
+              >
+                <option value="start">start</option>
+                <option value="middle">middle</option>
+                <option value="end">end</option>
+              </select>
+            </label>
+            <button
+              type="button"
+              onClick={onScore}
+              className="min-h-12 rounded-xl bg-blue-700 px-5 font-bold text-white"
+            >
+              Score
+            </button>
+          </div>
+          {score && (
+            <pre className="overflow-x-auto rounded-xl bg-black/10 p-3 text-xs dark:bg-white/10">
+              {JSON.stringify(score, null, 2)}
+            </pre>
+          )}
+        </section>
+      )}
+    </main>
+  );
+}
