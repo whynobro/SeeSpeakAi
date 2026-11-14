@@ -11,24 +11,24 @@ const PICTURES: Record<TargetSound, { side: MouthPicture; front: MouthPicture }>
   s: {
     side: {
       src: '/mouth/s-side.svg',
-      alt: 'Drawing of a head from the side making "s". The teeth are close together, the lips are pulled back, and the tip of the tongue is raised just behind the top teeth without touching them. A thin line of air comes out between the teeth.',
+      alt: 'Drawing of a head from the side making "s". The teeth are close together, the lips are pulled back, and the tip of the tongue is raised just behind the top teeth without touching them. A thin arrow shows the air that comes out between the teeth.',
       caption: 'Side view: tongue tip just behind the top teeth',
     },
     front: {
       src: '/mouth/s-front.svg',
-      alt: 'Drawing of a mouth from the front making "s". The lips are pulled back in a smile and the top and bottom teeth are close together, with a small gap in the middle for the air.',
+      alt: 'Drawing of a mouth from the front making "s". The lips are pulled back in a smile and the top and bottom teeth are almost touching.',
       caption: 'Front view: smile, teeth close together',
     },
   },
   sh: {
     side: {
       src: '/mouth/sh-side.svg',
-      alt: 'Drawing of a head from the side making "sh". The lips are rounded and pushed forward, and the tongue is pulled back with its middle raised toward the roof of the mouth. A wider stream of air comes out through the lips.',
+      alt: 'Drawing of a head from the side making "sh". The lips are rounded and pushed forward, and the tongue is pulled back, with its tip lower than for "s". A thicker arrow shows a wider stream of air coming out through the lips.',
       caption: 'Side view: tongue pulled back, lips forward',
     },
     front: {
       src: '/mouth/sh-front.svg',
-      alt: 'Drawing of a mouth from the front making "sh". The lips are rounded and pushed forward into a round opening. Only the edges of the teeth show, and the opening for the air is wider.',
+      alt: 'Drawing of a mouth from the front making "sh". The lips are rounded and pushed forward into a small round opening. Only the edge of the top teeth shows.',
       caption: 'Front view: lips rounded',
     },
   },

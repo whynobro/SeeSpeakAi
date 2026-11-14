@@ -1,31 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title">
-  <title id="title">Front view of the mouth for "s": a smile, lips pulled back, teeth close together with a small gap in the middle</title>
+  <title id="title">Front view for "s": a wide smile with the top and bottom teeth almost touching</title>
   <defs>
     <clipPath id="panel"><rect x="2" y="2" width="236" height="236" rx="20"/></clipPath>
-    <clipPath id="opening"><path d="M40 122 C70 110 170 110 200 122 C170 142 70 142 40 122 Z"/></clipPath>
+    <clipPath id="opening"><path d="M38 118 C72 104 168 104 202 118 C168 144 72 144 38 118 Z"/></clipPath>
   </defs>
   <rect x="2" y="2" width="236" height="236" rx="20" fill="#ffffff"/>
-  <g clip-path="url(#panel)" stroke="#1a1a1f" stroke-linejoin="round" stroke-linecap="round" fill="none">
-    <!-- lower face -->
-    <path fill="#e9e5dc" stroke-width="3" d="M14 0 C8 110 50 214 120 228 C190 214 232 110 226 0 Z"/>
-    <!-- nose -->
-    <path stroke-width="3" d="M90 24 C82 46 92 60 106 58 C110 64 130 64 134 58 C148 60 158 46 150 24"/>
-    <path stroke-width="2.5" d="M106 52 C110 48 114 50 114 54 M134 52 C130 48 126 50 126 54"/>
-    <!-- chin -->
-    <path stroke-width="2.5" d="M98 200 C110 207 130 207 142 200"/>
-    <!-- lips spread in a smile -->
-    <path fill="#b9a69c" stroke-width="3" d="M26 120 C50 100 90 92 110 98 C114 100 126 100 130 98 C150 92 190 100 214 120 C190 160 50 160 26 120 Z"/>
-    <path fill="#1a1a1f" stroke-width="2.5" d="M40 122 C70 110 170 110 200 122 C170 142 70 142 40 122 Z"/>
-    <g clip-path="url(#opening)" stroke-width="1.5">
-      <!-- top teeth -->
-      <path fill="#ffffff" d="M30 100 L210 100 L210 124 C160 129 80 129 30 124 Z"/>
-      <path d="M120 100 V128 M105 100 V128 M135 100 V128 M90 100 V127 M150 100 V127 M75 100 V126 M165 100 V126 M60 100 V125 M180 100 V125"/>
-      <!-- bottom teeth, almost touching the top teeth -->
-      <path fill="#ffffff" d="M30 127 C80 132 160 132 210 127 L210 150 L30 150 Z"/>
-      <path d="M113 130 V150 M127 130 V150 M99 130 V150 M141 130 V150 M85 129 V150 M155 129 V150 M71 128 V150 M169 128 V150"/>
+  <g clip-path="url(#panel)" stroke="#1a1a1f" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path fill="#f2d6c4" d="M20 118 C46 86 96 80 120 92 C144 80 194 86 220 118 C194 170 46 170 20 118 Z"/>
+    <path fill="#1a1a1f" d="M38 118 C72 104 168 104 202 118 C168 144 72 144 38 118 Z"/>
+    <g clip-path="url(#opening)" fill="#ffffff" stroke-width="2.5">
+      <path d="M30 96 H210 V119 C160 124 80 124 30 119 Z"/>
+      <path d="M30 126 C80 130 160 130 210 126 V150 H30 Z"/>
+      <path fill="none" d="M120 96 V124 M100 96 V123 M140 96 V123 M80 96 V122 M160 96 V122 M110 128 V150 M130 128 V150 M90 127 V150 M150 127 V150"/>
     </g>
-    <!-- the small gap in the middle where the air comes out -->
-    <circle cx="120" cy="129" r="9" stroke="#3730a3" stroke-width="3"/>
   </g>
   <rect x="2" y="2" width="236" height="236" rx="20" fill="none" stroke="#d6d2c8" stroke-width="2"/>
 </svg>
