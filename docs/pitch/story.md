@@ -34,8 +34,8 @@ Fill in from `user-tests.md` once a real person has tried it.
 ## Lines we can say
 
 - "If you cannot hear a sound, you cannot copy it."
-- "At age 6, hard-of-hearing children use the 's' verb ending 75% of the time. Hearing children: 97%." (Koehlinger 2013)
-- "A hard-of-hearing child gets about 52 minutes a week with a school speech therapist, and that therapist has 50 students." (Page 2018, ASHA 2026)
+- "In one study, when a sentence needed the 's' verb ending, as in 'she runs', 6-year-olds who are hard of hearing used it 75% of the time and hearing 6-year-olds 97% of the time." (Koehlinger 2013)
+- "School speech therapy is about two half-hour sessions a week, and the therapist has 50 students." (Page 2018: 1.7 sessions of about 31 minutes; ASHA 2026: median of 50 students)
 - "Speech practice apps exist, but none we found builds the practice from your own hearing."
 
 ## Lines we must not say
@@ -43,4 +43,4 @@ Fill in from `user-tests.md` once a real person has tried it.
 - "First speech app for deaf learners."
 - "The AI listens to your speech."
 - Anything about "fixing" speech or hearing.
-- Any number for dropped "s" endings at ages 8 to 12 or at college age. There is no study.
+- Any number for dropped "s" endings at ages 8 to 12 or at college age. We found no study that measures it.
