@@ -126,7 +126,7 @@ export async function buildPlan(report: AssessmentReport): Promise<PracticePlan>
     allowedWordIds: allowed,
   });
   const reply = await askClaudeForJson({
-    model: process.env.SEESPEAK_PLAN_MODEL || 'claude-opus-5-5',
+    model: process.env.SEESPEAK_PLAN_MODEL || 'claude-sonnet-5-5',
     system: PLAN_SYSTEM,
     user,
     maxTokens: 2000,

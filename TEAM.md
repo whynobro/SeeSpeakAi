@@ -105,9 +105,9 @@ Stuck? Ask in team chat, or ask your AI: "Help me resolve this merge conflict. D
 
 Open your AI coding agent in the repo folder and say:
 
-> Read AGENTS.md, docs/PLAN.md and docs/lanes/<your file>, then do issue #N.
+> Read AGENTS.md, docs/HACKATHON.md, docs/PLAN.md and docs/lanes/<your file>, then do issue #N.
 
-Example: "Read AGENTS.md, docs/PLAN.md and docs/lanes/screens.md, then do issue #5."
+Example: "Read AGENTS.md, docs/HACKATHON.md, docs/PLAN.md and docs/lanes/screens.md, then do issue #5."
 
 Each person's AI works only in that person's copy of the repo. The agents do not talk to each other. They stay in sync through the files on GitHub, so pull `main` often and put anything a teammate needs to know in a pull request, not only in your chat.
 
