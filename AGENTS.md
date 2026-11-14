@@ -1,0 +1,88 @@
+# AGENTS.md
+
+Rules for AI coding agents working in this repo. Your user is one of three teammates. Each owns one lane.
+
+## Safety rules (read first)
+
+1. **Stay in your user's lane folders.** Ask your user which lane they own. Lanes:
+   - Michael (`whynobro`), tech: `src/lib/`, `src/hooks/`, `src/app/api/`, `src/app/lab/`, env and keys
+   - Mason (`dileomason-stack`), screens: `src/app/` pages (all but `api/` and `lab/`), `src/components/`, `public/`, styling
+   - Holly (`steenholly12`), content and pitch: `src/content/`, `docs/pitch/`, `docs/research.md`
+2. **Hot files** are shared: `src/lib/types.ts`, `package.json`, `src/app/layout.tsx`, `src/app/globals.css`. Tell your user to announce in team chat before you edit one. Keep the change tiny.
+3. **Do not change `src/lib/types.ts` without your user's OK.** It is the contract between all three lanes.
+4. **Never commit to `main`.** Work on a branch named `<lane>/<task>` (`tech`, `ui`, `content`). Open a pull request. Never force-push.
+5. **No secrets.** Never write keys, tokens or `.env*` files (except `.env.example`) into the repo. The repo is public. `ANTHROPIC_API_KEY` is server-side only and must never reach browser code.
+6. **Do not reformat or "clean up" files outside the task.** No drive-by renames, no mass formatting, no dependency upgrades.
+7. **Privacy:** never upload or store audio. Sound analysis stays in the browser. The hearing profile, settings and practice history stay on the device (`localStorage`). The server may receive only target sounds and interest topics, never a name, a voice or hearing thresholds. If an audiogram photo is sent to the AI, say so on screen first, send it once, and do not store it.
+8. **Honest scoring.** The app scores only the sounds in `TargetSound`. Do not add whole-word speech recognition to judge pronunciation (it fails on deaf speech and "autocorrects" missing sounds). Do not claim a sound is scored until `src/lib/scoring` has tests for it.
+9. **Respect.** Never write text that frames a learner as broken or as someone to "fix". This is opt-in practice between speech therapy sessions. It is not therapy, not a diagnosis and not a hearing test. Sign language is welcome and sign cards are optional.
+10. Do not add dependencies without telling your user (`package.json` is a hot file).
+
+## Next.js 16 warning
+
+This is Next.js 16 (App Router). It has breaking changes versus older versions you may know. Before writing framework code (routes, layouts, caching, params, metadata), read the docs shipped with the installed version in `node_modules/next/dist/docs/` (start at `index.md`, then `01-app/`). If that folder is missing, check the current Next.js docs online. Do not guess from memory.
+
+Tailwind is v4 and React is 19. Check their docs when unsure.
+
+## Code map
+
+| Path                        | Purpose                                                              | Lane    |
+| --------------------------- | -------------------------------------------------------------------- | ------- |
+| `src/lib/types.ts`          | Shared contract (hot file)                                           | all     |
+| `src/lib/audio/`            | Mic capture (`mic.ts`), FFT, sound features per frame                | tech    |
+| `src/lib/scoring/`          | `readFrame`, `scoreAttempt`, `LIMITATIONS`, thresholds, test sounds  | tech    |
+| `src/lib/profile/`          | `pickTargets(profile)`: hearing profile to sounds to practice        | tech    |
+| `src/lib/store/`            | On-device storage and `progressFor`                                  | tech    |
+| `src/lib/feedback/`         | Vibration patterns                                                   | tech    |
+| `src/lib/ai/`               | Claude calls (server only), word-bank fallback                       | tech    |
+| `src/hooks/`                | `useSoundMeter`: what screens use to listen                          | tech    |
+| `src/app/api/practice-list` | `POST /api/practice-list`                                            | tech    |
+| `src/app/lab/`              | Debug page for tuning on real voices                                 | tech    |
+| `src/app/page.tsx`          | Landing page                                                         | screens |
+| `src/app/profile/`          | Hearing profile (Ling Six check, settings)                           | screens |
+| `src/app/practice/`         | Practice loop: word, live meter, verdict                             | screens |
+| `src/app/progress/`         | Before and after numbers                                             | screens |
+| `src/components/`           | Shared UI: `SoundMeter`, `VerdictBadge`, `WordCard`                  | screens |
+| `src/content/`              | Word bank, how-to cues, interface wording                            | content |
+| `docs/lanes/`               | One build file per lane                                              | all     |
+| `docs/research.md`          | Facts, sources and what we must not claim                            | content |
+| `docs/pitch/`               | Demo script, rubric tracking, user test log                          | content |
+
+## Data flow
+
+Hearing profile (`HearingProfile`) -> `pickTargets` -> `TargetPick[]` -> words from `src/content/words.ts` (or `POST /api/practice-list`) -> learner says a word -> `startMic` -> `FrameFeatures` about 50 times a second -> `readFrame` (live `SoundReading` for the meter) -> on stop, `scoreAttempt(frames, word)` -> `AttemptScore` (hit, close or miss) -> `VerdictBadge` and `buzz` -> `saveAttempt` -> `progressFor` -> progress screen.
+
+Screens never touch the mic or the math directly. They call `useSoundMeter` and functions from `src/lib/`.
+
+## Commands
+
+| Command             | Use                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------- |
+| `npm run dev`       | Dev server                                                                                              |
+| `npm run lint`      | ESLint                                                                                                  |
+| `npm run typecheck` | TypeScript check                                                                                        |
+| `npm test`          | Vitest                                                                                                  |
+| `npm run build`     | Production build                                                                                        |
+| `npm run format`    | Prettier on the whole repo. Prefer `npx prettier --write <your files>` so you do not touch other lanes. |
+
+CI job `check` runs lint, typecheck, test and build. All must pass before merge.
+
+## Conventions
+
+- Conventional Commits: `feat:`, `fix:`, `docs:`, `chore:`, `test:`.
+- TypeScript strict. No `any` unless unavoidable and commented.
+- Mobile-first. Big touch targets, high contrast, large type.
+- Color must never be the only signal. Always add a word or an icon. Sound must never be the only signal either: our users may not hear it.
+- Vibration (`navigator.vibrate`) works on Android only. iPhone has no vibration API. Every vibration needs a visual twin.
+- Every tunable number in scoring lives in `src/lib/scoring/constants.ts` with a comment. Change a threshold only with a test or a `/lab` measurement to back it.
+- Plain English in docs, comments and interface text.
+- Keep the live demo working. If a key is missing or a call fails, fall back to the built-in word bank. Never crash.
+- Small pull requests, one task each.
+- No em dashes in text you write.
+
+## Maintaining this file
+
+- Cap: 150 lines. Never raise it. If over, move something out in the same pull request.
+- Rules and current config only. Long explanations go in `docs/`, with a one-line pointer here.
+- Update this file in the same pull request as any change it describes (new folder, new command, new rule).
+- Keep it true now: delete stale lines, do not mark them "old".
