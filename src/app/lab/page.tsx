@@ -16,7 +16,7 @@ export default function LabPage() {
   const meter = useSoundMeter();
   const [frames, setFrames] = useState<FrameFeatures[] | null>(null);
   const [target, setTarget] = useState<TargetSound>('s');
-  const [position, setPosition] = useState<WordPosition>('start');
+  const [position, setPosition] = useState<WordPosition>('end');
   const [score, setScore] = useState<AttemptScore | null>(null);
   const [copied, setCopied] = useState(false);
   const [sampleRate, setSampleRate] = useState<number | null>(null);
