@@ -86,28 +86,31 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
   const recentLevel = levels.length > 0 && listening ? levels[levels.length - 1] : 0;
 
   return (
-    <section aria-label="Live sound meter" className="w-full rounded-2xl border-2 border-line bg-surface p-4">
+    <section
+      aria-label="Live sound meter"
+      className="w-full rounded-3xl border-2 border-line bg-surface p-4 shadow-clay"
+    >
       <div className="flex items-end justify-between" aria-hidden="true">
         <span
-          className={`text-3xl leading-none font-bold ${target === 'sh' ? 'underline decoration-4 underline-offset-4' : 'text-muted'}`}
+          className={`text-3xl leading-none font-extrabold ${target === 'sh' ? 'text-accent-edge underline decoration-4 underline-offset-4' : 'text-muted'}`}
         >
           sh
         </span>
         <span className="text-sm font-semibold text-muted">which hiss?</span>
         <span
-          className={`text-3xl leading-none font-bold ${target === 's' ? 'underline decoration-4 underline-offset-4' : 'text-muted'}`}
+          className={`text-3xl leading-none font-extrabold ${target === 's' ? 'text-accent-edge underline decoration-4 underline-offset-4' : 'text-muted'}`}
         >
           s
         </span>
       </div>
 
       {/* The track: sh on the left, s on the right, with the target half marked by stripes and a label. */}
-      <div className="relative mt-3 h-16" aria-hidden="true">
-        <div className="absolute inset-x-0 top-1/2 h-10 -translate-y-1/2 overflow-hidden rounded-xl border-2 border-foreground/70 bg-background">
+      <div className="relative mt-2 h-16" aria-hidden="true">
+        <div className="absolute inset-x-0 top-1/2 h-11 -translate-y-1/2 overflow-hidden rounded-2xl border-2 border-foreground/60 bg-background">
           {target && (
             <>
               <div
-                className="absolute inset-y-0 border-accent text-accent/25"
+                className="absolute inset-y-0 border-accent text-accent/30"
                 style={{
                   left: `${zoneLeft * 100}%`,
                   width: `${zoneWidth * 100}%`,
@@ -119,7 +122,7 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
                 }}
               />
               <span
-                className="absolute top-1/2 -translate-y-1/2 rounded-md bg-surface px-1.5 text-xs font-bold text-accent"
+                className="absolute top-1/2 -translate-y-1/2 rounded-lg bg-surface px-2 py-0.5 text-sm font-bold text-accent-edge"
                 style={target === 's' ? { right: 8 } : { left: 8 }}
               >
                 Aim here: {target}
@@ -149,7 +152,7 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
         {/* Live marker while hissing. */}
         {listening && position !== null && (
           <span
-            className="absolute top-1/2 h-14 w-14 rounded-full border-4 border-surface bg-accent shadow-lg motion-safe:transition-[left] motion-safe:duration-75"
+            className="absolute top-1/2 h-14 w-14 rounded-full border-4 border-surface bg-accent shadow-[0_4px_0_var(--accent-edge)] motion-safe:transition-[left] motion-safe:duration-75"
             style={{ left: `${position * 100}%`, transform: 'translate(-50%, -50%)' }}
           />
         )}
@@ -160,21 +163,21 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
             className="absolute top-1/2 flex h-14 w-14 items-center justify-center"
             style={{ left: `${landed * 100}%`, transform: 'translate(-50%, -50%)' }}
           >
-            <span className="h-10 w-10 rotate-45 rounded-md border-4 border-surface bg-foreground shadow-lg" />
+            <span className="h-10 w-10 rotate-45 rounded-lg border-4 border-surface bg-foreground shadow-[0_3px_0_var(--line)]" />
           </span>
         )}
       </div>
 
       {/* Loudness: moves with any sound, so the learner can see the mic is live before any hiss. */}
-      <div className="mt-3 flex items-center gap-3" aria-hidden="true">
-        <span className="w-20 shrink-0 text-xs font-semibold text-muted">Loudness</span>
-        <div className="flex h-8 flex-1 items-center gap-[2px]">
+      <div className="mt-2 flex items-center gap-3" aria-hidden="true">
+        <span className="w-20 shrink-0 text-sm font-semibold text-muted">Loudness</span>
+        <div className="flex h-7 flex-1 items-center gap-[2px]">
           {Array.from({ length: LEVEL_BARS }, (_, i) => {
             const value = levels[levels.length - LEVEL_BARS + i] ?? 0;
             return (
               <span
                 key={i}
-                className="flex-1 rounded-full bg-foreground/80"
+                className="flex-1 rounded-full bg-accent-edge"
                 style={{ height: `${Math.max(8, value * 100)}%`, opacity: listening ? 1 : 0.35 }}
               />
             );
@@ -182,7 +185,7 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
         </div>
       </div>
 
-      <p className="mt-3 flex min-h-7 items-center gap-2 text-lg font-semibold" aria-hidden="true">
+      <p className="mt-2 flex min-h-7 items-center gap-2 text-lg font-bold" aria-hidden="true">
         {listening && (
           <span
             className="inline-block h-3 w-3 shrink-0 rounded-full bg-accent motion-safe:animate-pulse"

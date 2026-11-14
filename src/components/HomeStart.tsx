@@ -5,11 +5,9 @@ import { useEffect, useState } from 'react';
 import { pickTargets } from '@/lib/profile';
 import { loadAttempts, loadProfile, progressFor } from '@/lib/store';
 import type { Attempt, HearingProfile } from '@/lib/types';
-import { CheckCircleIcon, EyeIcon, SpeakIcon } from './Icons';
+import { ArrowRightIcon, CheckCircleIcon, EarIcon, EyeIcon, SpeakIcon } from './Icons';
 import { LessonCard } from './LessonCard';
-
-const SECONDARY =
-  'flex min-h-14 items-center justify-center rounded-2xl border-2 border-foreground bg-surface px-4 text-lg font-bold';
+import { Button, Card, IconTile } from './ui';
 
 const STEPS = [
   { Icon: EyeIcon, text: 'See how to make the sound' },
@@ -19,18 +17,17 @@ const STEPS = [
 
 function HowItWorks() {
   return (
-    <section aria-labelledby="how-heading" className="flex flex-col gap-3">
-      <h2 id="how-heading" className="text-lg font-bold">
+    <section aria-labelledby="how-heading" className="flex flex-col gap-4">
+      <h2 id="how-heading" className="text-xl font-bold">
         How it works
       </h2>
-      <ol className="grid grid-cols-3 gap-2">
+      <ol className="flex flex-col gap-3">
         {STEPS.map(({ Icon, text }, i) => (
-          <li
-            key={text}
-            className="flex flex-col items-center gap-2 rounded-2xl border border-line bg-surface p-3 text-center"
-          >
-            <Icon className="h-7 w-7 text-accent" />
-            <span className="text-sm leading-snug">
+          <li key={text} className="flex items-center gap-4">
+            <IconTile tone="soft" size="sm">
+              <Icon className="h-5 w-5" />
+            </IconTile>
+            <span className="text-lg">
               <span className="font-bold">{i + 1}.</span> {text}
             </span>
           </li>
@@ -43,25 +40,32 @@ function HowItWorks() {
 function FirstVisit() {
   return (
     <>
-      <section aria-labelledby="start-heading" className="flex flex-col gap-3">
-        <h2 id="start-heading" className="text-2xl font-bold">
+      <section aria-labelledby="start-heading" className="flex flex-col gap-4">
+        <h2 id="start-heading" className="text-xl font-bold">
           Get started
         </h2>
-        <p className="text-lg">A quick listening check picks the sounds to practice first.</p>
         <Link
           href="/profile"
-          className="flex min-h-14 flex-col items-center justify-center rounded-2xl bg-accent px-4 py-3 text-center text-accent-ink shadow-sm"
+          className="flex items-center gap-4 rounded-3xl border-2 border-line bg-surface p-4 shadow-clay transition-[transform,box-shadow] duration-75 active:translate-y-1 active:shadow-none"
         >
-          <span className="text-xl font-bold">Take the hearing check</span>
-          <span className="text-sm">Takes about 1 minute</span>
+          <IconTile>
+            <EarIcon className="h-7 w-7" />
+          </IconTile>
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="text-lg font-bold">Take the hearing check</span>
+            <span className="text-base text-muted">About 1 minute</span>
+          </span>
+          <ArrowRightIcon className="h-6 w-6 shrink-0 text-accent-edge" />
         </Link>
-        {/* TODO(#audiogram): add the "Input report" link (typed audiogram entry) here once that issue lands. */}
-        <Link
-          href="/practice?sound=s"
-          className="flex min-h-12 items-center justify-center text-lg underline underline-offset-4"
-        >
-          Skip for now and try a word
-        </Link>
+        {/* TODO(#audiogram): add the "Enter audiogram" card (typed audiogram entry) here once that issue lands. */}
+        <div className="flex flex-col gap-2 pt-2">
+          <Button href="/profile" size="lg">
+            Get started
+          </Button>
+          <Button href="/practice?sound=s" variant="ghost" block={false} className="self-center">
+            Skip for now
+          </Button>
+        </div>
       </section>
       <HowItWorks />
     </>
@@ -72,8 +76,8 @@ function Lessons({ profile, attempts }: { profile: HearingProfile; attempts: Att
   const picks = pickTargets(profile);
   return (
     <>
-      <section aria-labelledby="lesson-heading" className="flex flex-col gap-3">
-        <h2 id="lesson-heading" className="text-2xl font-bold">
+      <section aria-labelledby="lesson-heading" className="flex flex-col gap-4">
+        <h2 id="lesson-heading" className="text-xl font-bold">
           Start a lesson
         </h2>
         {picks.map((pick, i) => (
@@ -85,13 +89,13 @@ function Lessons({ profile, attempts }: { profile: HearingProfile; attempts: Att
           />
         ))}
       </section>
-      <nav aria-label="More" className="flex flex-col gap-3">
-        <Link href="/progress" className={SECONDARY}>
+      <nav aria-label="More" className="flex flex-col gap-4">
+        <Button href="/progress" variant="secondary">
           See my progress
-        </Link>
-        <Link href="/profile" className={SECONDARY}>
+        </Button>
+        <Button href="/profile" variant="secondary">
           Redo the hearing check
-        </Link>
+        </Button>
       </nav>
     </>
   );
@@ -113,7 +117,11 @@ export function HomeStart() {
 
   if (saved === null) {
     // Neutral placeholder the size of the buttons, so the wrong state never flashes.
-    return <div aria-hidden="true" className="min-h-48 rounded-2xl bg-line/30" />;
+    return (
+      <Card aria-hidden="true" className="min-h-48 opacity-50">
+        {null}
+      </Card>
+    );
   }
   if (saved.profile === null) return <FirstVisit />;
   return <Lessons profile={saved.profile} attempts={saved.attempts} />;

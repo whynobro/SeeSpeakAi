@@ -1,8 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import { ArrowLeftIcon, EarIcon, HomeIcon, StarIcon } from '@/components/Icons';
+import { Button, Card, IconTile } from '@/components/ui';
 import { COPY } from '@/content/copy';
+import { HEARING_CHECK } from '@/content/hearingCheck';
 import { PROFILE_LIMITATIONS, pickTargets } from '@/lib/profile';
 import { loadProfile, loadSettings, saveProfile, saveSettings } from '@/lib/store';
 import type { HearingProfile, LingSound, TargetPick } from '@/lib/types';
@@ -18,43 +20,24 @@ const RISK_LABEL: Record<TargetPick['risk'], string> = {
 /** Where the learner is in the flow. A number is the index of the sound being checked. */
 type Step = 'intro' | number | 'result';
 
-const PRIMARY =
-  'flex min-h-14 w-full items-center justify-center gap-3 rounded-2xl bg-accent px-5 py-3 text-center text-xl font-bold text-accent-ink';
-const SECONDARY =
-  'flex min-h-14 w-full items-center justify-center gap-3 rounded-2xl border-2 border-foreground bg-surface px-5 py-3 text-center text-xl font-bold text-foreground';
+type Answers = Partial<Record<LingSound, boolean>>;
 
-function EarIcon({ crossed }: { crossed: boolean }) {
-  return (
-    <svg
-      width={32}
-      height={32}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.25}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M6 8.5a6 6 0 1 1 12 0c0 6-6 6-6 10a3 3 0 0 1-6 0" />
-      <path d="M15 8.5a3 3 0 1 0-6 0" />
-      {crossed && <path d="M3 3l18 18" />}
-    </svg>
-  );
+function isComplete(answers: Answers): answers is Record<LingSound, boolean> {
+  return LING.every((s) => typeof answers[s] === 'boolean');
 }
 
 /** Done dots are filled, the current dot is a wide pill, upcoming dots are hollow. Shape and fill, not color. */
 function ProgressDots({ current }: { current: number }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex items-center justify-between gap-4">
       <ol className="flex items-center gap-2" aria-hidden="true">
         {LING.map((sound, i) => {
           const shape =
             i < current
-              ? 'h-3 w-3 rounded-full bg-foreground'
+              ? 'h-4 w-4 rounded-full bg-accent-edge'
               : i === current
-                ? 'h-3 w-8 rounded-full bg-accent'
-                : 'h-3 w-3 rounded-full border-2 border-foreground';
+                ? 'h-4 w-10 rounded-full bg-accent shadow-[0_3px_0_var(--accent-edge)]'
+                : 'h-4 w-4 rounded-full border-2 border-muted bg-surface';
           return <li key={sound} className={shape} />;
         })}
       </ol>
@@ -67,8 +50,7 @@ function ProgressDots({ current }: { current: number }) {
 
 export default function ProfilePage() {
   const [step, setStep] = useState<Step>('intro');
-  const [answers, setAnswers] = useState<Partial<Record<LingSound, boolean>>>({});
-  const [picks, setPicks] = useState<TargetPick[] | null>(null);
+  const [answers, setAnswers] = useState<Answers>({});
   const [showSigns, setShowSigns] = useState(false);
 
   // Focus moves to the new step's heading so screen reader users hear the new sound.
@@ -82,7 +64,6 @@ export default function ProfilePage() {
       const saved = loadProfile();
       if (saved?.source === 'ling6' && saved.ling) {
         setAnswers(saved.ling);
-        setPicks(pickTargets(saved));
         setStep('result');
       }
       setShowSigns(loadSettings().showSigns);
@@ -102,19 +83,16 @@ export default function ProfilePage() {
   }
 
   function answer(index: number, heard: boolean) {
-    const next = { ...answers, [LING[index]]: heard };
+    const next: Answers = { ...answers, [LING[index]]: heard };
     setAnswers(next);
     if (index < LING.length - 1) {
       go(index + 1);
       return;
     }
-    const profile: HearingProfile = {
-      source: 'ling6',
-      ling: next as Record<LingSound, boolean>,
-      createdAt: new Date().toISOString(),
-    };
-    saveProfile(profile);
-    setPicks(pickTargets(profile));
+    // The last answer saves the whole check, so a changed answer is kept after a refresh too (issue #24).
+    if (isComplete(next)) {
+      saveProfile({ source: 'ling6', ling: next, createdAt: new Date().toISOString() });
+    }
     go('result');
   }
 
@@ -128,9 +106,15 @@ export default function ProfilePage() {
     saveSettings({ ...loadSettings(), showSigns: on });
   }
 
+  // The result is worked out from the current answers on every render, never kept separately, so it can
+  // never show an old result (issue #24).
+  const picks: TargetPick[] | null = isComplete(answers)
+    ? pickTargets({ source: 'ling6', ling: answers, createdAt: '' } satisfies HearingProfile)
+    : null;
+
   const extras = (
     <>
-      <section className="flex flex-col gap-2 rounded-2xl border border-line bg-surface p-4">
+      <Card as="section" className="flex flex-col gap-2">
         <label className="flex min-h-12 items-center gap-3 text-lg font-bold">
           <input
             type="checkbox"
@@ -141,11 +125,11 @@ export default function ProfilePage() {
           Show sign cards
         </label>
         <p className="text-sm text-muted">{COPY.optIn}</p>
-      </section>
+      </Card>
 
       {PROFILE_LIMITATIONS.length > 0 && (
         <section className="flex flex-col gap-2 text-sm text-muted">
-          <h2 className="text-base font-bold">What this check cannot tell us</h2>
+          <h2 className="text-base font-bold text-foreground">What this check cannot tell us</h2>
           <ul className="list-disc pl-5">
             {PROFILE_LIMITATIONS.map((l) => (
               <li key={l}>{l}</li>
@@ -157,37 +141,40 @@ export default function ProfilePage() {
   );
 
   const homeLink = (
-    <Link href="/" className="inline-flex min-h-12 items-center self-start text-lg underline">
+    <Button href="/" variant="ghost" block={false} className="self-start">
+      <HomeIcon className="h-5 w-5" />
       Home
-    </Link>
+    </Button>
   );
 
   if (typeof step === 'number') {
     const sound = LING[step];
     const previous = answers[sound];
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 bg-background p-4 text-foreground">
-        <button
-          type="button"
+      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pt-4 pb-8">
+        <Button
+          variant="ghost"
+          block={false}
           onClick={() => go(step === 0 ? 'intro' : step - 1)}
-          className="inline-flex min-h-12 items-center gap-2 self-start rounded-2xl px-1 text-lg font-bold underline"
+          className="self-start"
         >
-          <span aria-hidden="true">&larr;</span> Back
-        </button>
+          <ArrowLeftIcon className="h-5 w-5" />
+          Back
+        </Button>
 
         <ProgressDots current={step} />
 
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-10">
-          <h1 ref={headingRef} tabIndex={-1} className="text-7xl font-bold tracking-tight outline-none">
+        <Card className="flex flex-col items-center gap-2 py-10">
+          <h1 ref={headingRef} tabIndex={-1} className="text-8xl font-extrabold tracking-tight outline-none">
             <span className="sr-only">
               Sound {step + 1} of {LING.length}:{' '}
             </span>
             &ldquo;{sound}&rdquo;
           </h1>
-          <p className="text-lg text-muted">Helper: say this sound now</p>
-        </div>
+          <p className="text-lg font-bold text-muted">Helper: say this sound now</p>
+        </Card>
 
-        <div className="mt-auto flex flex-col gap-3">
+        <div className="mt-auto flex flex-col gap-4">
           {[true, false].map((heard) => {
             const chosen = previous === heard;
             return (
@@ -196,14 +183,18 @@ export default function ProfilePage() {
                 type="button"
                 aria-pressed={chosen}
                 onClick={() => answer(step, heard)}
-                className={`flex min-h-16 w-full items-center justify-center gap-3 rounded-2xl bg-surface px-5 py-4 text-xl font-bold text-foreground ${
-                  chosen ? 'border-4 border-accent' : 'border-2 border-foreground'
+                className={`flex min-h-20 w-full items-center gap-4 rounded-3xl bg-surface px-4 py-3 text-left text-xl font-bold text-foreground transition-[transform,box-shadow] duration-75 active:translate-y-1 active:shadow-none ${
+                  chosen ? 'border-4 border-accent shadow-edge-accent' : 'border-2 border-line shadow-clay'
                 }`}
               >
-                <EarIcon crossed={!heard} />
-                {heard ? 'Heard it' : 'Did not hear it'}
+                <IconTile tone={heard ? 'accent' : 'violet-soft'}>
+                  <EarIcon crossed={!heard} className="h-8 w-8" />
+                </IconTile>
+                <span className="flex-1">{heard ? 'Heard it' : 'Did not hear it'}</span>
                 {chosen && (
-                  <span className="rounded-full border-2 border-current px-2 text-sm">Your answer</span>
+                  <span className="rounded-full bg-accent-soft px-3 py-1 text-sm text-accent-edge">
+                    Your answer
+                  </span>
                 )}
               </button>
             );
@@ -217,40 +208,50 @@ export default function ProfilePage() {
     const top = picks[0];
     const recommend = top && top.risk !== 'low';
     return (
-      <main className="mx-auto flex w-full max-w-md flex-col gap-6 bg-background p-4 text-foreground">
+      <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-4 pb-10">
         {homeLink}
-        <h1 ref={headingRef} tabIndex={-1} className="text-3xl font-bold outline-none">
-          Your sounds
-        </h1>
+        <header className="flex flex-col gap-2">
+          <h1 ref={headingRef} tabIndex={-1} className="text-4xl font-extrabold tracking-tight outline-none">
+            Your sounds
+          </h1>
+          <p className="text-base text-muted">
+            Your result uses the &ldquo;s&rdquo; and &ldquo;sh&rdquo; answers. The other four check that the
+            sound reaches you at all.
+          </p>
+        </header>
 
-        <ul className="flex flex-col gap-4" aria-label="Sounds to practice">
-          {picks.map((p, i) => (
-            <li
-              key={p.sound}
-              className={`flex flex-col gap-3 rounded-2xl bg-surface p-4 ${
-                i === 0 && recommend ? 'border-4 border-accent' : 'border border-line'
-              }`}
-            >
-              {i === 0 && recommend && (
-                <span className="self-start rounded-full bg-accent px-3 py-1 text-sm font-bold text-accent-ink">
-                  Recommended for you
-                </span>
-              )}
-              <h2 className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="text-4xl font-bold">&ldquo;{p.sound}&rdquo;</span>
-                <span className="text-lg font-bold">{RISK_LABEL[p.risk]}</span>
-              </h2>
-              <p>{p.reason}</p>
-              <Link href={`/practice?sound=${p.sound}`} className={i === 0 ? PRIMARY : SECONDARY}>
-                Practice this sound
-              </Link>
-            </li>
-          ))}
+        <ul className="flex flex-col gap-6" aria-label="Sounds to practice">
+          {picks.map((p, i) => {
+            const first = i === 0 && recommend;
+            return (
+              <Card as="li" key={p.sound} highlight={Boolean(first)} className="flex flex-col gap-4">
+                {first && (
+                  <span className="inline-flex w-fit items-center gap-1 rounded-full whitespace-nowrap bg-violet-soft px-3 py-1 text-sm font-bold text-violet-edge">
+                    <StarIcon className="h-4 w-4" />
+                    Recommended for you
+                  </span>
+                )}
+                <h2 className="flex items-center gap-4">
+                  <IconTile tone={first ? 'accent' : 'soft'} size="lg" className="text-3xl font-extrabold">
+                    {p.sound}
+                  </IconTile>
+                  <span className="flex flex-col">
+                    <span className="text-3xl font-extrabold">&ldquo;{p.sound}&rdquo;</span>
+                    <span className="text-lg font-bold">{RISK_LABEL[p.risk]}</span>
+                  </span>
+                </h2>
+                <p className="text-base">{p.reason}</p>
+                <Button href={`/practice?sound=${p.sound}`} variant={i === 0 ? 'primary' : 'secondary'}>
+                  Practice this sound
+                </Button>
+              </Card>
+            );
+          })}
         </ul>
 
-        <button type="button" onClick={restart} className={SECONDARY}>
+        <Button variant="secondary" onClick={restart}>
           Do the check again
-        </button>
+        </Button>
 
         {extras}
       </main>
@@ -258,23 +259,43 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-6 bg-background p-4 text-foreground">
+    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-4 pb-10">
       {homeLink}
-      <header className="flex flex-col gap-3">
-        <h1 ref={headingRef} tabIndex={-1} className="text-3xl font-bold outline-none">
-          Hearing check
+      <header className="flex flex-col gap-4">
+        <IconTile size="lg">
+          <EarIcon className="h-9 w-9" />
+        </IconTile>
+        <h1 ref={headingRef} tabIndex={-1} className="text-4xl font-extrabold tracking-tight outline-none">
+          {HEARING_CHECK.title}
         </h1>
-        <p className="text-lg">
-          Have someone say each sound in a normal voice from about 1 metre away, with their mouth covered.
-        </p>
-        <p className="text-muted">{COPY.notTherapy}</p>
-        {/* TODO(ui lane): play the six sounds from the phone as an alternative to a helper. */}
-        {/* TODO(tech lane): typed audiogram entry and audiogram photo reading go here. */}
+        <p className="text-lg">{HEARING_CHECK.intro}</p>
       </header>
 
-      <button type="button" onClick={() => go(0)} className={PRIMARY}>
+      <Card as="section" aria-labelledby="setup-heading" className="flex flex-col gap-3">
+        <h2 id="setup-heading" className="text-xl font-bold">
+          Before you start
+        </h2>
+        <ul className="flex list-disc flex-col gap-2 pl-5 text-lg">
+          <li>{HEARING_CHECK.setupNoHeadphones[0]}</li>
+          <li>{HEARING_CHECK.setupHelper}</li>
+        </ul>
+        {/* TODO(ui lane): play the six sounds from the phone; then show HEARING_CHECK.setupHeadphones here. */}
+      </Card>
+
+      <Button size="lg" onClick={() => go(0)}>
         Start
-      </button>
+      </Button>
+
+      <Card as="section" tone="violet" aria-labelledby="devices-heading" className="flex flex-col gap-2">
+        <h2 id="devices-heading" className="text-lg font-bold">
+          {HEARING_CHECK.devicesQuestion}
+        </h2>
+        <p className="text-base">{HEARING_CHECK.bothExplain}</p>
+        {/* TODO(ui lane): the hearing-aid on/off choice (withDevices / withoutDevices) is not built yet. */}
+      </Card>
+
+      <p className="text-sm text-muted">{COPY.notTherapy}</p>
+      {/* TODO(tech lane): typed audiogram entry and audiogram photo reading go here. */}
 
       {extras}
     </main>

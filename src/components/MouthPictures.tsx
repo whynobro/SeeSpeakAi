@@ -38,12 +38,14 @@ export function MouthPictures({ sound }: { sound: TargetSound }) {
   const { side, front } = PICTURES[sound];
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 gap-2">
       {[side, front].map((picture) => (
-        <figure key={picture.src} className="bg-surface border-line rounded-2xl border p-2">
+        <figure key={picture.src} className="rounded-2xl border-2 border-line bg-surface p-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={picture.src} alt={picture.alt} width={240} height={240} className="h-auto w-full" />
-          <figcaption className="text-foreground mt-2 text-sm leading-snug">{picture.caption}</figcaption>
+          <figcaption className="mt-2 text-sm leading-snug font-semibold text-foreground">
+            {picture.caption}
+          </figcaption>
         </figure>
       ))}
     </div>

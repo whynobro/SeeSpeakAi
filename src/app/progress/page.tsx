@@ -1,9 +1,9 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { BeforeAfterBars } from '@/components/BeforeAfterBars';
-import { ArrowDownIcon, ArrowUpIcon, EqualsIcon, ShareIcon } from '@/components/Icons';
+import { ArrowDownIcon, ArrowUpIcon, EqualsIcon, HomeIcon, ShareIcon, TrashIcon } from '@/components/Icons';
+import { Button, Card, IconTile } from '@/components/ui';
 import { COPY } from '@/content/copy';
 import { clearAll, loadAttempts, progressFor } from '@/lib/store';
 import type { Attempt, SoundProgress, TargetSound } from '@/lib/types';
@@ -13,11 +13,6 @@ const SOUNDS: TargetSound[] = ['s', 'sh'];
 /** progressFor uses the first 10 and the latest 10 tries. They share no tries only from 20 tries on. */
 const WINDOW = 10;
 const SEPARATE_WINDOWS = WINDOW * 2;
-
-const PRIMARY =
-  'flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-accent px-4 text-lg font-bold text-accent-ink';
-const SECONDARY =
-  'flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-foreground bg-surface px-4 text-lg font-bold';
 
 interface SoundView {
   p: SoundProgress;
@@ -55,7 +50,7 @@ function Change({ p }: { p: SoundProgress }) {
   const diff = Math.round((p.latestAccuracy ?? 0) * 100) - Math.round((p.firstAccuracy ?? 0) * 100);
   if (diff > 0) {
     return (
-      <p className="flex items-center justify-center gap-2 text-2xl font-bold">
+      <p className="flex items-center justify-center gap-2 text-2xl font-extrabold text-hit-strong">
         <ArrowUpIcon className="h-8 w-8" />
         {diff} points better
       </p>
@@ -64,7 +59,7 @@ function Change({ p }: { p: SoundProgress }) {
   if (diff < 0) {
     return (
       <div className="flex flex-col items-center gap-1 text-center">
-        <p className="flex items-center justify-center gap-2 text-2xl font-bold">
+        <p className="flex items-center justify-center gap-2 text-2xl font-extrabold">
           <ArrowDownIcon className="h-8 w-8" />
           {-diff} points lower
         </p>
@@ -73,7 +68,7 @@ function Change({ p }: { p: SoundProgress }) {
     );
   }
   return (
-    <p className="flex items-center justify-center gap-2 text-2xl font-bold">
+    <p className="flex items-center justify-center gap-2 text-2xl font-extrabold">
       <EqualsIcon className="h-8 w-8" />
       About the same
     </p>
@@ -83,23 +78,21 @@ function Change({ p }: { p: SoundProgress }) {
 function SoundCard({ view }: { view: SoundView }) {
   const { p, hits } = view;
   return (
-    <section
-      aria-labelledby={`sound-${p.sound}`}
-      className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-4 shadow-sm"
-    >
-      <div className="flex items-baseline justify-between gap-2">
-        <h2 id={`sound-${p.sound}`} className="text-3xl font-bold">
+    <Card as="section" aria-labelledby={`sound-${p.sound}`} className="flex flex-col gap-4">
+      <div className="flex items-center gap-4">
+        <IconTile tone="soft" size="lg" className="text-3xl font-extrabold">
+          {p.sound}
+        </IconTile>
+        <h2 id={`sound-${p.sound}`} className="flex-1 text-3xl font-extrabold">
           &ldquo;{p.sound}&rdquo;
         </h2>
-        <span className="text-muted">{tries(p.attempts)}</span>
+        <span className="text-base font-bold text-muted">{tries(p.attempts)}</span>
       </div>
 
       {p.attempts === 0 ? (
         <>
           <p className="text-lg">No tries yet. Your first word takes a few seconds.</p>
-          <Link href={`/practice?sound=${p.sound}`} className={PRIMARY}>
-            Practice &ldquo;{p.sound}&rdquo;
-          </Link>
+          <Button href={`/practice?sound=${p.sound}`}>Practice &ldquo;{p.sound}&rdquo;</Button>
         </>
       ) : hasBeforeAfter(p) ? (
         <>
@@ -120,7 +113,7 @@ function SoundCard({ view }: { view: SoundView }) {
           <p className="text-center text-muted">{tries(SEPARATE_WINDOWS - p.attempts)} to go.</p>
         </>
       )}
-    </section>
+    </Card>
   );
 }
 
@@ -163,75 +156,62 @@ export default function ProgressPage() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6 pb-8">
+    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-4 pb-10">
       <header className="flex flex-col gap-2">
-        <Link href="/" className="flex min-h-12 w-fit items-center text-lg underline underline-offset-4">
+        <Button href="/" variant="ghost" block={false} className="self-start">
+          <HomeIcon className="h-5 w-5" />
           Home
-        </Link>
-        <h1 className="text-4xl font-bold">Progress</h1>
+        </Button>
+        <h1 className="text-4xl font-extrabold tracking-tight">Progress</h1>
       </header>
 
-      <section
-        aria-labelledby="summary-heading"
-        className="flex flex-col gap-2 rounded-2xl border-2 border-foreground bg-surface p-4"
-      >
-        <div className="flex items-baseline justify-between gap-2">
+      <Card as="section" tone="accent" aria-labelledby="summary-heading" className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-2">
           <h2 id="summary-heading" className="text-xl font-bold">
             SeeSpeak summary
           </h2>
-          <span className="text-muted">{today}</span>
+          <span className="text-sm font-bold text-muted">{today}</span>
         </div>
         <p className="text-muted">Tries where the sound was there:</p>
-        <ul className="flex flex-col gap-1 text-lg">
+        <ul className="flex flex-col gap-1 text-lg font-semibold">
           {lines.map((line) => (
             <li key={line}>{line}</li>
           ))}
         </ul>
         <p className="text-sm text-muted">{COPY.notTherapy}</p>
         {canShare && (
-          <button type="button" onClick={share} className={SECONDARY}>
+          <Button variant="secondary" onClick={share}>
             <ShareIcon className="h-6 w-6" />
             Share
-          </button>
+          </Button>
         )}
-      </section>
+      </Card>
 
       {views.map((view) => (
         <SoundCard key={view.p.sound} view={view} />
       ))}
 
-      <Link href="/practice" className={PRIMARY}>
+      <Button href="/practice" size="lg">
         Practice now
-      </Link>
+      </Button>
 
       {confirming ? (
-        <div className="flex flex-col gap-2 rounded-2xl border-2 border-miss bg-surface p-4">
-          <p className="font-bold">Delete your profile, settings and tries from this phone?</p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={clear}
-              className="min-h-14 rounded-2xl border-2 border-miss px-2 font-bold"
-            >
+        <Card className="flex flex-col gap-4 border-dashed">
+          <p className="text-lg font-bold">Delete your profile, settings and tries from this phone?</p>
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="danger" onClick={clear}>
               Yes, clear it
-            </button>
-            <button
-              type="button"
-              onClick={() => setConfirming(false)}
-              className="min-h-14 rounded-2xl border-2 border-foreground px-2"
-            >
+            </Button>
+            <Button variant="secondary" onClick={() => setConfirming(false)}>
               Cancel
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
       ) : (
-        <button
-          type="button"
-          onClick={() => setConfirming(true)}
-          className="min-h-14 rounded-2xl border-2 border-line px-4 text-lg"
-        >
+        <Button variant="danger" onClick={() => setConfirming(true)}>
+          <TrashIcon className="h-5 w-5" />
           Clear my data on this phone
-        </button>
+        </Button>
       )}
 
       <p className="text-sm text-muted">{COPY.privacy}</p>

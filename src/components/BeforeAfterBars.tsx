@@ -23,22 +23,22 @@ function OneBar({ bar }: { bar: Bar }) {
   return (
     <figure className="flex w-24 flex-col items-center gap-2">
       <div
-        className="relative flex h-44 w-full items-end overflow-hidden rounded-xl border-2 border-line bg-background"
+        className="relative flex h-44 w-full items-end overflow-hidden rounded-2xl border-2 border-line bg-accent-soft"
         role="img"
         aria-label={`${bar.label}: ${percent(bar.value)}`}
       >
         {bar.kind === 'before' ? (
           <div
-            className="w-full border-2 border-muted text-muted"
+            className="w-full rounded-t-xl border-2 border-muted bg-surface text-muted"
             style={{ ...HATCH, height: `${height}%` }}
           />
         ) : (
-          <div className="w-full bg-accent" style={{ height: `${height}%` }} />
+          <div className="w-full rounded-t-xl bg-accent" style={{ height: `${height}%` }} />
         )}
       </div>
       <figcaption className="flex flex-col items-center text-center">
-        <span className="text-2xl font-bold">{percent(bar.value)}</span>
-        <span className="text-sm leading-tight">{bar.label}</span>
+        <span className="text-2xl font-extrabold">{percent(bar.value)}</span>
+        <span className="text-sm leading-tight font-semibold">{bar.label}</span>
       </figcaption>
     </figure>
   );

@@ -3,7 +3,10 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
+import { HomeIcon, LightbulbIcon, MicIcon } from '@/components/Icons';
+import { MouthPictures } from '@/components/MouthPictures';
 import { SoundMeter } from '@/components/SoundMeter';
+import { Button, Card, IconTile, buttonClass } from '@/components/ui';
 import { VerdictBadge } from '@/components/VerdictBadge';
 import { WordCard } from '@/components/WordCard';
 import { COPY } from '@/content/copy';
@@ -17,52 +20,10 @@ import type { AttemptScore, HearingProfile, LearnerSettings, PracticeWord, Targe
 
 const WORD_COUNT = 8;
 
-const primaryButton =
-  'flex min-h-[72px] w-full items-center justify-center gap-3 rounded-2xl bg-accent px-6 text-2xl font-bold text-accent-ink disabled:opacity-60';
-const secondaryButton =
-  'flex min-h-[72px] w-full items-center justify-center gap-3 rounded-2xl border-2 border-foreground bg-surface px-4 text-xl font-bold text-foreground';
-
-function MicIcon() {
-  return (
-    <svg
-      width="28"
-      height="28"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <rect x="9" y="3" width="6" height="11" rx="3" />
-      <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
-    </svg>
-  );
-}
-
 function StopIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
       <rect x="4" y="4" width="16" height="16" rx="3" fill="currentColor" />
-    </svg>
-  );
-}
-
-function HomeIcon() {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M3 11l9-7 9 7M5 10v10h14V10" />
     </svg>
   );
 }
@@ -75,17 +36,17 @@ function WordSteps({ index, total }: { index: number; total: number }) {
         {Array.from({ length: total }, (_, i) => (
           <li
             key={i}
-            className={`h-2.5 rounded-full ${
+            className={`h-3 rounded-full ${
               i < index
-                ? 'flex-1 bg-foreground'
+                ? 'flex-1 bg-accent-edge'
                 : i === index
                   ? 'flex-[2] bg-accent'
-                  : 'flex-1 border-2 border-foreground/40'
+                  : 'flex-1 border-2 border-muted/60 bg-surface'
             }`}
           />
         ))}
       </ol>
-      <p className="shrink-0 text-sm font-semibold text-muted">
+      <p className="shrink-0 text-sm font-bold text-muted">
         Word {index + 1} of {total}
       </p>
     </div>
@@ -171,8 +132,8 @@ function PracticeLoop() {
   }
 
   const footer = (
-    <footer className="mt-4 flex flex-col gap-2 border-t border-line pt-4 text-xs text-muted">
-      <h2 className="font-bold">What this cannot do</h2>
+    <footer className="mt-4 flex flex-col gap-2 border-t-2 border-line pt-6 text-sm leading-relaxed text-muted">
+      <h2 className="text-base font-bold text-foreground">What this cannot do</h2>
       <ul className="list-disc pl-4">
         {LIMITATIONS.map((line) => (
           <li key={line}>{line}</li>
@@ -186,54 +147,59 @@ function PracticeLoop() {
   const homeLink = (
     <Link
       href="/"
-      className="flex min-h-12 min-w-12 items-center justify-center gap-1 rounded-xl text-sm font-semibold"
+      className="flex min-h-12 min-w-12 shrink-0 items-center justify-center gap-1 rounded-xl px-1 text-base font-bold text-accent-edge"
     >
-      <HomeIcon />
+      <HomeIcon className="h-6 w-6" />
       <span>Home</span>
     </Link>
   );
 
   if (finished) {
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col gap-6 p-4">
+      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pt-2 pb-8">
         <header className="flex items-center gap-3">{homeLink}</header>
-        <h1 className="text-4xl font-bold">All done</h1>
-        {tries > 0 && (
-          <ul className="flex flex-wrap gap-2" aria-hidden="true">
-            {Array.from({ length: tries }, (_, i) => (
-              <li
-                key={i}
-                className={`h-7 w-7 rounded-full border-[3px] border-foreground ${i < hits ? 'bg-foreground' : 'bg-surface'}`}
-              />
-            ))}
-          </ul>
-        )}
-        <p className="text-2xl">
-          You got {hits} out of {tries} tries.
-        </p>
-        <Link href="/progress" className={primaryButton}>
+        <Card className="flex flex-col gap-4">
+          <h1 className="text-4xl font-extrabold tracking-tight">All done</h1>
+          {tries > 0 && (
+            <ul className="flex flex-wrap gap-2" aria-hidden="true">
+              {Array.from({ length: tries }, (_, i) => (
+                <li
+                  key={i}
+                  className={`h-8 w-8 rounded-full border-[3px] ${i < hits ? 'border-hit-strong bg-hit' : 'border-muted bg-surface'}`}
+                />
+              ))}
+            </ul>
+          )}
+          <p className="text-2xl font-bold">
+            You got {hits} out of {tries} tries.
+          </p>
+        </Card>
+        <Button href="/progress" size="xl">
           See your progress
-        </Link>
-        <button type="button" onClick={onRestart} className={secondaryButton}>
+        </Button>
+        <Button variant="secondary" size="lg" onClick={onRestart}>
           Practice again
-        </button>
+        </Button>
         {footer}
       </main>
     );
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-xl flex-col gap-3 px-4 pt-2 pb-4">
+    <main className="mx-auto flex w-full max-w-md flex-col gap-3 px-4 pt-2 pb-8">
       <header className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {homeLink}
-          <h1 className="text-lg font-bold">Practice the &apos;{target}&apos; sound</h1>
+          <h1 className="text-xl font-extrabold tracking-tight">Practice the &apos;{target}&apos; sound</h1>
         </div>
         {words.length > 0 && <WordSteps index={Math.min(index, words.length - 1)} total={words.length} />}
         {profile === null && settings !== null && (
           <p className="text-sm text-muted">
             No hearing check saved yet.{' '}
-            <Link href="/profile" className="inline-block py-2 font-semibold text-foreground underline">
+            <Link
+              href="/profile"
+              className="inline-block py-2 font-bold text-accent-edge underline underline-offset-4"
+            >
               Do the hearing check
             </Link>
           </p>
@@ -243,7 +209,7 @@ function PracticeLoop() {
       {word ? (
         <WordCard word={word} showSign={settings?.showSigns ?? false} />
       ) : (
-        <p className="py-8 text-center text-muted">Loading words...</p>
+        <Card className="py-8 text-center text-muted">Loading words...</Card>
       )}
 
       <SoundMeter
@@ -256,12 +222,12 @@ function PracticeLoop() {
       {meter.status === 'error' && (
         <div
           role="alert"
-          className="flex flex-col gap-3 rounded-2xl border-4 border-dashed border-miss bg-surface p-4"
+          className="flex flex-col gap-3 rounded-3xl border-4 border-dashed border-miss bg-surface p-4"
         >
-          <p className="font-bold">{meter.error ?? 'The microphone could not be started.'}</p>
-          <button type="button" onClick={onStart} className={secondaryButton}>
+          <p className="text-lg font-bold">{meter.error ?? 'The microphone could not be started.'}</p>
+          <Button variant="secondary" onClick={onStart}>
             Try the microphone again
-          </button>
+          </Button>
         </div>
       )}
 
@@ -273,8 +239,8 @@ function PracticeLoop() {
           aria-label={listening ? 'Done: stop listening and check the word' : undefined}
           className={
             listening
-              ? 'flex min-h-[72px] w-full items-center justify-center gap-3 rounded-2xl border-4 border-accent bg-surface px-6 text-2xl font-bold text-foreground'
-              : primaryButton
+              ? 'flex min-h-[72px] w-full items-center justify-center gap-3 rounded-2xl border-4 border-accent bg-surface px-6 text-2xl font-bold text-foreground shadow-edge-accent transition-[transform,box-shadow] duration-75 active:translate-y-1 active:shadow-none'
+              : buttonClass({ size: 'xl' })
           }
         >
           {listening ? (
@@ -284,14 +250,14 @@ function PracticeLoop() {
                 <span className="relative inline-flex h-4 w-4 rounded-full bg-accent" />
               </span>
               <span className="flex flex-col items-start leading-tight">
-                <span className="text-sm font-semibold text-muted">Listening</span>
+                <span className="text-sm font-bold text-muted">Listening</span>
                 <span>Done</span>
               </span>
               <StopIcon />
             </>
           ) : (
             <>
-              <MicIcon />
+              <MicIcon className="h-7 w-7" />
               {busy ? 'Starting...' : 'Start'}
             </>
           )}
@@ -302,36 +268,52 @@ function PracticeLoop() {
         <div className="flex flex-col gap-3">
           <VerdictBadge verdict={score.verdict} target={word.target} />
           {score.warnings.length > 0 && (
-            <ul className="flex flex-col gap-1 text-sm text-muted">
+            <ul className="flex flex-col gap-1 text-base text-muted">
               {score.warnings.map((warning) => (
                 <li key={warning}>{warning}</li>
               ))}
             </ul>
           )}
           <div className="grid grid-cols-2 gap-3">
-            <button type="button" onClick={onStart} className={secondaryButton}>
+            <Button variant="secondary" size="lg" onClick={onStart}>
               Try again
-            </button>
-            <button type="button" onClick={onNext} className={primaryButton}>
+            </Button>
+            <Button size="lg" onClick={onNext}>
               {index + 1 >= words.length ? 'Finish' : 'Next word'}
-            </button>
+            </Button>
           </div>
         </div>
       )}
 
-      <details open={index === 0} className="rounded-2xl border-2 border-line bg-surface px-4 py-1">
-        <summary className="flex min-h-12 cursor-pointer items-center font-bold">
-          How to make this sound
+      {/* Below the meter and the main button, so opening it never pushes them off the screen. */}
+      <details
+        open={index === 0}
+        className="group rounded-3xl border-2 border-line bg-surface px-4 py-2 shadow-clay"
+      >
+        <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 [&::-webkit-details-marker]:hidden">
+          <IconTile tone="violet-soft" size="sm">
+            <LightbulbIcon className="h-5 w-5" />
+          </IconTile>
+          <span className="flex flex-1 flex-col">
+            <span className="text-lg font-bold">How to make this sound</span>
+            <span className="text-sm text-muted">{cue.nickname}</span>
+          </span>
+          <span
+            aria-hidden="true"
+            className="text-2xl font-bold text-accent-edge transition-transform group-open:rotate-90"
+          >
+            &rsaquo;
+          </span>
         </summary>
-        <div className="pb-3">
-          <p className="font-bold">{cue.nickname}</p>
-          <ol className="mt-1 list-decimal pl-5">
+        <div className="flex flex-col gap-3 pt-2 pb-3">
+          <MouthPictures sound={target} />
+          <ol className="flex list-decimal flex-col gap-1 pl-6 text-base marker:font-bold">
             {cue.steps.map((step) => (
               <li key={step}>{step}</li>
             ))}
           </ol>
-          <p className="mt-2">{cue.shaping}</p>
-          <p className="mt-2">{cue.touch}</p>
+          <p className="rounded-2xl bg-accent-soft p-3 text-base">{cue.shaping}</p>
+          <p className="text-base">{cue.touch}</p>
         </div>
       </details>
 
