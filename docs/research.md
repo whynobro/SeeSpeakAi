@@ -66,7 +66,7 @@ Facts we rely on, with sources. Owner: Holly. Add a source for every new claim. 
 ## What a speech therapist's check includes (checked Nov 14)
 
 - A full speech evaluation covers case history, a hearing screen, an oral-motor exam, single words with each sound at the start, middle and end of words and in blends, a connected-speech sample, stimulability (can the child say it right with a model), an intelligibility rating and error-pattern analysis ([ASHA](https://www.asha.org/practice-portal/clinical-topics/articulation-and-phonology/)).
-- Standard picture-naming tests take 5 to 20 minutes: GFTA-3 Sounds-in-Words 5 to 15 ([Pearson](https://www.pearsonassessments.com/store/usassessments/en/Store/Professional-Assessments/Speech-%26-Language/Goldman-Fristoe-Test-of-Articulation-%7C-Third-Edition/p/100001202.html)), Arizona-4 5 to 20.
+- Standard picture-naming tests take 5 to 20 minutes: GFTA-3 Sounds-in-Words 5 to 15 ([Pearson](https://www.pearsonclinical.co.uk/en-gb/goldman-gristle/Goldman-Fristoe-Test-of-Articulation-3/p/P100009111)), Arizona-4 5 to 20.
 - Picture naming is preferred over repeating after a model, since repeating can hide errors.
 - For deaf and hard-of-hearing children, therapists add listening checks: the Ling Six Sound Test (detect, then identify, with silent trials, with devices on and off) and picture tests with minimal pairs such as "sip" and "ship".
 - Digits-in-noise listening tests need no calibrated volume, but children's norms exist only for about ages 6 to 13. A phone speaker cannot give decibel numbers.
