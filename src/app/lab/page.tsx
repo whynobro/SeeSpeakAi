@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { SoundMeter } from '@/components/SoundMeter';
+import { WORD_BANK } from '@/content/words';
 import { useSoundMeter } from '@/hooks/useSoundMeter';
 import { describeRuns, scoreAttempt } from '@/lib/scoring';
 import { summarizeTrace } from '@/lib/scoring/trace';
@@ -22,6 +23,8 @@ export default function LabPage() {
   const [frames, setFrames] = useState<FrameFeatures[] | null>(null);
   const [target, setTarget] = useState<TargetSound>('s');
   const [position, setPosition] = useState<WordPosition>('end');
+  // The practice word being tested, or '' for "just the sound".
+  const [picked, setPicked] = useState('');
   const [score, setScore] = useState<AttemptScore | null>(null);
   const [copied, setCopied] = useState(false);
   const [sampleRate, setSampleRate] = useState<number | null>(null);
@@ -43,16 +46,27 @@ export default function LabPage() {
 
   const word = useMemo<PracticeWord>(
     () => ({
-      id: 'lab-word',
-      text: target === 's' ? 'sip' : 'ship',
+      id: picked || 'lab-word',
+      text: picked || (target === 's' ? 'sip' : 'ship'),
       target,
       position,
       baseWord: null,
       contrastWord: null,
       sign: null,
     }),
-    [target, position],
+    [target, position, picked],
   );
+
+  // Picking a practice word sets the sound and where it sits, so the try is scored the right way.
+  function onPick(id: string) {
+    setPicked(id);
+    const known = WORD_BANK.find((w) => w.id === id);
+    if (known) {
+      setTarget(known.target);
+      setPosition(known.position);
+    }
+    setScore(null);
+  }
 
   function onScore() {
     if (!frames) return;
@@ -103,6 +117,39 @@ export default function LabPage() {
   return (
     <main className="mx-auto flex w-full max-w-xl flex-col gap-6 p-4">
       <p className="text-sm">Lab: for tuning. Audio stays on this device.</p>
+
+      <label className="flex flex-col gap-1 font-bold">
+        Word to test
+        <select
+          value={picked}
+          onChange={(e) => onPick(e.target.value)}
+          className="min-h-12 rounded-lg border-2 border-current bg-transparent px-2"
+        >
+          <option value="">Just a sound (set &quot;Score as&quot; after Stop)</option>
+          {(
+            [
+              ['s', 'end'],
+              ['s', 'start'],
+              ['s', 'middle'],
+              ['sh', 'start'],
+              ['sh', 'end'],
+              ['sh', 'middle'],
+            ] as const
+          ).map(([sound, where]) => {
+            const words = WORD_BANK.filter((w) => w.target === sound && w.position === where);
+            if (words.length === 0) return null;
+            return (
+              <optgroup key={`${sound}-${where}`} label={`"${sound}" at the ${where}`}>
+                {words.map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.baseWord ? `${w.text} (try it as "${w.baseWord}" too)` : w.text}
+                  </option>
+                ))}
+              </optgroup>
+            );
+          })}
+        </select>
+      </label>
 
       <button
         type="button"

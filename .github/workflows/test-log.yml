@@ -1,0 +1,56 @@
+name: Test log
+# Copies the shared test log (tries made on /lab) to the `test-log` branch so the whole team and their
+# AI agents can read it:  git fetch origin test-log && git show origin/test-log:summary.md
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: test-log
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Check the storage secret is set
+        id: secret
+        env:
+          TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then echo "ready=false" >> "$GITHUB_OUTPUT"; echo "BLOB_READ_WRITE_TOKEN is not set as a repo secret. Skipping."; else echo "ready=true" >> "$GITHUB_OUTPUT"; fi
+      - if: steps.secret.outputs.ready == 'true'
+        run: npm ci
+      - if: steps.secret.outputs.ready == 'true'
+        run: node scripts/pull-attempts.mjs
+        env:
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+      - name: Push to the test-log branch
+        if: steps.secret.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir out && cd out
+          git init -q
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git fetch -q --depth 1 origin test-log; then
+            git checkout -q -b test-log FETCH_HEAD
+          else
+            git checkout -q --orphan test-log
+          fi
+          cp ../data/attempts.jsonl ../data/summary.md .
+          printf '%s\n' '# Test log' '' 'Made by a GitHub Action every 15 minutes from tries on the /lab page. Do not edit by hand.' '' '- `summary.md`: how often the verdict was right.' '- `attempts.jsonl`: every try, numbers only.' > README.md
+          git add -A
+          # The summary carries a timestamp, so only push when the tries themselves changed.
+          if git diff --cached --quiet -- attempts.jsonl && git rev-parse -q --verify HEAD >/dev/null; then
+            echo "No new tries."
+            exit 0
+          fi
+          git -c user.name="seespeak-test-log" -c user.email="actions@users.noreply.github.com" commit -q -m "data: update test log"
+          git push -q origin test-log

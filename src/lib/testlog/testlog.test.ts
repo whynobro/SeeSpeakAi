@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { featuresFromSamples } from '@/lib/audio/features';
 import { scoreAttempt } from '@/lib/scoring';
 import { concat, hiss, silence, vowel } from '@/lib/scoring/synth';
-import { buildEntry, isSharing, packFrames, sharePracticeAttempt } from '@/lib/testlog';
+import { buildEntry, isLabSharing, isSharing, packFrames, sharePracticeAttempt } from '@/lib/testlog';
 import type { PracticeWord } from '@/lib/types';
 
 const SR = 48000;
@@ -23,6 +23,9 @@ const frames = featuresFromSamples(
 describe('test log', () => {
   it('is off when nothing is stored (and on the server)', () => {
     expect(isSharing()).toBe(false);
+  });
+  it('saves lab tries unless switched off', () => {
+    expect(isLabSharing()).toBe(true);
   });
   it('does nothing and does not throw when sharing is off', () => {
     expect(() => sharePracticeAttempt('bus', 's', scoreAttempt(frames, word))).not.toThrow();
@@ -47,6 +50,7 @@ describe('test log', () => {
       label: 'MF',
       device: 'x'.repeat(500),
       at: '2026-11-14T00:00:00.000Z',
+      attemptId: 'a1',
     });
     expect(entry.v).toBe(1);
     expect(entry.score.verdict).toBe('hit');
