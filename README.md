@@ -91,6 +91,7 @@ Each person owns one lane. Stay inside your folders.
 ## Docs
 
 - [docs/PLAN.md](docs/PLAN.md): the loop, who builds what, how the team's AI agents stay in sync. Read it first.
+- [docs/HACKATHON.md](docs/HACKATHON.md): contest rules, deadlines and the judging rubric.
 - [TEAM.md](TEAM.md): setup, the git loop, merge conflicts, demo rules.
 - [AGENTS.md](AGENTS.md): rules for AI coding agents (also read by Claude Code through `CLAUDE.md`).
 - [docs/lanes/](docs/lanes/): one build file per lane.
