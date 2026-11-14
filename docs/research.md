@@ -4,7 +4,7 @@ Facts we rely on, with sources. Owner: Holly. Add a source for every new claim. 
 
 ## What the AI does (the honest answer for judges)
 
-- **Listening is not AI.** It is signal processing on the phone: we measure the pitch of the hiss and where it falls in the word. This is on purpose. Speech recognition gets about 78% of words wrong on deaf speech versus 18% for hearing speakers ([Glasser et al.](https://ar5iv.labs.arxiv.org/html/1909.02853)), and language models fill in sounds that were not said ([Whisper hallucination study](https://arxiv.org/html/2402.08021)). A tool that "hears" an "s" that was never said is worse than no tool.
+- **Listening is not AI.** It is signal processing on the phone: we measure the pitch of the hiss and where it falls in the word. This is on purpose. Across four current speech recognition systems, the word error rate was 52.6% for deaf and hard-of-hearing speakers versus 5.0% for hearing speakers ([Zhao 2024](https://koenecke.infosci.cornell.edu/files/Laryngoscope_Zhao2024.pdf), 24 and 9 speakers). An older test of one system found about 78% versus 18% ([Glasser 2017](https://ar5iv.labs.arxiv.org/html/1909.01167)), and language models fill in sounds that were not said ([Whisper hallucination study](https://arxiv.org/html/2402.08021)). A tool that "hears" an "s" that was never said is worse than no tool.
 - **AI (Claude) does the personal part:** builds the practice list around the learner's sounds and interests, reads a photo of an audiogram, and turns practice history into one plain tip. Say only the parts that are built by demo time.
 - Do not say "the AI runs the app" or "AI listens to your speech". A judge who asks how will find out it does not.
 
@@ -30,6 +30,24 @@ Facts we rely on, with sources. Owner: Holly. Add a source for every new claim. 
 - SpeechLP: AI articulation app for children 3 to 9, launched at ASHA 2025. Not built for hearing loss ([press release](https://www.k12dive.com/press-release/20251112-speechlp-launches-ai-speech-therapy-app-at-asha-2025-conference/)).
 - SpeechPath, MED-EL ReDi, Cochlear CoPilot, Neosensory Clarify, older systems (IBM SpeechViewer): see the HearFit proposal in the Hackathon-Practice repo for the full table and sources.
 - Pitch claim we can defend: "Speech practice apps exist, but none we found builds the practice from your own hearing." Never say "first speech app for deaf learners".
+
+## The problem in numbers (checked Nov 14)
+
+- At age 6, hard-of-hearing children used the "s" verb ending ("she runs") 75% of the time, versus 97% for hearing children, and the gap had not closed by age 6 ([Koehlinger 2013](https://pmc.ncbi.nlm.nih.gov/articles/PMC3951012)). This is the verb ending, not the plural.
+- How well a child hears at 4 kHz through hearing aids predicts how well they say "s" endings ([Koehlinger 2015](https://pmc.ncbi.nlm.nih.gov/articles/PMC4398614)).
+- In speakers aged 8 to 17 with hearing loss, the "s" sits lower in pitch as high-pitch hearing gets worse, so "s" and "sh" move closer together ([Pittman 2018](https://doi.org/10.1044/2018_JSLHR-H-17-0460), abstract only). This is what our meter shows.
+- Hard-of-hearing elementary students see a speech therapist about 1.7 times a week for about 31 minutes. 30% get no services ([Page 2018](https://pmc.ncbi.nlm.nih.gov/articles/PMC6430501)).
+- The median school speech therapist has 50 students. They say 40 is manageable ([ASHA 2026 Schools Survey](https://www.asha.org/siteassets/surveys/2026-schools-survey-slp-caseload.pdf)).
+- 70,000 students aged 3 to 21 were served for hearing impairment under special education law in 2022-23 ([NCES](https://nces.ed.gov/programs/digest/d23/tables/dt23_204.30.asp)).
+- After high school, school speech services stop. Colleges owe interpreters and note takers, not speech therapy ([Hands and Voices](https://handsandvoices.org/needs/transition.htm)).
+- No study we found counts dropped plural "s" at ages 8 to 12 or at college age. Do not put a number on those.
+
+## Prices of similar tools (checked Nov 14)
+
+- Little Bee Speech, for therapists: $119.99 a year. For parents: $83.99 a year ([price page](https://little-bee-speech-tu.instantdocsbase.com/help/how-much-is-the-subscription)).
+- SLP Toolkit, sold to school districts: $235 per seat per year, by purchase order ([price page](https://www.slptoolkit.com/pricing/)).
+- Speech Blubs, for parents: $59.99 a year ([price page](https://speechblubs.com/faq/how-much-does-speech-blubs-cost)).
+- Do not say that special education law pays for SeeSpeak. Whether an app counts as assistive technology is decided child by child.
 
 ## Not proven (say so if asked)
 
