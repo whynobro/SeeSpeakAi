@@ -28,15 +28,15 @@ Pick the one that matches what is live on Sunday.
 
 ## Questions to expect
 
-| Question                         | Answer                                                                                                                                                                                                               |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| How accurate is it?              | (Michael's numbers: right N times in 10 on N voices, quiet room.) "Only 's' and 'sh' today. We do not claim more."                                                                                                   |
-| Is this therapy?                 | "No. It is extra practice that people choose. Not therapy, not a diagnosis, not a hearing test."                                                                                                                     |
-| Why not teach sign instead?      | "Sign language is welcome here. This is for people who choose to work on spoken English. In a 2013 national school survey, more than half of deaf and hard-of-hearing students were taught only in spoken language." |
-| Has it been proven to work?      | "Not yet. Showing the sound on screen has been tried in research since the 1980s. Our own numbers are from this weekend, on a few people."                                                                           |
-| Does it work on iPhone?          | (Michael's answer from issue #2.) "Vibration is Android only. Every result also shows on screen."                                                                                                                    |
-| What did you build this weekend? | "All of it, since Friday 5 PM."                                                                                                                                                                                      |
-| Who else does this?              | "SpeechLP, SpeechPath, MED-EL ReDi. None we found starts from your own hearing."                                                                                                                                     |
+| Question                         | Answer                                                                                                                                                                                                                  |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| How accurate is it?              | (Michael's numbers: right N times in 10 on N voices, quiet room.) "Only 's' and 'sh' today. We do not claim more."                                                                                                      |
+| Is this therapy?                 | "No. It is extra practice that people choose, for the days between sessions or when a therapist is hard to reach. It starts with a quick hearing check and a speaking check. Neither is a medical test or a diagnosis." |
+| Why not teach sign instead?      | "Sign language is welcome here. This is for people who choose to work on spoken English. In a 2013 national school survey, more than half of deaf and hard-of-hearing students were taught only in spoken language."    |
+| Has it been proven to work?      | "Not yet. Showing the sound on screen has been tried in research since the 1980s. Our own numbers are from this weekend, on a few people."                                                                              |
+| Does it work on iPhone?          | (Michael's answer from issue #2.) "Vibration is Android only. Every result also shows on screen."                                                                                                                       |
+| What did you build this weekend? | "All of it, since Friday 5 PM."                                                                                                                                                                                         |
+| Who else does this?              | "SpeechLP, SpeechPath, MED-EL ReDi. None we found starts from your own hearing."                                                                                                                                        |
 
 ## Who pays and first users
 

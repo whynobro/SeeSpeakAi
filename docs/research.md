@@ -14,7 +14,7 @@ Facts we rely on, with sources. Owner: Holly. Add a source for every new claim. 
 
 - Ling Six sounds by pitch: "sh" energy sits around 2 to 4 kHz, "s" around 4 to 8 kHz ([BATOD](https://www.batod.org.uk/wp-content/uploads/2022/09/The-Ling-6-Sound-Test.pdf)). Not hearing "s" suggests little hearing at or above 4 kHz. Not hearing "sh" suggests little above 2 kHz.
 - Spectral moments, such as the center of the hiss's pitch, separate "s" from "sh" ([Jongman, Wayland and Wong 2000](https://doi.org/10.1121/1.1288413)). Women's and children's voices sit higher than men's, so thresholds must be tuned on several voices.
-- The Ling check on a phone is a quick screen, not a hearing test. Phone speakers are not calibrated.
+- The Ling check on a phone is a quick hearing check, not a medical hearing test. Phone speakers are not calibrated, so it cannot give decibel levels the way an audiologist's test does. Wording rule: call it a "hearing check" (and the starting words a "speaking check"), never a "hearing test" or a "diagnosis". A tool that claims to test hearing or diagnose is making a medical claim.
 
 ## Phone and browser facts
 
@@ -51,7 +51,22 @@ Facts we rely on, with sources. Owner: Holly. Add a source for every new claim. 
 - Speech Blubs, for parents: $59.99 a year ([price page](https://speechblubs.com/faq/how-much-does-speech-blubs-cost)).
 - Do not say that special education law pays for SeeSpeak. Whether an app counts as assistive technology is decided child by child.
 
+## Teens, adults and feedback (checked Nov 14)
+
+- When people cannot hear high pitches, their "s" drifts lower, toward "sh". This is measured in children with implants ([Todd 2011](https://pmc.ncbi.nlm.nih.gov/articles/PMC3253598)), in children and teens with hearing aids ([Pittman 2018](https://doi.org/10.1044/2018_JSLHR-H-17-0460)), and in adults who lost hearing later ([Lane and Webster 1991](https://doi.org/10.1121/1.1894647)).
+- In adults with cochlear implants, the "s" and "sh" difference shrank without sound feedback and grew again when it came back ([Lane 2007](<https://doi.org/10.1044/1092-4388(2007/065)>)).
+- In a randomized trial of 108 hearing children working on "r", adding visual biofeedback made progress faster than standard therapy alone ([McAllister 2025](https://pubmed.ncbi.nlm.nih.gov/40920957/)). Say it was "r" in hearing children.
+- Visual feedback for deaf speakers has a 40-year history with mixed results in small studies ([Gulian 1983](https://pubmed.ncbi.nlm.nih.gov/6199064/), [Pratt 1993](https://pubmed.ncbi.nlm.nih.gov/8246472/)). An "s" indicator existed in 1978, so we are not first. Older trainers were least accurate on high-pitched voices (Pratt 1993).
+- More practice tracks with more progress. In one mobile speech game, children did about half the practice asked, and more sessions went with more gain ([McLeod 2023](https://pubmed.ncbi.nlm.nih.gov/37227246/)).
+- Women's and children's "s" sits higher than men's, sometimes above 8 kHz, so thresholds should be calibrated per voice ([Holliday 2015](https://pmc.ncbi.nlm.nih.gov/articles/PMC4490023/)).
+- Deaf adults told researchers they want speech therapy that respects both sign and spoken language ([Newbury 2026](https://pubmed.ncbi.nlm.nih.gov/41979017/)). Deaf young adults describe a deaf identity that includes using spoken language ([Yin 2026](https://pubmed.ncbi.nlm.nih.gov/41881826/)).
+- There is no evidence that learning ASL affects spoken English pronunciation. Do not link them.
+- Full notes: the evidence-gap report, sections 1 to 7 (kept outside the repo by Holly).
+
 ## Not proven (say so if asked)
+
+- That SeeSpeak, or any visual "s" meter, improves speech in hard-of-hearing teens or adults. No trial exists.
+- That practice in the app carries over into everyday speech.
 
 - That vibration feedback improves speaking. Research so far is small prototypes.
 - That lowering the pitch of "s" helps people say it. One study of 15 children found it helps them hear high sounds in quiet, not in noise, and it did not test speaking ([Wolfe 2010](https://www.thieme-connect.de/products/ejournals/pdf/10.3766/jaaa.21.10.2.pdf)).
