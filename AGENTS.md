@@ -13,8 +13,8 @@ Rules for AI coding agents working in this repo. Your user is one of three teamm
 4. **Never commit to `main`.** Work on a branch named `<lane>/<task>` (`tech`, `ui`, `content`). Open a pull request. Never force-push.
 5. **No secrets.** Never write keys, tokens or `.env*` files (except `.env.example`) into the repo. The repo is public. `ANTHROPIC_API_KEY` is server-side only and must never reach browser code.
 6. **Do not reformat or "clean up" files outside the task.** No drive-by renames, no mass formatting, no dependency upgrades.
-7. **Privacy:** never upload or store audio. Sound analysis stays in the browser. The hearing profile, settings and practice history stay on the device (`localStorage`). The server may receive only target sounds and interest topics, never a name, a voice or hearing thresholds. If an audiogram photo is sent to the AI, say so on screen first, send it once, and do not store it.
-8. **Honest scoring.** The app scores only the sounds in `TargetSound`. Do not add whole-word speech recognition to judge pronunciation (it fails on deaf speech and "autocorrects" missing sounds). Do not claim a sound is scored until `src/lib/scoring` has tests for it.
+7. **Privacy:** never upload or store audio. Sound analysis stays in the browser. Settings and practice history stay on the device (`localStorage`). The server (and the AI behind it) may receive the report with every name removed, target sounds, interest topics and score numbers. Never a name, never a voice. Tell the learner on screen before a report or photo is sent. Send it once. Store nothing on the server.
+8. **Honest scoring.** The phone measures, the brain explains: Claude never receives audio and never decides a verdict. The app scores only the sounds in `TargetSound`; any other sound in a plan is `scored: false` and gets no verdict. Do not add whole-word speech recognition to judge pronunciation (it fails on deaf speech and "autocorrects" missing sounds). Do not claim a sound is scored until `src/lib/scoring` has tests for it.
 9. **Respect.** Never write text that frames a learner as broken or as someone to "fix". This is opt-in practice between speech therapy sessions. It is not therapy, not a diagnosis and not a hearing test. Sign language is welcome and sign cards are optional.
 10. Do not add dependencies without telling your user (`package.json` is a hot file).
 
@@ -26,31 +26,34 @@ Tailwind is v4 and React is 19. Check their docs when unsure.
 
 ## Code map
 
-| Path                        | Purpose                                                              | Lane    |
-| --------------------------- | -------------------------------------------------------------------- | ------- |
-| `src/lib/types.ts`          | Shared contract (hot file)                                           | all     |
-| `src/lib/audio/`            | Mic capture (`mic.ts`), FFT, sound features per frame                | tech    |
-| `src/lib/scoring/`          | `readFrame`, `scoreAttempt`, `LIMITATIONS`, thresholds, test sounds  | tech    |
-| `src/lib/profile/`          | `pickTargets(profile)`: hearing profile to sounds to practice        | tech    |
-| `src/lib/store/`            | On-device storage and `progressFor`                                  | tech    |
-| `src/lib/feedback/`         | Vibration patterns                                                   | tech    |
-| `src/lib/ai/`               | Claude calls (server only), word-bank fallback                       | tech    |
-| `src/hooks/`                | `useSoundMeter`: what screens use to listen                          | tech    |
-| `src/app/api/practice-list` | `POST /api/practice-list`                                            | tech    |
-| `src/app/lab/`              | Debug page for tuning on real voices                                 | tech    |
-| `src/app/page.tsx`          | Landing page                                                         | screens |
-| `src/app/profile/`          | Hearing profile (Ling Six check, settings)                           | screens |
-| `src/app/practice/`         | Practice loop: word, live meter, verdict                             | screens |
-| `src/app/progress/`         | Before and after numbers                                             | screens |
-| `src/components/`           | Shared UI: `SoundMeter`, `VerdictBadge`, `WordCard`                  | screens |
-| `src/content/`              | Word bank, how-to cues, interface wording                            | content |
-| `docs/lanes/`               | One build file per lane                                              | all     |
-| `docs/research.md`          | Facts, sources and what we must not claim                            | content |
-| `docs/pitch/`               | Demo script, rubric tracking, user test log                          | content |
+| Path                | Purpose                                                               | Lane    |
+| ------------------- | --------------------------------------------------------------------- | ------- |
+| `src/lib/types.ts`  | Shared contract (hot file)                                            | all     |
+| `src/lib/audio/`    | Mic capture (`mic.ts`), FFT, sound features per frame                 | tech    |
+| `src/lib/scoring/`  | `readFrame`, `scoreAttempt`, `LIMITATIONS`, thresholds, test sounds   | tech    |
+| `src/lib/profile/`  | `pickTargets(profile)`: hearing profile to sounds to practice         | tech    |
+| `src/lib/store/`    | On-device storage and `progressFor`                                   | tech    |
+| `src/lib/feedback/` | Vibration patterns                                                    | tech    |
+| `src/lib/ai/`       | The brain: `buildPlan`, `buildFeedback` (server only), rule fallbacks | tech    |
+| `src/hooks/`        | `useSoundMeter`: what screens use to listen                           | tech    |
+| `src/app/api/`      | `POST /api/plan`, `POST /api/feedback`, `POST /api/practice-list`     | tech    |
+| `src/app/lab/`      | Debug page for tuning on real voices                                  | tech    |
+| `src/app/page.tsx`  | Landing page                                                          | screens |
+| `src/app/profile/`  | Hearing profile (Ling Six check, settings)                            | screens |
+| `src/app/practice/` | Practice loop: word, live meter, verdict                              | screens |
+| `src/app/progress/` | Before and after numbers                                              | screens |
+| `src/components/`   | Shared UI: `SoundMeter`, `VerdictBadge`, `WordCard`                   | screens |
+| `src/content/`      | Word bank, how-to cues, interface wording                             | content |
+| `docs/PLAN.md`      | The loop and who builds what. Read it first.                          | all     |
+| `docs/lanes/`       | One build file per lane                                               | all     |
+| `docs/research.md`  | Facts, sources and what we must not claim                             | content |
+| `docs/pitch/`       | Demo script, rubric tracking, user test log                           | content |
 
 ## Data flow
 
-Hearing profile (`HearingProfile`) -> `pickTargets` -> `TargetPick[]` -> words from `src/content/words.ts` (or `POST /api/practice-list`) -> learner says a word -> `startMic` -> `FrameFeatures` about 50 times a second -> `readFrame` (live `SoundReading` for the meter) -> on stop, `scoreAttempt(frames, word)` -> `AttemptScore` (hit, close or miss) -> `VerdictBadge` and `buzz` -> `saveAttempt` -> `progressFor` -> progress screen.
+The loop is in [docs/PLAN.md](docs/PLAN.md): report -> plan -> training -> feedback -> goal.
+
+`AssessmentReport` (therapist report or in-app test) -> `POST /api/plan` -> `PracticePlan` (steps with words) -> learner says a word -> `startMic` -> `FrameFeatures` about 50 times a second -> `readFrame` (live `SoundReading` for the meter) -> on stop, `scoreAttempt(frames, word)` -> `AttemptScore` (hit, close or miss) -> `VerdictBadge` and `buzz` -> `saveAttempt` -> `POST /api/feedback` with the recent scores -> `CoachFeedback` (what to change, what next) -> `progressFor` -> progress screen.
 
 Screens never touch the mic or the math directly. They call `useSoundMeter` and functions from `src/lib/`.
 

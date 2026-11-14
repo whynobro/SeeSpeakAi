@@ -6,24 +6,25 @@ If you cannot hear high sounds like "s" and "sh", you cannot copy them. So "cats
 
 ## How it works
 
-1. **Hearing profile (1 minute).** A Ling Six Sound check (m, oo, ah, ee, sh, s) or a typed audiogram.
-2. **Personal practice list.** Words built around the sounds this person is likely to miss, including grammar endings (cat, cats).
-3. **See how, then say it.** Mouth position tips, then say the word. A live meter slides between "sh" and "s" while you speak.
-4. **Feedback you can perceive.** Color with a word and an icon, plus a phone vibration. Never sound alone.
-5. **Progress.** Before and after accuracy for each sound.
+1. **Report.** Start from a speech therapist's report (the sounds and goals they set), or take the test in the app (a one-minute hearing check plus a few starting words).
+2. **Curated plan.** The brain (Claude) turns the report into a plan: which sounds, which words, what goal, in what order.
+3. **Training.** Three views of each sound: the mouth (where tongue and lips go), a live graph of your sound, and a frequency meter that slides between "sh" and "s". The phone gives an instant result by color, icon and vibration. Then the brain reads your scores and tells you what to change and what to do next.
+4. **Goal: better pronunciation.** Before and after accuracy for each sound.
+
+The full plan, and who builds what, is in [docs/PLAN.md](docs/PLAN.md).
 
 For people who choose to work on spoken English. Sign language is welcome: sign cards are an optional setting. SeeSpeak is practice between speech therapy sessions. It is not therapy, not a diagnosis and not a hearing test.
 
 ## What the phone does and what the AI does
 
 - **Listening is signal processing, on the phone.** The app measures the pitch of the hiss (an "s" sits around 4 to 8 kHz, an "sh" around 2 to 4 kHz) and checks that it lands in the right place in the word. We do not use speech recognition to judge speech: it gets about 78% of words wrong on deaf speech (18% for hearing speakers) and it "autocorrects" a missing sound.
-- **AI (Claude) personalizes.** Planned this weekend: build the practice list around the learner's sounds and interests, read a photo of an audiogram, and turn practice history into one plain next tip. If the AI is unreachable, the app falls back to a built-in word bank.
+- **The brain is AI (Claude).** It builds the curated plan from the report, and after each try it reads the scores (numbers, never audio) and says what to change and what to do next. Being wired up this weekend: until the key is in, built-in rules do both jobs, and they stay as the fallback.
 
 ## Privacy
 
 - Your voice is analysed in the phone browser. Audio is never uploaded or stored.
-- The hearing profile and practice history stay on the device. No accounts.
-- The server only ever receives target sounds and interest topics.
+- Practice history stays on the device. No accounts.
+- The brain receives the report with names removed, and score numbers. Never your voice. Nothing is stored on the server.
 
 ## Honest limits
 
@@ -34,13 +35,13 @@ For people who choose to work on spoken English. Sign language is welcome: sign 
 
 ## Similar products
 
-| Product | What it does | How SeeSpeak differs |
-| --- | --- | --- |
-| [SpeechLP](https://apps.apple.com/us/app/-/id6752866135) | AI articulation practice for children 3 to 9 | Its feedback assumes the child can hear the difference. Ours is built for hearing loss. |
-| [SpeechPath](https://apps.apple.com/us/app/speechpath/id6745437939) | Pronunciation practice for deaf users with recognition scoring | Our targets come from the user's own hearing profile, with a live meter and vibration. |
-| [MED-EL ReDi](https://apps.apple.com/us/app/-/id1506576790) | Listening and speech practice from an implant maker | Not tied to a device brand. Personal targets. |
-| [Neosensory Clarify](https://neosensory.com/blog/neosensory-clarify/) | Wristband that turns s, z, th, f into vibration | That helps you hear the sounds. We help you say them, with only a phone. |
-| ELSA-style accent apps | Pronunciation for second-language learners | They assume you can hear the target sound. |
+| Product                                                               | What it does                                                   | How SeeSpeak differs                                                                    |
+| --------------------------------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| [SpeechLP](https://apps.apple.com/us/app/-/id6752866135)              | AI articulation practice for children 3 to 9                   | Its feedback assumes the child can hear the difference. Ours is built for hearing loss. |
+| [SpeechPath](https://apps.apple.com/us/app/speechpath/id6745437939)   | Pronunciation practice for deaf users with recognition scoring | Our targets come from the user's own hearing profile, with a live meter and vibration.  |
+| [MED-EL ReDi](https://apps.apple.com/us/app/-/id1506576790)           | Listening and speech practice from an implant maker            | Not tied to a device brand. Personal targets.                                           |
+| [Neosensory Clarify](https://neosensory.com/blog/neosensory-clarify/) | Wristband that turns s, z, th, f into vibration                | That helps you hear the sounds. We help you say them, with only a phone.                |
+| ELSA-style accent apps                                                | Pronunciation for second-language learners                     | They assume you can hear the target sound.                                              |
 
 Sources and the full prior-art notes are in [docs/research.md](docs/research.md).
 
@@ -83,6 +84,7 @@ Each person owns one lane. Stay inside your folders.
 
 ## Docs
 
+- [docs/PLAN.md](docs/PLAN.md): the loop, who builds what, how the team's AI agents stay in sync. Read it first.
 - [TEAM.md](TEAM.md): setup, the git loop, merge conflicts, demo rules.
 - [AGENTS.md](AGENTS.md): rules for AI coding agents (also read by Claude Code through `CLAUDE.md`).
 - [docs/lanes/](docs/lanes/): one build file per lane.
