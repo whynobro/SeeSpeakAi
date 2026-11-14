@@ -34,25 +34,29 @@ export function WordCard({ word, showSign }: { word: PracticeWord; showSign: boo
   const sign = showSign ? word.sign : null;
 
   return (
-    <div className="rounded-2xl border-2 border-current p-6 text-center">
-      <p className="text-6xl tracking-wide">
+    <div className="rounded-2xl border-2 border-line bg-surface px-4 py-5 text-center">
+      <p className="text-6xl leading-tight font-medium tracking-wide break-words">
         {before}
-        {mark && <strong className="font-extrabold underline decoration-4 underline-offset-8">{mark}</strong>}
+        {mark && (
+          <strong className="font-black text-accent underline decoration-[6px] underline-offset-[10px]">
+            {mark}
+          </strong>
+        )}
         {after}
       </p>
       {word.baseWord && (
-        <p className="mt-3 text-xl">
+        <p className="mt-2 text-xl text-muted">
           {word.baseWord} → {word.text}
         </p>
       )}
       {sign && (
-        <div className="mt-4 border-t border-current/30 pt-4 text-left">
+        <div className="mt-4 border-t border-line pt-4 text-left">
           {sign.imageUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={sign.imageUrl} alt={`Sign for ${sign.gloss}`} className="mx-auto max-h-48" />
           )}
           <p className="mt-2 font-bold">Sign: {sign.gloss}</p>
-          <p className="text-sm">Source: {sign.credit}</p>
+          <p className="text-sm text-muted">Source: {sign.credit}</p>
           {!sign.reviewed && <p className="text-sm font-bold">Not yet reviewed by a signer.</p>}
         </div>
       )}
