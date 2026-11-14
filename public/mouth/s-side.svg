@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title">
+  <title id="title">Side view of the mouth for "s": teeth close, lips pulled back, tongue tip just behind the top teeth</title>
+  <defs>
+    <clipPath id="panel"><rect x="2" y="2" width="236" height="236" rx="20"/></clipPath>
+    <pattern id="tongue" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="7" height="7" fill="#c7d2fe"/>
+      <line x1="0" y1="0" x2="0" y2="7" stroke="#3730a3" stroke-width="2"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#3730a3"/>
+    </marker>
+  </defs>
+  <rect x="2" y="2" width="236" height="236" rx="20" fill="#ffffff"/>
+  <g clip-path="url(#panel)" stroke="#1a1a1f" stroke-linejoin="round" stroke-linecap="round" fill="none">
+    <!-- head, facing left; lips flat and pulled back -->
+    <path fill="#e9e5dc" stroke-width="3" d="M78 0 C72 24 52 44 30 62 C22 68 24 78 34 80 C40 81 44 82 46 84 C44 96 41 106 41 114 C41 120 46 124 54 125 L60 127 L54 129 C45 129 41 135 43 143 C45 151 51 155 51 161 C47 174 44 188 54 198 C68 210 110 210 140 210 L150 240 L240 240 L240 0 Z"/>
+    <!-- open space inside the mouth and throat -->
+    <path fill="#ffffff" stroke-width="2.5" d="M60 127 L66 112 L72 102 C76 96 82 92 90 93 C98 94 102 92 108 86 C122 74 156 68 180 80 C192 88 196 100 194 114 C193 120 198 121 200 112 C202 102 206 96 212 94 L214 240 L192 240 C192 225 194 215 196 206 C150 210 100 200 84 176 L70 134 Z"/>
+    <!-- upper front tooth -->
+    <path fill="#ffffff" stroke-width="2.5" d="M62 88 C60 102 56 114 55 126 C58 129 64 128 66 125 C70 114 75 102 80 94 Z"/>
+    <!-- lower front tooth -->
+    <path fill="#ffffff" stroke-width="2.5" d="M58 131 C60 144 62 156 64 168 L78 166 C73 152 69 140 66 130 C63 128 60 128 58 131 Z"/>
+    <!-- tongue: tip raised just behind the top teeth -->
+    <path fill="url(#tongue)" stroke-width="3" d="M79 106 C86 101 94 101 102 103 C120 107 140 110 158 108 C182 105 198 114 200 138 C202 160 200 182 196 206 C150 210 112 200 102 182 C96 168 96 152 93 140 C89 127 83 116 79 106 Z"/>
+    <!-- air: one thin stream over the tongue tip and out between the teeth -->
+    <path stroke="#3730a3" stroke-width="2.5" stroke-dasharray="4 4" d="M118 101 C100 99 88 100 80 104 C72 110 66 120 62 128"/>
+    <path stroke="#3730a3" stroke-width="3" marker-end="url(#arrow)" d="M58 128 L10 128"/>
+    <!-- narrowest gap: tongue tip and the ridge behind the top teeth -->
+    <circle cx="92" cy="98" r="10" stroke="#3730a3" stroke-width="3" fill="none"/>
+  </g>
+  <rect x="2" y="2" width="236" height="236" rx="20" fill="none" stroke="#d6d2c8" stroke-width="2"/>
+</svg>

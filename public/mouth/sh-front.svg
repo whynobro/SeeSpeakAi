@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title">
+  <title id="title">Front view of the mouth for "sh": lips rounded and pushed forward, teeth only just showing, a wider round opening</title>
+  <defs>
+    <clipPath id="panel"><rect x="2" y="2" width="236" height="236" rx="20"/></clipPath>
+    <clipPath id="opening"><path d="M100 130 C100 120 110 116 120 116 C130 116 140 120 140 130 C140 140 130 144 120 144 C110 144 100 140 100 130 Z"/></clipPath>
+  </defs>
+  <rect x="2" y="2" width="236" height="236" rx="20" fill="#ffffff"/>
+  <g clip-path="url(#panel)" stroke="#1a1a1f" stroke-linejoin="round" stroke-linecap="round" fill="none">
+    <!-- lower face -->
+    <path fill="#e9e5dc" stroke-width="3" d="M14 0 C8 110 50 214 120 228 C190 214 232 110 226 0 Z"/>
+    <!-- nose -->
+    <path stroke-width="3" d="M90 24 C82 46 92 60 106 58 C110 64 130 64 134 58 C148 60 158 46 150 24"/>
+    <path stroke-width="2.5" d="M106 52 C110 48 114 50 114 54 M134 52 C130 48 126 50 126 54"/>
+    <!-- chin -->
+    <path stroke-width="2.5" d="M98 200 C110 207 130 207 142 200"/>
+    <!-- lips rounded and pushed forward -->
+    <path fill="#b9a69c" stroke-width="3" d="M74 130 C74 104 94 92 110 95 C114 97 126 97 130 95 C146 92 166 104 166 130 C166 156 146 170 120 170 C94 170 74 156 74 130 Z"/>
+    <path stroke-width="1.5" d="M148 130 L158 130 M144 141 L153 146 M134 149 L139 157 M120 152 L120 161 M106 149 L101 157 M96 141 L87 146 M92 130 L82 130 M96 119 L87 114 M106 111 L101 103 M120 108 L120 99 M134 111 L139 103 M144 119 L153 114"/>
+    <path fill="#1a1a1f" stroke-width="2.5" d="M100 130 C100 120 110 116 120 116 C130 116 140 120 140 130 C140 140 130 144 120 144 C110 144 100 140 100 130 Z"/>
+    <g clip-path="url(#opening)" stroke-width="1.5">
+      <!-- only the edges of the teeth show -->
+      <path fill="#ffffff" d="M90 100 L150 100 L150 121 C135 123 105 123 90 121 Z"/>
+      <path d="M120 100 V123 M109 100 V123 M131 100 V123"/>
+      <path fill="#ffffff" d="M90 141 C105 139 135 139 150 141 L150 156 L90 156 Z"/>
+      <path d="M114 139 V156 M126 139 V156"/>
+    </g>
+    <!-- the wider opening where the air comes out -->
+    <ellipse cx="120" cy="130" rx="25" ry="19" stroke="#3730a3" stroke-width="3" stroke-dasharray="6 4"/>
+  </g>
+  <rect x="2" y="2" width="236" height="236" rx="20" fill="none" stroke="#d6d2c8" stroke-width="2"/>
+</svg>

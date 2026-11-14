@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title">
+  <title id="title">Side view of the mouth for "sh": lips rounded and pushed forward, tongue pulled back and raised toward the roof of the mouth</title>
+  <defs>
+    <clipPath id="panel"><rect x="2" y="2" width="236" height="236" rx="20"/></clipPath>
+    <pattern id="tongue" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="7" height="7" fill="#c7d2fe"/>
+      <line x1="0" y1="0" x2="0" y2="7" stroke="#3730a3" stroke-width="2"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#3730a3"/>
+    </marker>
+  </defs>
+  <rect x="2" y="2" width="236" height="236" rx="20" fill="#ffffff"/>
+  <g clip-path="url(#panel)" stroke="#1a1a1f" stroke-linejoin="round" stroke-linecap="round" fill="none">
+    <!-- head, facing left; lips rounded and pushed forward -->
+    <path fill="#e9e5dc" stroke-width="3" d="M78 0 C72 24 52 44 30 62 C22 68 24 78 34 80 C40 81 44 82 46 84 C38 92 24 98 20 108 C18 116 22 121 30 122 L36 123 L36 131 L30 132 C20 133 18 144 25 151 C33 158 47 156 50 162 C47 174 44 188 54 198 C68 210 110 210 140 210 L150 240 L240 240 L240 0 Z"/>
+    <!-- open space inside the mouth and throat -->
+    <path fill="#ffffff" stroke-width="2.5" d="M36 123 C46 118 54 112 60 104 L72 102 C76 96 82 92 90 93 C98 94 102 92 108 86 C122 74 156 68 180 80 C192 88 196 100 194 114 C193 120 198 121 200 112 C202 102 206 96 212 94 L214 240 L192 240 C192 225 194 215 196 206 C150 210 100 200 84 176 L70 134 C60 138 46 136 36 131 Z"/>
+    <!-- upper front tooth -->
+    <path fill="#ffffff" stroke-width="2.5" d="M62 88 C60 102 56 114 55 126 C58 129 64 128 66 125 C70 114 75 102 80 94 Z"/>
+    <!-- lower front tooth -->
+    <path fill="#ffffff" stroke-width="2.5" d="M58 131 C60 144 62 156 64 168 L78 166 C73 152 69 140 66 130 C63 128 60 128 58 131 Z"/>
+    <!-- tongue: pulled back, tip lower, body raised toward the roof of the mouth -->
+    <path fill="url(#tongue)" stroke-width="3" d="M94 124 C98 112 108 96 122 88 C136 80 156 78 174 84 C192 92 200 112 202 138 C202 160 200 182 196 206 C150 210 112 200 102 182 C96 168 98 150 98 140 C98 134 96 128 94 124 Z"/>
+    <!-- air: a wider stream from behind the ridge, out through the rounded lips -->
+    <path fill="#c7d2fe" stroke="none" d="M34 123 L2 100 L2 154 L34 131 Z"/>
+    <path stroke="#3730a3" stroke-width="2.5" stroke-dasharray="4 4" d="M150 80 C130 82 112 92 98 104 C86 114 72 122 60 128 L40 127"/>
+    <g stroke="#3730a3" stroke-width="3" marker-end="url(#arrow)">
+      <path d="M32 124 L12 111"/>
+      <path d="M32 127 L8 127"/>
+      <path d="M32 130 L12 143"/>
+    </g>
+    <!-- narrowest gap: tongue body and the roof of the mouth, behind the ridge -->
+    <circle cx="132" cy="78" r="10" stroke="#3730a3" stroke-width="3" fill="none"/>
+  </g>
+  <rect x="2" y="2" width="236" height="236" rx="20" fill="none" stroke="#d6d2c8" stroke-width="2"/>
+</svg>
