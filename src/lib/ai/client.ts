@@ -17,7 +17,15 @@ export function parseJsonReply(text: string): unknown | null {
   try {
     return JSON.parse(body) as unknown;
   } catch {
-    return null;
+    // Some replies put a sentence before or after the JSON. Try the outermost { ... } once.
+    const first = body.indexOf('{');
+    const last = body.lastIndexOf('}');
+    if (first === -1 || last <= first) return null;
+    try {
+      return JSON.parse(body.slice(first, last + 1)) as unknown;
+    } catch {
+      return null;
+    }
   }
 }
 
@@ -43,8 +51,15 @@ export async function askClaudeForJson(opts: AskOptions): Promise<unknown | null
       .map((block) => (block.type === 'text' ? block.text : ''))
       .join('')
       .trim();
-    return text ? parseJsonReply(text) : null;
-  } catch {
+    const parsed = text ? parseJsonReply(text) : null;
+    if (parsed === null)
+      console.warn(`[brain] ${opts.model}: reply was not JSON (${text.length} characters)`);
+    return parsed;
+  } catch (err) {
+    // Log why, so a silent fallback to the rules can be diagnosed. Never log the key or the prompt.
+    const name = err instanceof Error ? err.name : 'Error';
+    const status = typeof err === 'object' && err !== null && 'status' in err ? String(err.status) : '-';
+    console.warn(`[brain] ${opts.model}: call failed (${name}, status ${status})`);
     return null;
   }
 }
