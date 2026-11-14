@@ -63,6 +63,16 @@ Facts we rely on, with sources. Owner: Holly. Add a source for every new claim. 
 - There is no evidence that learning ASL affects spoken English pronunciation. Do not link them.
 - Full notes: the evidence-gap report, sections 1 to 7 (kept outside the repo by Holly).
 
+## What a speech therapist's check includes (checked Nov 14)
+
+- A full speech evaluation covers case history, a hearing screen, an oral-motor exam, single words with each sound at the start, middle and end of words and in blends, a connected-speech sample, stimulability (can the child say it right with a model), an intelligibility rating and error-pattern analysis ([ASHA](https://www.asha.org/practice-portal/clinical-topics/articulation-and-phonology/)).
+- Standard picture-naming tests take 5 to 20 minutes: GFTA-3 Sounds-in-Words 5 to 15 ([Pearson](https://www.pearsonassessments.com/store/usassessments/en/Store/Professional-Assessments/Speech-%26-Language/Goldman-Fristoe-Test-of-Articulation-%7C-Third-Edition/p/100001202.html)), Arizona-4 5 to 20.
+- Picture naming is preferred over repeating after a model, since repeating can hide errors.
+- For deaf and hard-of-hearing children, therapists add listening checks: the Ling Six Sound Test (detect, then identify, with silent trials, with devices on and off) and picture tests with minimal pairs such as "sip" and "ship".
+- Digits-in-noise listening tests need no calibrated volume, but children's norms exist only for about ages 6 to 13. A phone speaker cannot give decibel numbers.
+- Not sourced: how many tries per sound give a stable result, stopping rules, and attention spans for ages 5 to 8. Our item counts are our own design.
+- SeeSpeak's two checks borrow this structure for "s" and "sh" only. They are practice checks, not an evaluation or a hearing test.
+
 ## Feedback design and games (checked Nov 14)
 
 - After each try, show the result plus one cue about what to change ("hold it longer"). Too much detail makes learners depend on the feedback, and fewer, summary-style results help skills last ([Maas 2008](<https://pubs.asha.org/doi/10.1044/1058-0360(2008/025)>), read through secondary summaries). Evidence in speech is small.
