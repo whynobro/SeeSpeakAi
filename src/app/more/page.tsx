@@ -1,8 +1,11 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { HowItWorks } from '@/components/HomeStart';
+import { ChevronRightIcon } from '@/components/Icons';
 import { LandingSections } from '@/components/LandingSections';
 import { COPY } from '@/content/copy';
+import { THERAPIST } from '@/content/therapist';
 
 export const metadata: Metadata = { title: 'More · SeeSpeak' };
 
@@ -24,6 +27,16 @@ export default function MorePage() {
         />
         <p className="text-[20px] leading-snug font-bold">{COPY.tagline}</p>
       </header>
+      <Link
+        href="/therapist"
+        className="group flex min-h-16 items-center gap-4 rounded-2xl border border-line bg-surface px-4 py-3 transition-colors duration-150 hover:bg-accent-soft/60 active:bg-accent-soft"
+      >
+        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="text-[17px] leading-snug font-bold">{THERAPIST.moreLink}</span>
+          <span className="text-[15px] text-muted">{THERAPIST.moreDetail}</span>
+        </span>
+        <ChevronRightIcon className="h-5 w-5 shrink-0 text-muted transition-transform duration-150 group-hover:translate-x-0.5" />
+      </Link>
       <HowItWorks />
       <LandingSections />
       <footer className="flex flex-col gap-2 border-t border-line pt-6 text-[15px] leading-relaxed text-muted">
