@@ -9,6 +9,7 @@ import { CheckList } from './CheckList';
 import { CheckCircleIcon, EyeIcon, MicIcon, SpeakIcon } from './Icons';
 import { LessonCard } from './LessonCard';
 import { Button, IconTile } from './ui';
+import { VoiceLoop } from './VoiceLoop';
 import { loadPlan, savePlan } from './planStore';
 import { TRY_IT } from '@/content/tryIt';
 import { planFromRules } from '@/lib/ai/rulesPlan';
@@ -62,14 +63,10 @@ function TryItNow() {
     const step = plan.steps.findIndex((st) => st.scored && st.sound === 's');
     router.push(`/practice?sound=s&plan=${encodeURIComponent(plan.id)}&step=${step}`);
   }
-  // The two sounds are the picture here, straight on the page with no box. A hairline closes the block.
+  // The voice loop picture above already shows the sound, so this block is just the line and the button.
+  // A hairline closes the block.
   return (
     <section aria-label={TRY_IT.button} className="flex flex-col gap-4 border-b border-line pb-6">
-      <p aria-hidden="true" className="flex items-baseline gap-4 text-[56px] leading-none font-extrabold">
-        <span className="text-accent-edge">s</span>
-        <span className="h-9 w-px self-center bg-line" />
-        <span className="text-accent-edge">sh</span>
-      </p>
       <p className="text-[17px] leading-snug font-semibold">{TRY_IT.detail}</p>
       <Button size="lg" onClick={go}>
         <MicIcon className="h-6 w-6" />
@@ -82,6 +79,7 @@ function TryItNow() {
 function FirstVisit() {
   return (
     <>
+      <VoiceLoop />
       <TryItNow />
       <section aria-labelledby="start-heading" className="flex flex-col gap-3">
         <h2 id="start-heading" className="text-[20px] font-bold">
