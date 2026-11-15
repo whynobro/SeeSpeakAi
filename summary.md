@@ -1,6 +1,6 @@
 # SeeSpeak shared test log
 
-Updated 2026-11-15T18:17:55.936Z. 225 tries. Numbers only, never audio.
+Updated 2026-11-15T23:02:38.273Z. 226 tries. Numbers only, never audio.
 
 Tries where the tester said what they really said: 172. Verdict was right on 89 of them.
 
@@ -90,6 +90,7 @@ This is a small test log from a few voices. It is not a clinical accuracy figure
 | Michael | Windows, Edge | guided | z at end | without-sound | 2 | 0 | 0 | 2 | 2 of 2 |
 | Michael | Windows, Edge | guided | z at start | other-sound | 1 | 0 | 1 | 0 | 1 of 1 |
 | Michael | Windows, Edge | guided | z at start | with-sound | 2 | 0 | 0 | 2 | 0 of 2 |
+| Michael | Windows, Edge | lab | s at end | not answered | 1 | 0 | 0 | 1 | - |
 | Michael | Windows, Edge | lab | s at end | unsure | 1 | 1 | 0 | 0 | - |
 | Michael | Windows, Edge | lab | s at end | with-sound | 2 | 0 | 0 | 2 | 0 of 2 |
 | Michael | Windows, Edge | lab | sh at end | with-sound | 1 | 0 | 0 | 1 | 0 of 1 |
