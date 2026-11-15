@@ -6,15 +6,13 @@ import { ArrowDownIcon, ArrowUpIcon, EqualsIcon, HomeIcon, ShareIcon, TrashIcon 
 import { Button, Card, IconTile } from '@/components/ui';
 import { COPY } from '@/content/copy';
 import { TARGET_SOUNDS } from '@/lib/scoring/constants';
-import { clearAll, loadAttempts, progressFor } from '@/lib/store';
+import { MIN_TRIES_FOR_CHANGE, clearAll, loadAttempts, progressFor, progressWindow } from '@/lib/store';
 import type { Attempt, SoundProgress, TargetSound } from '@/lib/types';
 
 /** "s" and "sh" always show. "z" and "ch" show once there is a try, so a new learner sees two cards, not four. */
 const ALWAYS: TargetSound[] = ['s', 'sh'];
 
-/** progressFor uses the first 10 and the latest 10 tries. They share no tries only from 20 tries on. */
-const WINDOW = 10;
-const SEPARATE_WINDOWS = WINDOW * 2;
+// Before and after compare the first half of the tries with the second half (at most 10 each), from 6 tries on.
 
 interface SoundView {
   p: SoundProgress;
@@ -31,7 +29,7 @@ function viewsFrom(attempts: Attempt[]): SoundView[] {
 }
 
 function hasBeforeAfter(p: SoundProgress): boolean {
-  return p.attempts >= SEPARATE_WINDOWS && p.firstAccuracy !== null && p.latestAccuracy !== null;
+  return p.attempts >= MIN_TRIES_FOR_CHANGE && p.firstAccuracy !== null && p.latestAccuracy !== null;
 }
 
 function tries(n: number): string {
@@ -42,9 +40,10 @@ function tries(n: number): string {
 function summaryLine({ p, hits }: SoundView): string {
   if (p.attempts === 0) return `${p.sound}: no tries yet`;
   if (hasBeforeAfter(p)) {
-    const first = Math.round((p.firstAccuracy ?? 0) * WINDOW);
-    const latest = Math.round((p.latestAccuracy ?? 0) * WINDOW);
-    return `${p.sound}: ${first} of the first 10, ${latest} of the latest 10, ${tries(p.attempts)}`;
+    const w = progressWindow(p.attempts);
+    const first = Math.round((p.firstAccuracy ?? 0) * w);
+    const latest = Math.round((p.latestAccuracy ?? 0) * w);
+    return `${p.sound}: ${first} of the first ${w}, ${latest} of the latest ${w}, ${tries(p.attempts)}`;
   }
   return `${p.sound}: ${hits} of ${tries(p.attempts)} so far`;
 }
@@ -102,8 +101,16 @@ function SoundCard({ view }: { view: SoundView }) {
           <p className="text-muted">Tries where the sound was there</p>
           <BeforeAfterBars
             bars={[
-              { label: 'First 10 tries', value: p.firstAccuracy ?? 0, kind: 'before' },
-              { label: 'Latest 10 tries', value: p.latestAccuracy ?? 0, kind: 'after' },
+              {
+                label: `First ${progressWindow(p.attempts)} tries`,
+                value: p.firstAccuracy ?? 0,
+                kind: 'before',
+              },
+              {
+                label: `Latest ${progressWindow(p.attempts)} tries`,
+                value: p.latestAccuracy ?? 0,
+                kind: 'after',
+              },
             ]}
           />
           <Change p={p} />
@@ -113,7 +120,7 @@ function SoundCard({ view }: { view: SoundView }) {
           <p className="text-muted">Tries where the sound was there</p>
           <BeforeAfterBars bars={[{ label: 'So far', value: hits / p.attempts, kind: 'after' }]} />
           <p className="text-center text-lg">Keep going: after more tries you will see before and after.</p>
-          <p className="text-center text-muted">{tries(SEPARATE_WINDOWS - p.attempts)} to go.</p>
+          <p className="text-center text-muted">{tries(MIN_TRIES_FOR_CHANGE - p.attempts)} to go.</p>
         </>
       )}
     </Card>
