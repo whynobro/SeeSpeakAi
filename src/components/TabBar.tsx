@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ComponentType } from 'react';
-import { ChartIcon, DotsIcon, ListCheckIcon, MicIcon } from './Icons';
+import { ChartIcon, DotsIcon, HomeIcon, ListCheckIcon } from './Icons';
 
 type Tab = {
   href: string;
@@ -17,9 +17,10 @@ const CHECK_PATHS = ['/checks', '/profile', '/speech-check', '/listening-check',
 
 const TABS: Tab[] = [
   {
+    // "Home", so every screen has an obvious way back home. Practice, plans and levels still light this tab.
     href: '/',
-    label: 'Practice',
-    Icon: MicIcon,
+    label: 'Home',
+    Icon: HomeIcon,
     match: (p) => p === '/' || p.startsWith('/practice') || p.startsWith('/plan') || p.startsWith('/levels'),
   },
   {
