@@ -22,7 +22,7 @@ export const metadata: Metadata = { title: 'More · See Speak AI' };
 export default function MorePage() {
   return (
     <Screen className="gap-8">
-      <PageHeader title="About See Speak AI">
+      <PageHeader back={{ href: '/', label: 'Home' }} title="About See Speak AI">
         <Wordmark className="mt-1 w-44" />
         <p className={SECTION_TITLE}>{COPY.tagline}</p>
       </PageHeader>
