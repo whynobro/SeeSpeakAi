@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
-import { CheckCircleIcon, HomeIcon, LockIcon, StarIcon } from '@/components/Icons';
-import { Button, Card } from '@/components/ui';
+import { ArrowLeftIcon, CheckCircleIcon, LockIcon } from '@/components/Icons';
+import { Button, SegmentedControl } from '@/components/ui';
 import {
   ITEMS_PER_LEVEL,
   LEVELS,
@@ -19,92 +19,91 @@ import { TARGET_SOUNDS, isTargetSound } from '@/lib/scoring/constants';
 import { loadLevelResults } from '@/lib/store';
 import type { TargetSound } from '@/lib/types';
 
+const SOUND_OPTIONS = TARGET_SOUNDS.map((s) => ({ value: s, label: s }));
+
 function practiceHref(sound: TargetSound, level: Level): string {
   return `/practice?sound=${sound}&level=${level.id}`;
 }
 
-/** One stop on the path. State is always a word plus an icon, never color alone. */
+const QUIET_LINK =
+  'inline-flex min-h-12 items-center self-start text-[15px] font-bold text-accent-edge underline decoration-2 underline-offset-4';
+
+/**
+ * One stop on the path: the level number on a rail, then the words. No box around it.
+ * State is always a word plus an icon, never color alone.
+ */
 function LevelStop({
   sound,
   level,
   results,
   current,
+  last,
 }: {
   sound: TargetSound;
   level: Level;
   results: LevelResults;
   current: boolean;
+  last: boolean;
 }) {
   const result = results[levelKey(sound, level.id)];
   const done = result?.passed === true;
   const open = isUnlocked(results, sound, level.id);
-  // The path zig-zags like a game map: odd levels sit left, even ones right.
-  const side = level.number % 2 === 1 ? 'self-start' : 'self-end';
 
   return (
-    <li className={`flex w-[85%] flex-col ${side}`}>
-      <Card highlight={current} className={`flex items-center gap-4 ${open ? '' : 'opacity-70'}`}>
+    <li className="flex gap-4">
+      {/* The rail: the level number, then a hairline down to the next stop. */}
+      <div aria-hidden="true" className="flex flex-col items-center">
         <span
-          aria-hidden="true"
-          className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-2xl font-extrabold ${
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl font-extrabold ${
             done
-              ? 'bg-hit text-hit-ink'
+              ? 'bg-accent text-accent-ink'
               : open
-                ? 'bg-accent text-accent-ink'
-                : 'border-2 border-muted/60 bg-surface text-muted'
+                ? 'border-2 border-accent bg-surface text-accent-edge'
+                : 'border-2 border-dashed border-muted/60 text-muted'
           }`}
         >
-          {done ? (
-            <CheckCircleIcon className="h-8 w-8" />
-          ) : open ? (
-            level.number
-          ) : (
-            <LockIcon className="h-7 w-7" />
-          )}
+          {level.number}
         </span>
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <p className="text-sm font-bold text-muted">Level {level.number}</p>
-          <h2 className="text-lg leading-tight font-extrabold">{level.title}</h2>
-          <p className="text-sm text-muted">{level.hint}</p>
-          <p className="text-sm font-bold">
-            {done ? (
-              <span className="inline-flex items-center gap-1 text-foreground">
-                <StarIcon className="h-4 w-4" />
-                Passed, best {result.bestHits} of {ITEMS_PER_LEVEL}
-              </span>
-            ) : result ? (
-              <span>
-                Best so far {result.bestHits} of {ITEMS_PER_LEVEL}. Pass with {PASS_ITEMS}.
-              </span>
-            ) : open ? (
-              <span>
-                Pass with {PASS_ITEMS} of {ITEMS_PER_LEVEL} right.
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 text-muted">
-                Locked: pass level {level.number - 1} first
-              </span>
-            )}
-          </p>
-        </div>
-      </Card>
-      {open ? (
-        <Button
-          href={practiceHref(sound, level)}
-          variant={current ? 'primary' : 'secondary'}
-          size="md"
-          className="mt-2"
-        >
-          {done ? 'Play again' : current ? 'Start' : 'Play'}
-        </Button>
-      ) : (
-        <Link
-          href={practiceHref(sound, level)}
-          className="mt-1 inline-block self-start py-2 text-sm font-bold text-accent-edge underline underline-offset-4"
-        >
-          Jump ahead anyway
-        </Link>
-      )}
+        {!last && <span className={`w-px flex-1 ${done ? 'bg-accent' : 'bg-line'}`} />}
+      </div>
+
+      <div className={`flex min-w-0 flex-1 flex-col pt-1.5 ${last ? '' : current ? 'pb-7' : 'pb-3'}`}>
+        <h2 className={`leading-tight font-extrabold ${current ? 'text-[20px]' : 'text-[17px]'}`}>
+          <span className="sr-only">Level {level.number}: </span>
+          {level.title}
+        </h2>
+        <p className="text-[15px] text-muted">{level.hint}</p>
+        <p className="mt-1 text-[15px] font-bold">
+          {done ? (
+            <span className="inline-flex items-center gap-1.5 text-hit-strong">
+              <CheckCircleIcon className="h-4 w-4 shrink-0" />
+              Passed, best {result.bestHits} of {ITEMS_PER_LEVEL}
+            </span>
+          ) : result ? (
+            <span>
+              Best so far {result.bestHits} of {ITEMS_PER_LEVEL}. Pass with {PASS_ITEMS}.
+            </span>
+          ) : open ? (
+            <span>
+              Pass with {PASS_ITEMS} of {ITEMS_PER_LEVEL} right.
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 text-muted">
+              <LockIcon className="h-4 w-4 shrink-0" />
+              Locked: pass level {level.number - 1} first
+            </span>
+          )}
+        </p>
+        {current ? (
+          <Button href={practiceHref(sound, level)} size="md" className="mt-3">
+            Start
+          </Button>
+        ) : (
+          <Link href={practiceHref(sound, level)} className={QUIET_LINK}>
+            {done ? 'Play again' : open ? 'Play' : 'Jump ahead anyway'}
+          </Link>
+        )}
+      </div>
     </li>
   );
 }
@@ -124,51 +123,32 @@ function LevelsMap() {
   const current = results ? currentLevel(results, sound) : LEVELS[0];
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-5 px-4 pt-2 pb-8">
-      <header className="flex flex-col gap-3">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="flex min-h-12 min-w-12 shrink-0 items-center justify-center gap-1 rounded-xl px-1 text-base font-bold text-accent-edge"
-          >
-            <HomeIcon className="h-6 w-6" />
-            <span>Home</span>
-          </Link>
-          <h1 className="text-[28px] leading-tight font-extrabold tracking-tight">Levels</h1>
-        </div>
-        <p className="text-base text-muted">
+    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-2 pb-8">
+      <Button href="/" variant="ghost" block={false} className="self-start">
+        <ArrowLeftIcon className="h-5 w-5" />
+        Home
+      </Button>
+      <header className="flex flex-col gap-2">
+        <h1 className="text-[28px] leading-tight font-extrabold tracking-tight">Levels</h1>
+        <p className="text-[17px] text-muted">
           The order speech therapists teach a sound: on its own first, then in words, then in phrases.
         </p>
-        <div role="group" aria-label="Sound" className="grid grid-cols-4 gap-2">
-          {TARGET_SOUNDS.map((s) => (
-            <button
-              key={s}
-              type="button"
-              aria-pressed={s === sound}
-              onClick={() => setSound(s)}
-              className={`min-h-12 rounded-2xl text-xl font-extrabold ${
-                s === sound
-                  ? 'bg-accent text-accent-ink underline underline-offset-4'
-                  : 'border border-accent bg-surface text-accent-edge'
-              }`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
       </header>
 
+      <SegmentedControl label="Sound" options={SOUND_OPTIONS} value={sound} onChange={setSound} />
+
       {results === null ? (
-        <Card className="py-8 text-center text-muted">Loading levels...</Card>
+        <p className="py-8 text-[15px] text-muted">Loading levels...</p>
       ) : (
-        <ol className="flex flex-col gap-5" aria-label={`Levels for the "${sound}" sound`}>
-          {LEVELS.map((level) => (
+        <ol className="flex flex-col" aria-label={`Levels for the "${sound}" sound`}>
+          {LEVELS.map((level, i) => (
             <LevelStop
               key={level.id}
               sound={sound}
               level={level}
               results={results}
               current={level.id === current.id && results[levelKey(sound, level.id)]?.passed !== true}
+              last={i === LEVELS.length - 1}
             />
           ))}
         </ol>

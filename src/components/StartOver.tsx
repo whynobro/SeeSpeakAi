@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { START_OVER } from '@/content/tryIt';
 import { clearAll } from '@/lib/store';
-import { RestartIcon } from './Icons';
 
 /** Every saved key this app writes starts with "seespeak." or "seespeak:". The view size choice is only a display setting, so it stays. */
 const KEEP = 'seespeak:view-mode';
@@ -33,22 +32,25 @@ export function StartOver() {
     window.location.assign('/');
   }
 
+  // Quiet on purpose: small gray text with a hairline underline. Every control is still 44 px tall.
   return (
-    <div className="flex min-h-11 flex-wrap items-center gap-2 px-3 pt-2 text-sm">
+    <div className="flex min-h-11 flex-wrap items-center gap-x-1 px-1 pt-1 text-[13px]">
       {asking ? (
-        <div role="group" aria-label={START_OVER.ask} className="flex flex-wrap items-center gap-2">
-          <span className="font-bold">{START_OVER.ask}</span>
+        <div role="group" aria-label={START_OVER.ask} className="flex flex-wrap items-center gap-x-1">
+          <span className="px-3 font-bold">{START_OVER.ask}</span>
           <button
             type="button"
             onClick={confirm}
-            className="min-h-11 rounded-xl bg-foreground px-4 font-bold text-background"
+            className="group inline-flex min-h-11 min-w-11 items-center justify-center px-1 font-bold text-miss-ink"
           >
-            {START_OVER.yes}
+            <span className="rounded-lg border border-miss-ink px-3 py-1 group-hover:bg-miss-soft group-active:bg-miss-soft">
+              {START_OVER.yes}
+            </span>
           </button>
           <button
             type="button"
             onClick={() => setAsking(false)}
-            className="min-h-11 rounded-xl border border-line bg-surface px-4 font-bold"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 font-semibold text-muted underline decoration-line decoration-2 underline-offset-4 hover:text-foreground"
           >
             {START_OVER.cancel}
           </button>
@@ -57,9 +59,8 @@ export function StartOver() {
         <button
           type="button"
           onClick={() => setAsking(true)}
-          className="inline-flex min-h-11 items-center gap-1.5 rounded-xl px-2 font-semibold text-muted hover:bg-accent-soft hover:text-accent-edge"
+          className="inline-flex min-h-11 items-center px-3 font-semibold text-muted underline decoration-line decoration-2 underline-offset-4 hover:text-foreground"
         >
-          <RestartIcon className="h-4 w-4" />
           {START_OVER.button}
         </button>
       )}

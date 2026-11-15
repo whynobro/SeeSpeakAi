@@ -138,19 +138,21 @@ export default function ReportPage() {
       <ReportFiles files={files} onChange={setFiles} />
 
       {isExample ? (
-        <div className="flex flex-col gap-3 rounded-2xl border-2 border-violet bg-violet-soft p-4">
-          <p className="flex items-center gap-2 text-lg font-bold text-violet-edge">
-            <span className="rounded-lg border-2 border-violet-edge px-2 py-0.5 text-sm tracking-wide uppercase">
-              {EXAMPLE_REPORT.badge}
-            </span>
-            {EXAMPLE_REPORT.banner}
+        // A made up report must never pass for a real one: a thick tan rule, a label and bold dark text.
+        <div
+          role="status"
+          className="flex flex-col gap-1 rounded-r-xl border-l-4 border-violet-edge bg-violet-soft py-3 pr-3 pl-4"
+        >
+          <p className="text-[13px] font-bold tracking-[0.08em] text-violet-edge uppercase">
+            {EXAMPLE_REPORT.badge}
           </p>
-          <Button variant="secondary" block={false} className="self-start" onClick={clearExample}>
+          <p className="text-[17px] leading-snug font-bold">{EXAMPLE_REPORT.banner}</p>
+          <Button variant="ghost" block={false} className="-ml-2 self-start" onClick={clearExample}>
             {EXAMPLE_REPORT.clear}
           </Button>
         </div>
       ) : (
-        <Button variant="secondary" block={false} className="self-start" onClick={fillExample}>
+        <Button variant="ghost" block={false} className="self-start" onClick={fillExample}>
           {EXAMPLE_REPORT.button}
         </Button>
       )}
