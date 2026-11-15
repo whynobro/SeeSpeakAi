@@ -3,6 +3,33 @@
 The working file for the pitch deck and the under-2-minute video. Sources for every number are in
 [`judge-answers.md`](judge-answers.md) and [`../research.md`](../research.md). Say only what is built.
 
+## How we pitch it (the story, decided Sat Nov 14)
+
+The order of the argument. The deck follows the rubric (Google Slides, "SeeSpeak Pitch (rubric order)"); this is
+what we say over it.
+
+1. **It is real.** One number, said plainly: "34 million children worldwide have disabling hearing loss" (WHO).
+   Or for the US: "2 to 3 of every 1,000 babies are born with hearing loss" (NIDCD). Sources in
+   `judge-answers.md`.
+2. **Mason's story** (his own words, only what he is OK sharing in public): he had a speech impediment as a kid,
+   and he could hear himself fix it.
+3. **The turn** (Michael): "You and I have heard 'cats' thousands of times. Every time we said it wrong, we heard
+   the difference and fixed it. A kid with a speech impediment practices the same way: say it, hear it, fix it.
+   But if you're hard of hearing, the 's' is the part you can't hear. You can't hear what you're saying. So how
+   are you supposed to fix it? SeeSpeak lets you see it."
+4. **The gap:** school speech therapy averages 1.7 sessions a week, and 30% of hard-of-hearing kids get no school
+   services (Page 2018). SeeSpeak is the practice in between.
+5. **The demo, live:** one learner's path: plan, a level, a miss, then a hit, the coach's sentence, progress.
+6. **Why it is not dictation:** "Speech recognition gets about 1 word in 5 wrong for deaf adults who use speech,
+   against 1 in 20 for hearing adults, and it fills in a missing 's'. So we measure the hiss itself." Keep the
+   52.6% figure for questions only: most of those speakers used sign.
+7. **Who pays:** free for families, $120 a seat a year for therapists and districts. See `business-model.md`.
+   Then the real customer conversations, in their words.
+8. **Close:** the link and the QR code.
+
+Do not say: a count of how many times people hear a word ("billions"), a percent of children with "s" errors,
+or that the app improves speech. None of those has a source.
+
 ## Footage and recordings (read first)
 
 - **Never put audio or video files in this repo.** It is public. Raw files go in the team's shared OneDrive

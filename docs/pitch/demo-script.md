@@ -42,7 +42,7 @@ Pick the one that matches what is live on Sunday.
 
 - Payer: school district special education office, one seat per speech therapist or teacher of the deaf. $120 a seat a year. Families do not pay.
 - Why that price: Little Bee Speech charges therapists $119.99 a year. SLP Toolkit charges districts $235 a seat.
-- Second option: parents, $59.99 a year, with a free seat for the child's therapist.
+- Families pay nothing. One model only: see `business-model.md`.
 - First users, by name: San Luis Obispo County Office of Education Deaf and Hard of Hearing Program, California Hands and Voices, Cal Poly Disability Resource Center, Cal Poly ASL Club. (Add only groups we have really spoken to.)
 
 ## Rubric tracker
