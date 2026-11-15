@@ -97,7 +97,7 @@ export function ViewModeFrame({ children }: { children: ReactNode }) {
         className={
           phone
             ? 'flex flex-1 flex-col md:h-[844px] md:max-h-[calc(100vh-5rem)] md:w-[390px] md:flex-none md:overflow-hidden md:rounded-[48px] md:border-[12px] md:border-foreground md:bg-background md:[transform:translateZ(0)]'
-            : 'flex flex-1 flex-col md:[&_main]:max-w-3xl md:[&_main]:px-8 md:[&_main]:pt-20'
+            : 'flex flex-1 flex-col md:[&_main]:max-w-6xl md:[&_main]:px-12 md:[&_main]:pt-20'
         }
       >
         <div
