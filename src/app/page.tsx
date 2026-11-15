@@ -1,5 +1,6 @@
 import { COPY } from '@/content/copy';
 import { HomeStart } from '@/components/HomeStart';
+import { SavedPlanLink } from '@/components/SavedPlanLink';
 import { RisingText } from '@/components/RisingText';
 import { LogoTile } from '@/components/ui';
 
@@ -17,6 +18,7 @@ export default function Home() {
           <RisingText text={COPY.tagline} delayMs={150} />
         </p>
       </header>
+      <SavedPlanLink />
       <HomeStart />
       <footer className="flex flex-col gap-2 border-t-2 border-line pt-6 text-sm leading-relaxed text-muted">
         <p>{COPY.optIn}</p>
