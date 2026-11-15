@@ -123,6 +123,13 @@ function PracticeLoop() {
   const [words, setWords] = useState<PracticeWord[]>([]);
   const [index, setIndex] = useState(0);
   const [score, setScore] = useState<AttemptScore | null>(null);
+  const resultRef = useRef<HTMLDivElement | null>(null);
+  // Bring the result into view after each try, so a laptop screen never hides it below the fold.
+  useEffect(() => {
+    if (!score) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    resultRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest' });
+  }, [score]);
   const [hits, setHits] = useState(0);
   const [tries, setTries] = useState(0);
   const [finished, setFinished] = useState(false);
@@ -628,22 +635,9 @@ function PracticeLoop() {
         </button>
       )}
 
-      {/* After a try is scored, one action takes the Start button's place. */}
-      {score && word && meter.status !== 'error' && (
-        <ResultAction
-          counted={counted}
-          last={index + 1 >= words.length}
-          onAgain={onStart}
-          onNext={onNext}
-          onAdult={counted ? undefined : () => setAdultOpen(true)}
-        />
-      )}
-
-      {/* After the next try starts, a closer look already received stays on screen (the button waits for the result). */}
-      {!score && word && <StuckHelp {...stuckProps} />}
-
+      {/* The result sits right under the meter, above the next action, so it is on screen after every try. */}
       {score && word && (
-        <div className="flex flex-col gap-3">
+        <div ref={resultRef} className="flex scroll-mt-4 flex-col gap-3">
           <VerdictBadge verdict={score.verdict} target={word.target} heard={score.heard} />
           {adultRight && <p className="text-base font-bold">Marked right by an adult.</p>}
           {level && score.verdict === 'close' && countsFor(tier, score) && (
@@ -659,10 +653,30 @@ function PracticeLoop() {
               ))}
             </ul>
           )}
+        </div>
+      )}
+
+      {/* After a try is scored, one action takes the Start button's place. */}
+      {score && word && meter.status !== 'error' && (
+        <ResultAction
+          counted={counted}
+          last={index + 1 >= words.length}
+          onAgain={onStart}
+          onNext={onNext}
+          onAdult={counted ? undefined : () => setAdultOpen(true)}
+        />
+      )}
+
+      {/* The coach's sentence arrives a moment after the result, under the next action. */}
+      {score && word && (
+        <div className="flex flex-col gap-3">
           <CoachCard feedback={coach.feedback} loading={coach.loading} />
           <StuckHelp {...stuckProps} />
         </div>
       )}
+
+      {/* After the next try starts, a closer look already received stays on screen (the button waits for the result). */}
+      {!score && word && <StuckHelp {...stuckProps} />}
 
       {/* The camera sits below the Start button and the result, so the word and the button stay on one screen. */}
       <LipCamera
