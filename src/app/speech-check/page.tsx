@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { GoalsBox } from '@/components/GoalsBox';
 import { ArrowLeftIcon, CheckCircleIcon, EarIcon, MicIcon } from '@/components/Icons';
-import { savePlan } from '@/components/planStore';
+import { showRulesPlanNow } from '@/components/planStore';
 import { SoundMeter } from '@/components/SoundMeter';
 import { Button, Card, IconTile } from '@/components/ui';
 import {
@@ -32,7 +32,7 @@ import {
 import { removeNames } from '@/lib/privacy';
 import { scoreAttempt } from '@/lib/scoring';
 import { loadProfile, loadSettings, saveAttempt, saveGoals } from '@/lib/store';
-import type { AssessmentReport, LearnerGoals, PracticePlan, PracticeWord, WordPosition } from '@/lib/types';
+import type { AssessmentReport, LearnerGoals, PracticeWord, WordPosition } from '@/lib/types';
 
 /** Offer a break after this many words (halfway through 18). */
 const BREAK_AFTER = 9;
@@ -251,19 +251,9 @@ export default function SpeechCheckPage() {
       learnerGoals: cleaned.text || cleaned.chips.length > 0 ? cleaned : undefined,
       createdAt: new Date().toISOString(),
     };
-    try {
-      const res = await fetch('/api/plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ report }),
-      });
-      if (!res.ok) throw new Error(`Plan request failed: ${res.status}`);
-      // Keep the plan on this device and open it on its own page, so a reload keeps it.
-      savePlan((await res.json()) as PracticePlan);
-      router.push('/plan');
-    } catch {
-      setPhase('error');
-    }
+    // Show the built-in plan at once. The plan page swaps in Claude's plan when it arrives.
+    showRulesPlanNow(report);
+    router.push('/plan');
   }
 
   const heading = (text: string) => (
