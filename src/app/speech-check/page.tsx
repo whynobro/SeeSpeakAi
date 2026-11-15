@@ -70,7 +70,7 @@ function RecordButton({
       <div className="relative">
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-2xl border-4 border-accent-edge motion-safe:animate-listen-ring"
+          className="pointer-events-none absolute inset-0 rounded-2xl border-2 border-accent-edge motion-safe:animate-listen-ring"
         />
         <Button size="xl" onClick={onDone}>
           Listening. Tap when done
@@ -439,7 +439,7 @@ export default function SpeechCheckPage() {
             key={g}
             type="button"
             onClick={() => begin(g)}
-            className="flex min-h-16 items-center gap-4 rounded-2xl border-2 border-line bg-surface p-4 text-left shadow-edge-line transition-[transform,box-shadow] duration-75 active:translate-y-1 active:shadow-none"
+            className="flex min-h-16 items-center gap-4 rounded-2xl border border-line bg-surface p-4 text-left transition-[transform,background-color] duration-75 active:scale-[0.98]"
           >
             <IconTile tone="soft" size="sm">
               <MicIcon className="h-5 w-5" />

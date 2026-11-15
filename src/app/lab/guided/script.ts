@@ -33,18 +33,18 @@ export const GUIDED_SCRIPT: GuidedStep[] = [
   { wordId: 'chop', say: 'other-sound', as: 'shop' },
   { wordId: 'zoo', say: 'lisp' },
   { wordId: 'sun', say: 'with-sound' },
-  { wordId: 'dish', say: 'without-sound', as: 'di' },
+  { wordId: 'ship', say: 'without-sound', as: 'hip' },
   { wordId: 'dogs', say: 'with-sound' },
   { wordId: 'chin', say: 'without-sound', as: 'in' },
   { wordId: 'sun', say: 'lisp' },
   { wordId: 'house', say: 'with-sound' },
-  { wordId: 'push', say: 'other-sound', as: 'puss' },
+  { wordId: 'shoe', say: 'other-sound', as: 'sue' },
   { wordId: 'eggs', say: 'without-sound', as: 'egg' },
   { wordId: 'watch', say: 'other-sound', as: 'wash' },
-  { wordId: 'sun', say: 'without-sound', as: 'un' },
+  { wordId: 'house', say: 'without-sound', as: 'how' },
   { wordId: 'shoe', say: 'with-sound' },
   { wordId: 'keys', say: 'with-sound' },
-  { wordId: 'lunch', say: 'without-sound', as: 'lun' },
+  { wordId: 'beach', say: 'without-sound', as: 'bee' },
   { wordId: 'bees', say: 'lisp' },
 ];
 
@@ -54,14 +54,14 @@ export function wordOf(step: GuidedStep): PracticeWord {
   return found;
 }
 
-/** The big plain instruction, for example "Say: cats (with the s)". */
+/**
+ * Just the word to say, spelled the way it should sound: "cats", or "cat" when the s is left out, or "ship"
+ * when sip is said with sh. The page knows what is being tested and saves that in the background.
+ */
 export function instructionFor(step: GuidedStep): string {
-  const word = wordOf(step);
-  const sound = word.target;
-  if (step.say === 'with-sound') return `Say: ${word.text} (with the ${sound})`;
-  if (step.say === 'lisp') return `Say: ${word.text}, with a lisp (tongue between your teeth)`;
-  if (step.say === 'without-sound') return `Say: ${word.text} as ${step.as} (leave the ${sound} out)`;
-  return `Say: ${word.text} as ${step.as} (use ${OTHER_SOUND[sound]} instead of ${sound})`;
+  if (step.say === 'with-sound') return wordOf(step).text;
+  if (step.say === 'lisp') return `${wordOf(step).text} (with a lisp)`;
+  return step.as ?? wordOf(step).text;
 }
 
 /**

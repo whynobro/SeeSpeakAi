@@ -51,7 +51,7 @@ export function AudiogramFields({
         {AUDIOGRAM_FIELDS.map((hz) => (
           <label key={hz} className="flex flex-col gap-1.5">
             <span className="text-base font-bold">{hz.toLocaleString('en-US')} Hz</span>
-            <span className="flex items-center rounded-2xl border-2 border-line bg-surface focus-within:border-accent">
+            <span className="flex items-center rounded-2xl border border-line bg-surface focus-within:border-accent">
               <input
                 type="text"
                 inputMode="numeric"

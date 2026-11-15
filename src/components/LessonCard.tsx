@@ -22,12 +22,12 @@ export function LessonCard({
   const words = wordsFor(pick.sound, 3).map((w) => w.text);
   const recommended = pick.risk === 'high' || pick.risk === 'some';
   // The primary card has a thick blue border and edge, so it stands out without relying on color alone.
-  const look = primary ? 'border-4 border-accent shadow-edge-accent' : 'border-2 border-line shadow-clay';
+  const look = primary ? 'border-2 border-accent' : 'border border-line';
 
   return (
     <Link
       href={`/practice?sound=${pick.sound}`}
-      className={`flex items-center gap-4 rounded-3xl bg-surface p-4 transition-[transform,box-shadow] duration-75 active:translate-y-1 active:shadow-none ${look}`}
+      className={`flex items-center gap-4 rounded-2xl bg-surface p-4 transition-[transform,background-color] duration-75 active:scale-[0.98] ${look}`}
     >
       <IconTile tone={primary ? 'accent' : 'soft'} size="lg" className="text-3xl font-extrabold">
         {pick.sound}

@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { HomeIcon, LightbulbIcon, MicIcon } from '@/components/Icons';
 import { LipCamera } from '@/components/LipCamera';
-import { MouthPictures } from '@/components/MouthPictures';
+import { SoundVideo } from '@/components/SoundVideo';
 import { SoundMeter } from '@/components/SoundMeter';
 import { Button, Card, IconTile, buttonClass } from '@/components/ui';
 import { CoachCard } from '@/components/CoachCard';
@@ -292,7 +292,7 @@ function PracticeLoop() {
       {meter.status === 'error' && (
         <div
           role="alert"
-          className="flex flex-col gap-3 rounded-3xl border-4 border-dashed border-miss bg-surface p-4"
+          className="flex flex-col gap-3 rounded-2xl border-4 border-dashed border-miss bg-surface p-4"
         >
           <p className="text-lg font-bold">{meter.error ?? 'The microphone could not be started.'}</p>
           <Button variant="secondary" onClick={onStart}>
@@ -309,7 +309,7 @@ function PracticeLoop() {
           aria-label={listening ? 'Done: stop listening and check the word' : undefined}
           className={
             listening
-              ? 'flex min-h-[72px] w-full items-center justify-center gap-3 rounded-2xl border-4 border-accent bg-surface px-6 text-2xl font-bold text-foreground shadow-edge-accent transition-[transform,box-shadow] duration-75 active:translate-y-1 active:shadow-none'
+              ? 'flex min-h-[72px] w-full items-center justify-center gap-3 rounded-2xl border-2 border-accent bg-surface px-6 text-2xl font-bold text-foreground transition-[transform,background-color] duration-75 active:scale-[0.98]'
               : buttonClass({ size: 'xl' })
           }
         >
@@ -357,10 +357,7 @@ function PracticeLoop() {
       )}
 
       {/* Below the meter and the main button, so opening it never pushes them off the screen. */}
-      <details
-        open={index === 0}
-        className="group rounded-3xl border-2 border-line bg-surface px-4 py-2 shadow-clay"
-      >
+      <details open={index === 0} className="group rounded-2xl border border-line bg-surface px-4 py-2">
         <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 [&::-webkit-details-marker]:hidden">
           <IconTile tone="violet-soft" size="sm">
             <LightbulbIcon className="h-5 w-5" />
@@ -377,7 +374,8 @@ function PracticeLoop() {
           </span>
         </summary>
         <div className="flex flex-col gap-3 pt-2 pb-3">
-          <MouthPictures sound={target} />
+          <SoundVideo sound={target} />
+          <h3 className="pt-1 text-base font-bold">Step by step</h3>
           <ol className="flex list-decimal flex-col gap-1 pl-6 text-base marker:font-bold">
             {cue.steps.map((step) => (
               <li key={step}>{step}</li>

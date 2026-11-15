@@ -23,7 +23,7 @@ function OneBar({ bar }: { bar: Bar }) {
   return (
     <figure className="flex w-24 flex-col items-center gap-2">
       <div
-        className="relative flex h-44 w-full items-end overflow-hidden rounded-2xl border-2 border-line bg-accent-soft"
+        className="relative flex h-44 w-full items-end overflow-hidden rounded-2xl border border-line bg-accent-soft"
         role="img"
         aria-label={`${bar.label}: ${percent(bar.value)}`}
       >

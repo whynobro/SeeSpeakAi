@@ -2,24 +2,25 @@ import Link from 'next/link';
 import type { ComponentPropsWithoutRef, ElementType, HTMLAttributes, ReactNode } from 'react';
 
 /*
- * Shared "clay" building blocks. Every screen uses these so buttons and cards look and press the same.
- * Buttons sit on a darker bottom edge and press down onto it when tapped.
+ * Shared building blocks. Every screen uses these so buttons and cards look and press the same.
+ * Flat, per theme v2 (docs/design/theme-v2.md): 1 px borders, no bottom-edge shadows. A tap responds at once
+ * with a slight shrink and a darker fill, so the press is still felt without the old "clay" edge.
  */
 
 export type ButtonVariant = 'primary' | 'secondary' | 'violet' | 'danger' | 'ghost';
 export type ButtonSize = 'md' | 'lg' | 'xl';
 
 const BASE =
-  'inline-flex items-center justify-center gap-3 rounded-2xl text-center font-bold select-none transition-[transform,box-shadow] duration-75 disabled:cursor-not-allowed disabled:opacity-60';
+  'inline-flex items-center justify-center gap-3 rounded-2xl text-center font-bold select-none transition-[transform,background-color] duration-75 disabled:cursor-not-allowed disabled:opacity-60';
 
-// Pressed: the button moves down by the height of its edge and the edge disappears.
-const PRESS = 'active:translate-y-1 active:shadow-none';
+// Pressed: a slight shrink. Each variant also darkens its fill on hover and press.
+const PRESS = 'active:scale-[0.98]';
 
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: `bg-accent text-accent-ink shadow-edge-accent ${PRESS}`,
-  secondary: `border-2 border-accent bg-surface text-accent-edge shadow-edge-accent ${PRESS}`,
-  violet: `bg-violet text-violet-ink shadow-edge-violet ${PRESS}`,
-  danger: `border-2 border-miss-ink bg-surface text-miss-ink shadow-edge-miss ${PRESS}`,
+  primary: `bg-accent text-accent-ink hover:bg-accent-edge active:bg-accent-edge ${PRESS}`,
+  secondary: `border border-accent bg-surface text-accent-edge hover:bg-accent-soft active:bg-accent-soft ${PRESS}`,
+  violet: `bg-violet text-violet-ink hover:brightness-95 active:brightness-90 ${PRESS}`,
+  danger: `border border-miss-ink bg-surface text-miss-ink hover:bg-miss-soft active:bg-miss-soft ${PRESS}`,
   ghost: 'text-accent-edge underline underline-offset-4 decoration-2',
 };
 
@@ -49,7 +50,7 @@ type StyleProps = { variant?: ButtonVariant; size?: ButtonSize; block?: boolean;
 type AsButton = StyleProps & ComponentPropsWithoutRef<'button'> & { href?: undefined };
 type AsLink = StyleProps & Omit<ComponentPropsWithoutRef<typeof Link>, 'className'> & { href: string };
 
-/** A chunky button. Pass `href` to make it a Next link that looks the same. */
+/** A large flat button. Pass `href` to make it a Next link that looks the same. */
 export function Button(props: AsButton | AsLink) {
   if (props.href !== undefined) {
     const { variant, size, block, className, ...rest } = props;
@@ -67,12 +68,12 @@ const CARD_TONES: Record<CardTone, string> = {
   violet: 'bg-violet-soft',
 };
 
-const EDGE_PLAIN = 'border-2 border-line shadow-clay';
-const EDGE_HIGHLIGHT = 'border-4 border-accent shadow-edge-accent';
+const EDGE_PLAIN = 'border border-line';
+const EDGE_HIGHLIGHT = 'border-2 border-accent';
 
 type CardTag = 'div' | 'section' | 'li' | 'article' | 'header' | 'footer';
 
-/** A white rounded card that sits on a light bottom edge. `highlight` gives it a thick blue border and edge. */
+/** A white rounded card with a thin border. `highlight` gives it a thicker teal border. */
 export function Card({
   as = 'div',
   tone = 'surface',
@@ -91,7 +92,7 @@ export function Card({
   return (
     <Tag
       {...rest}
-      className={`rounded-3xl p-5 ${highlight ? EDGE_HIGHLIGHT : EDGE_PLAIN} ${CARD_TONES[tone]} ${className}`.trim()}
+      className={`rounded-2xl p-5 ${highlight ? EDGE_HIGHLIGHT : EDGE_PLAIN} ${CARD_TONES[tone]} ${className}`.trim()}
     >
       {children}
     </Tag>
@@ -102,11 +103,11 @@ export type TileTone = 'accent' | 'violet' | 'hit' | 'soft' | 'violet-soft';
 export type TileSize = 'sm' | 'md' | 'lg';
 
 const TILE_TONES: Record<TileTone, string> = {
-  accent: 'bg-accent text-accent-ink shadow-edge-accent',
-  violet: 'bg-violet text-violet-ink shadow-edge-violet',
-  hit: 'bg-hit text-hit-ink shadow-edge-hit',
-  soft: 'bg-accent-soft text-accent-edge shadow-edge-line',
-  'violet-soft': 'bg-violet-soft text-violet-edge shadow-edge-line',
+  accent: 'bg-accent text-accent-ink',
+  violet: 'bg-violet text-violet-ink',
+  hit: 'bg-hit text-hit-ink',
+  soft: 'bg-accent-soft text-accent-edge',
+  'violet-soft': 'bg-violet-soft text-violet-edge',
 };
 
 const TILE_SIZES: Record<TileSize, string> = {
@@ -115,7 +116,7 @@ const TILE_SIZES: Record<TileSize, string> = {
   lg: 'h-16 w-16 rounded-2xl',
 };
 
-/** A rounded square with a colored fill and edge, holding an icon or a big letter. Decorative by default. */
+/** A rounded square with a colored fill, holding an icon or a big letter. Decorative by default. */
 export function IconTile({
   tone = 'accent',
   size = 'md',

@@ -67,7 +67,7 @@ export function LandingSections() {
           {LANDING.faqTitle}
         </h2>
         {LANDING.faq.map(({ q, a }) => (
-          <details key={q} className="group rounded-2xl border-2 border-line bg-surface">
+          <details key={q} className="group rounded-2xl border border-line bg-surface">
             <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 text-lg font-bold">
               {q}
               <span aria-hidden="true" className="text-2xl text-accent-edge group-open:rotate-45">

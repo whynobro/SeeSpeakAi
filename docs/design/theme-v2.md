@@ -1,6 +1,6 @@
 # Design v2: one blue and tan theme, an app shell, no AI look
 
-Status: **proposal, handed to Michael to implement** (issue #74). It replaces the teal and yellow colors from #67 and #70, so `src/app/globals.css` (a hot file) changes only after Michael and Mason agree.
+Status: **proposal, handed to Mason to implement** (issue #74, screens lane). It replaces the teal and yellow colors from #67 and #70, so `src/app/globals.css` (a hot file) changes only after Michael agrees.
 
 Why: Holly's review of the live app (Nov 14) found it "does not look professional or app-like; it reads as AI-generated."
 
