@@ -11,6 +11,9 @@ import {
   CONFIDENCE_FULL_HISS_MS,
   HISS_RATIO_MIN,
   HISS_REL_LEVEL,
+  LISP_FLATNESS_MIN,
+  LISP_HISS_TO_VOWEL_MAX,
+  LISP_METER_POSITION,
   MAX_VOWEL_GAP_MS,
   MAX_GAP_FRAMES,
   MIN_HISS_MS,
@@ -38,7 +41,7 @@ import {
 export const LIMITATIONS: string[] = [
   'Only the "s", "sh", "z" and "ch" sounds are scored. Other sounds are ignored.',
   'It checks that a hiss is there, where it is in the word, and which hiss it is. It does not check that the whole word was right.',
-  'The limits were set on synthetic test sounds and a few voices, not on a clinical data set. Children and some voices may be scored wrongly.',
+  'The limits were set on synthetic test sounds and a few voices, not on a clinical data set. Children and some voices may be scored wrongly. Lisp detection is new and may miss a lisp.',
   'Background noise and different phone microphones change the result. A quiet room and holding the phone close work best.',
   'The "z" and "ch" limits were set on synthetic sounds only and still need real voices. A "z" that is partly unvoiced, as at the end of "dogs", may read as "s".',
   'This is a practice tool. It is not therapy and it is not a diagnosis.',
@@ -64,12 +67,34 @@ export function isHissFrame(frame: FrameFeatures, peakLevel: number, hissRatioMi
 }
 
 /**
+ * The lisp rule, shared by the live meter and the verdict: an "s"-side hiss that is weak next to the vowel
+ * (`hissLevel` under LISP_HISS_TO_VOWEL_MAX of `vowelLevel`) AND flat (no strong peak). Frames saved before
+ * flatness was measured never count as a lisp.
+ */
+export function isLispLike(
+  position: number | null,
+  flatness: number | undefined,
+  hissLevel: number,
+  vowelLevel: number,
+): boolean {
+  if (position === null || position < BOUNDARY || flatness === undefined) return false;
+  return vowelLevel > 0 && hissLevel < LISP_HISS_TO_VOWEL_MAX * vowelLevel && flatness >= LISP_FLATNESS_MIN;
+}
+
+/**
  * Live meter: is this frame a hiss, and is it nearer "sh" (0) or "s" (1)? Pass the loudest level heard so
- * far in this try, so a quiet mic is judged the same way the final verdict judges it.
+ * far in this try, so a quiet mic is judged the same way the final verdict judges it. A weak, flat "s"-side
+ * frame (a lisp, see `isLispLike`, with the loudest frame so far standing in for the vowel) is never placed
+ * in the "s" zone: it reads `lisp: true` at LISP_METER_POSITION.
  */
 export function readFrame(frame: FrameFeatures, peakLevel = frame.level): SoundReading {
-  const hissing = isHissFrame(frame, Math.max(peakLevel, frame.level));
-  return { hissing, position: hissing ? positionFromCentroid(frame.centroidHz) : null, level: frame.level };
+  const peak = Math.max(peakLevel, frame.level);
+  const hissing = isHissFrame(frame, peak);
+  const position = hissing ? positionFromCentroid(frame.centroidHz) : null;
+  if (hissing && isLispLike(position, frame.flatness, frame.level, peak)) {
+    return { hissing, position: LISP_METER_POSITION, level: frame.level, lisp: true };
+  }
+  return { hissing, position, level: frame.level };
 }
 
 /** A stretch of hiss frames, by index into the frames array. */
@@ -181,6 +206,37 @@ export function analyse(frames: FrameFeatures[], target?: TargetSound): Analysis
 
 export function runLengthMs(frames: FrameFeatures[], r: Run, hopMs: number): number {
   return frames[r.end].tMs - frames[r.start].tMs + hopMs;
+}
+
+/**
+ * Typical loudness of a hiss run next to the typical loudness of the vowel: the median level of the run's
+ * hiss frames over the median level of the voiced frames between the first and last vowel frame. Without a
+ * vowel the loudest frame stands in. Used by the lisp rule and by the sound trace (hissToVowel).
+ */
+export function hissToVowelOf(frames: FrameFeatures[], a: Analysis, r: Run): number {
+  const hissLevels: number[] = [];
+  for (let i = r.start; i <= r.end; i++) if (a.isHiss[i]) hissLevels.push(frames[i].level);
+  const voicedFloor = Math.max(SILENCE_LEVEL, VOICED_REL_LEVEL * a.maxLevel);
+  const vowelLevels: number[] = [];
+  if (a.haveVowel) {
+    for (let i = a.vowelStart; i <= a.vowelEnd; i++) {
+      if (frames[i].level >= voicedFloor && frames[i].hissRatio <= VOICED_RATIO_MAX) {
+        vowelLevels.push(frames[i].level);
+      }
+    }
+  }
+  const vowelLevel = vowelLevels.length > 0 ? median(vowelLevels) : a.maxLevel;
+  return vowelLevel > 0 ? median(hissLevels) / vowelLevel : 0;
+}
+
+/** Typical flatness of a run's hiss frames, or undefined when the frames were saved without it. */
+function flatnessOf(frames: FrameFeatures[], a: Analysis, r: Run): number | undefined {
+  const values: number[] = [];
+  for (let i = r.start; i <= r.end; i++) {
+    const f = frames[i].flatness;
+    if (a.isHiss[i] && f !== undefined) values.push(f);
+  }
+  return values.length > 0 ? median(values) : undefined;
 }
 
 /**
@@ -319,6 +375,9 @@ export interface RunInfo {
   voicedShare: number;
   /** "ch": loudest onset frame over the typical loudness of the hiss after it. null when nothing follows. */
   burstRatio: number | null;
+  /** Lisp: typical flatness of the hiss frames (null for frames saved without it), and hiss over vowel loudness. */
+  flatness: number | null;
+  hissToVowel: number;
   /** Rule results. `inPlace` is null when no word was given. */
   passed: { longEnough: boolean; held: boolean; inPlace: boolean | null };
 }
@@ -341,6 +400,8 @@ export function describeRuns(frames: FrameFeatures[], word?: PracticeWord): RunI
       sustainedMs,
       voicedShare: voicedShareOf(frames, a, r),
       burstRatio: splitRun(frames, a, r).burstRatio,
+      flatness: flatnessOf(frames, a, r) ?? null,
+      hissToVowel: hissToVowelOf(frames, a, r),
       passed: {
         longEnough: lengthMs >= MIN_HISS_MS,
         held: sustainedMs >= MIN_SUSTAINED_MS,
@@ -496,6 +557,24 @@ export function scoreAttempt(frames: FrameFeatures[], word: PracticeWord): Attem
   const confidence = clamp01(
     CONFIDENCE_DISTANCE_WEIGHT * distanceTerm + (1 - CONFIDENCE_DISTANCE_WEIGHT) * lengthTerm,
   );
+
+  // "s" and "z" only: a hiss in place on the "s" side that is weak and flat is a lisp, not a clear "s".
+  // It is close, never a hit, and the meter shows it at LISP_METER_POSITION so meter and verdict agree.
+  const lisp =
+    (word.target === 's' || word.target === 'z') &&
+    isLispLike(meterPosition, flatnessOf(frames, a, run), hissToVowelOf(frames, a, run), 1);
+  if (lisp) {
+    return {
+      target: word.target,
+      verdict: 'close',
+      heard: heardSound,
+      meterPosition: LISP_METER_POSITION,
+      hissMs,
+      confidence,
+      warnings,
+      lisp: true,
+    };
+  }
 
   const hit = heardSound === word.target;
   return {

@@ -13,11 +13,17 @@ import type { AttemptScore, FrameFeatures, PracticeWord, TargetSound, WordPositi
  * The saved tries are copied to the public `test-log` branch of the repo, so nothing private goes in.
  */
 
-/** What the tester says they really said. This is the "right answer" that tuning needs. */
-export type Said = 'with-sound' | 'without-sound' | 'other-sound' | 'unsure';
+/**
+ * What the tester says they really said. This is the "right answer" that tuning needs.
+ * 'lisp': the sound was said with a lisp on purpose (tongue between the teeth), so the right verdict is close.
+ */
+export type Said = 'with-sound' | 'without-sound' | 'other-sound' | 'lisp' | 'unsure';
 
-/** One frame, shortened to save space: [tMs, level, hissRatio, centroidHz or -1]. */
-export type PackedFrame = [number, number, number, number];
+/**
+ * One frame, shortened to save space: [tMs, level, hissRatio, centroidHz or -1, flatness or -1].
+ * Entries logged before 2026-11-14 evening have only the first four numbers.
+ */
+export type PackedFrame = [number, number, number, number, number];
 
 export interface TestLogEntry {
   v: 1;
@@ -121,6 +127,7 @@ export function packFrames(frames: FrameFeatures[]): PackedFrame[] {
       Number(f.level.toFixed(4)),
       Number(f.hissRatio.toFixed(3)),
       f.centroidHz === null ? -1 : Math.round(f.centroidHz),
+      f.flatness === undefined ? -1 : Number(f.flatness.toFixed(3)),
     ]);
 }
 
@@ -206,11 +213,32 @@ export function shareLabAttempt(
   );
 }
 
-/** Share one try from the practice screen. Called from the store when a try is saved. Does nothing when off. */
-export function sharePracticeAttempt(wordId: string, target: TargetSound, score: AttemptScore): void {
+/**
+ * Where the sound sits in a word the caller did not give a position for: the word bank first, then a guess
+ * from the spelling (starts with the sound: start; ends with it: end; else middle). Plan and check words
+ * that are not in the bank ("cereal", "classic") used to be logged as "end" every time.
+ */
+export function guessPosition(wordId: string, target: TargetSound): WordPosition {
+  const known = WORD_BANK.find((w) => w.id === wordId && w.target === target);
+  if (known) return known.position;
+  const text = wordId.trim().toLowerCase();
+  if (text.startsWith(target)) return 'start';
+  if (text.endsWith(target) || (target === 's' && /(ce|se)$/.test(text))) return 'end';
+  return 'middle';
+}
+
+/**
+ * Share one try from the practice screen. Called from the store when a try is saved. Does nothing when off.
+ * Pass `position` (the scored word's own position), so the log matches how the try was scored.
+ */
+export function sharePracticeAttempt(
+  wordId: string,
+  target: TargetSound,
+  score: AttemptScore,
+  position?: WordPosition,
+): void {
   if (!isSharing() || lastFrames.length === 0) return;
-  const known = WORD_BANK.find((w) => w.id === wordId);
-  const word = known ?? { id: wordId, target, position: 'end' as WordPosition };
+  const word = { id: wordId, target, position: position ?? guessPosition(wordId, target) };
   void send(
     buildEntry({
       page: 'practice',
