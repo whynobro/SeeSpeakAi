@@ -1,8 +1,9 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeftIcon, CheckCircleIcon, MicIcon } from '@/components/Icons';
-import { PlanView } from '@/components/PlanView';
+import { savePlan } from '@/components/planStore';
 import { SoundMeter } from '@/components/SoundMeter';
 import { Button, Card, IconTile } from '@/components/ui';
 import { wordsFor } from '@/content/words';
@@ -23,7 +24,7 @@ function checkWords(): PracticeWord[] {
 }
 
 type AgeGroup = AssessmentReport['ageGroup'];
-type Phase = 'intro' | 'words' | 'results' | 'sending' | 'plan' | 'error';
+type Phase = 'intro' | 'words' | 'results' | 'sending' | 'error';
 type Result = { target: TargetSound; verdict: Verdict };
 
 function summary(results: Result[], sound: TargetSound) {
@@ -41,7 +42,7 @@ export default function SpeechCheckPage() {
   const [gotIt, setGotIt] = useState(false);
   const [ageGroup, setAgeGroup] = useState<AgeGroup | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
-  const [plan, setPlan] = useState<PracticePlan | null>(null);
+  const router = useRouter();
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -109,8 +110,9 @@ export default function SpeechCheckPage() {
         body: JSON.stringify({ report }),
       });
       if (!res.ok) throw new Error(`Plan request failed: ${res.status}`);
-      setPlan((await res.json()) as PracticePlan);
-      setPhase('plan');
+      // Keep the plan on this device and open it on its own page, so a reload keeps it.
+      savePlan((await res.json()) as PracticePlan);
+      router.push('/plan');
     } catch {
       setPhase('error');
     }
@@ -121,15 +123,6 @@ export default function SpeechCheckPage() {
       {text}
     </h1>
   );
-
-  if (phase === 'plan' && plan) {
-    return (
-      <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6 pb-10">
-        {heading('Your practice plan')}
-        <PlanView plan={plan} />
-      </main>
-    );
-  }
 
   if (phase === 'results' || phase === 'sending' || phase === 'error') {
     return (
@@ -143,7 +136,7 @@ export default function SpeechCheckPage() {
                 as="li"
                 key={sound}
                 className="flex items-center gap-4 motion-safe:animate-rise"
-                style={{ animationDelay: `${150 + SOUNDS.indexOf(sound) * 120}ms` }}
+                style={{ animationDelay: `${SOUNDS.indexOf(sound) * 60}ms` }}
               >
                 <IconTile size="lg" className="text-2xl font-extrabold">
                   {sound}

@@ -1,10 +1,20 @@
 import type { PlanStep, PracticePlan } from '@/lib/types';
 import { isTargetSound } from '@/lib/scoring/constants';
-import { CheckCircleIcon, EyeIcon } from './Icons';
+import { CheckCircleIcon, ClipboardIcon, EyeIcon, SparkleIcon } from './Icons';
 import { Button, Card, IconTile } from './ui';
 
 /** One sound in the plan. Scored sounds get a practice button; other sounds are "show how, no score". */
-function StepCard({ step, index, first }: { step: PlanStep; index: number; first: boolean }) {
+function StepCard({
+  step,
+  index,
+  first,
+  planId,
+}: {
+  step: PlanStep;
+  index: number;
+  first: boolean;
+  planId: string;
+}) {
   const preview = step.words
     .slice(0, 4)
     .map((w) => w.text)
@@ -14,7 +24,7 @@ function StepCard({ step, index, first }: { step: PlanStep; index: number; first
       as="li"
       highlight={first}
       className="flex flex-col gap-4 motion-safe:animate-rise"
-      style={{ animationDelay: `${450 + index * 120}ms` }}
+      style={{ animationDelay: `${index * 60}ms` }}
     >
       <div className="flex items-start gap-4">
         <IconTile tone={step.scored ? 'accent' : 'violet-soft'} size="lg" className="text-2xl font-extrabold">
@@ -43,7 +53,10 @@ function StepCard({ step, index, first }: { step: PlanStep; index: number; first
         {preview && <p className="pt-1 text-base text-muted">Words: {preview}</p>}
       </div>
       {step.scored && isTargetSound(step.sound) && (
-        <Button href={`/practice?sound=${step.sound}`} variant={first ? 'primary' : 'secondary'}>
+        <Button
+          href={`/practice?sound=${step.sound}&plan=${encodeURIComponent(planId)}&step=${index}`}
+          variant={first ? 'primary' : 'secondary'}
+        >
           {first ? 'Start practicing' : `Practice "${step.sound}"`}
         </Button>
       )}
@@ -57,14 +70,25 @@ export function PlanView({ plan }: { plan: PracticePlan }) {
   return (
     <div className="flex flex-col gap-6">
       <Card tone="accent" className="flex flex-col gap-2 motion-safe:animate-wipe-in">
-        <p className="text-sm font-bold text-accent-edge">
-          {plan.source === 'ai' ? 'Made by the SeeSpeak coach (AI)' : 'Made from built-in rules'}
+        {/* Honest source label: "Made by Claude" only when the AI really made it. Word plus icon. */}
+        <p className="inline-flex items-center gap-1.5 text-sm font-bold text-accent-edge">
+          {plan.source === 'ai' ? (
+            <>
+              <SparkleIcon className="h-4 w-4" />
+              Made by Claude
+            </>
+          ) : (
+            <>
+              <ClipboardIcon className="h-4 w-4" />
+              Built-in plan
+            </>
+          )}
         </p>
         <p className="text-lg leading-relaxed">{plan.summary}</p>
       </Card>
       <ol className="flex flex-col gap-5">
         {plan.steps.map((step, i) => (
-          <StepCard key={step.sound} step={step} index={i} first={i === firstScored} />
+          <StepCard key={step.sound} step={step} index={i} first={i === firstScored} planId={plan.id} />
         ))}
       </ol>
     </div>
