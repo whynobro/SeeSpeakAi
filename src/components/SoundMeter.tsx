@@ -112,28 +112,26 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
       </div>
 
       {/* The track: sh on the left, s on the right, with the target half marked by stripes and a label. */}
-      <div className="relative mt-2 h-16" aria-hidden="true">
+      {target && (
+        <div className={`mt-2 flex ${side === 's' ? 'justify-end' : 'justify-start'}`} aria-hidden="true">
+          <span className="rounded-lg bg-accent-soft px-2 py-0.5 text-sm font-bold text-accent-edge">
+            Aim here: {target}
+          </span>
+        </div>
+      )}
+      <div className="relative mt-1 h-16" aria-hidden="true">
         <div className="absolute inset-x-0 top-1/2 h-11 -translate-y-1/2 overflow-hidden rounded-2xl border-2 border-foreground/60 bg-background">
           {target && (
             <>
               <div
-                className="absolute inset-y-0 border-accent text-accent/30"
+                className="absolute inset-y-0 text-accent/30"
                 style={{
                   left: `${zoneLeft * 100}%`,
                   width: `${zoneWidth * 100}%`,
-                  borderLeftWidth: side === 's' ? 3 : 0,
-                  borderRightWidth: side === 'sh' ? 3 : 0,
-                  borderStyle: 'dashed',
                   backgroundImage:
                     'repeating-linear-gradient(135deg, currentColor 0 3px, transparent 3px 11px)',
                 }}
               />
-              <span
-                className="absolute top-1/2 -translate-y-1/2 rounded-lg bg-surface px-2 py-0.5 text-sm font-bold text-accent-edge"
-                style={side === 's' ? { right: 8 } : { left: 8 }}
-              >
-                Aim here: {target}
-              </span>
             </>
           )}
 

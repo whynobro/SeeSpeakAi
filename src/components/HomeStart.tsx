@@ -1,13 +1,17 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { pickTargets } from '@/lib/profile';
 import { loadAttempts, loadProfile, progressFor } from '@/lib/store';
 import type { Attempt, HearingProfile } from '@/lib/types';
 import { CheckList } from './CheckList';
-import { CheckCircleIcon, EyeIcon, SpeakIcon } from './Icons';
+import { CheckCircleIcon, EyeIcon, MicIcon, SpeakIcon } from './Icons';
 import { LessonCard } from './LessonCard';
 import { Button, IconTile } from './ui';
+import { loadPlan, savePlan } from './planStore';
+import { TRY_IT } from '@/content/tryIt';
+import { planFromRules } from '@/lib/ai/rulesPlan';
 
 const STEPS = [
   { Icon: EyeIcon, text: 'See how to make the sound' },
@@ -37,19 +41,54 @@ export function HowItWorks() {
   );
 }
 
+/** One tap into practice with "s" then "sh" words. No report and no check, and no network. */
+function TryItNow() {
+  const router = useRouter();
+  function go() {
+    let plan = loadPlan();
+    if (!plan || !plan.steps.some((st) => st.scored && st.sound === 's')) {
+      plan = planFromRules({
+        source: 'therapist',
+        therapistSounds: ['s', 'sh'],
+        therapistNotes: '',
+        profile: null,
+        baseline: {},
+        ageGroup: 'teen',
+        interests: [],
+        createdAt: new Date().toISOString(),
+      });
+      savePlan(plan);
+    }
+    const step = plan.steps.findIndex((st) => st.scored && st.sound === 's');
+    router.push(`/practice?sound=s&plan=${encodeURIComponent(plan.id)}&step=${step}`);
+  }
+  return (
+    <section aria-label={TRY_IT.button} className="flex flex-col gap-2">
+      <Button size="xl" onClick={go}>
+        <MicIcon className="h-7 w-7" />
+        {TRY_IT.button}
+      </Button>
+      <p className="text-base text-muted">{TRY_IT.detail}</p>
+    </section>
+  );
+}
+
 function FirstVisit() {
   return (
-    <section aria-labelledby="start-heading" className="flex flex-col gap-3">
-      <h2 id="start-heading" className="text-[20px] font-bold">
-        Start with a quick check
-      </h2>
-      <p className="text-[15px] text-muted">It sets which sounds and words your practice starts with.</p>
-      {/* TODO(#4): add the "Enter audiogram" choice to CheckList once typed audiogram entry lands. */}
-      <CheckList />
-      <Button href="/practice?sound=s" variant="ghost" block={false} className="self-start">
-        Skip and try a word
-      </Button>
-    </section>
+    <>
+      <TryItNow />
+      <section aria-labelledby="start-heading" className="flex flex-col gap-3">
+        <h2 id="start-heading" className="text-[20px] font-bold">
+          {TRY_IT.personalTitle}
+        </h2>
+        <p className="text-[15px] text-muted">It sets which sounds and words your practice starts with.</p>
+        {/* TODO(#4): add the "Enter audiogram" choice to CheckList once typed audiogram entry lands. */}
+        <CheckList />
+        <Button href="/practice?sound=s" variant="ghost" block={false} className="self-start">
+          Skip and try a word
+        </Button>
+      </section>
+    </>
   );
 }
 

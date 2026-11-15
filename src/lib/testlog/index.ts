@@ -20,10 +20,10 @@ import type { AttemptScore, FrameFeatures, PracticeWord, TargetSound, WordPositi
 export type Said = 'with-sound' | 'without-sound' | 'other-sound' | 'lisp' | 'unsure';
 
 /**
- * One frame, shortened to save space: [tMs, level, hissRatio, centroidHz or -1, flatness or -1].
- * Entries logged before 2026-11-14 evening have only the first four numbers.
+ * One frame, shortened to save space: [tMs, level, hissRatio, centroidHz or -1, flatness or -1, voicing 0 to 1].
+ * Entries logged before 2026-11-14 evening have only the first four numbers; voicing (6th) came after flatness.
  */
-export type PackedFrame = [number, number, number, number, number];
+export type PackedFrame = [number, number, number, number, number, number?];
 
 export interface TestLogEntry {
   v: 1;
@@ -128,6 +128,7 @@ export function packFrames(frames: FrameFeatures[]): PackedFrame[] {
       Number(f.hissRatio.toFixed(3)),
       f.centroidHz === null ? -1 : Math.round(f.centroidHz),
       f.flatness === undefined ? -1 : Number(f.flatness.toFixed(3)),
+      Number((f.voicing ?? 0).toFixed(3)),
     ]);
 }
 

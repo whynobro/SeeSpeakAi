@@ -4,11 +4,12 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { ArrowLeftIcon, CheckCircleIcon } from '@/components/Icons';
 import { type AudiogramDraft, AudiogramFields, readAudiogram } from '@/components/AudiogramFields';
-import { savePlan } from '@/components/planStore';
+import { showRulesPlanNow } from '@/components/planStore';
 import { type LocalFile, ReportFiles, useFreeOnLeave } from '@/components/ReportFiles';
 import { SendSummary } from '@/components/SendSummary';
 import { Button } from '@/components/ui';
-import type { AssessmentReport, PracticePlan } from '@/lib/types';
+import { EXAMPLE_REPORT } from '@/content/tryIt';
+import type { AssessmentReport } from '@/lib/types';
 
 type AgeGroup = AssessmentReport['ageGroup'];
 
@@ -28,8 +29,6 @@ function splitList(text: string, max: number): string[] {
     .filter(Boolean)
     .slice(0, max);
 }
-
-type Status = 'editing' | 'sending' | 'error';
 
 /** A big tappable toggle. Selected state uses a check icon and a thick border, not only color. */
 function Toggle({ label, on, onChange }: { label: string; on: boolean; onChange: (on: boolean) => void }) {
@@ -59,7 +58,7 @@ export default function ReportPage() {
   const [interests, setInterests] = useState('');
   const [audiogram, setAudiogram] = useState<AudiogramDraft>({});
   const [problem, setProblem] = useState<string | null>(null);
-  const [status, setStatus] = useState<Status>('editing');
+  const [isExample, setIsExample] = useState(false);
   const [files, setFiles] = useState<LocalFile[]>([]);
   useFreeOnLeave(files);
   const router = useRouter();
@@ -67,9 +66,28 @@ export default function ReportPage() {
   const toggleSound = (sound: string, on: boolean) =>
     setSounds((prev) => (on ? [...prev, sound] : prev.filter((s) => s !== sound)));
 
+  function fillExample() {
+    setSounds([...EXAMPLE_REPORT.sounds]);
+    setOtherSounds(EXAMPLE_REPORT.otherSounds);
+    setNotes(EXAMPLE_REPORT.notes);
+    setAgeGroup(EXAMPLE_REPORT.ageGroup);
+    setInterests(EXAMPLE_REPORT.interests);
+    setAudiogram({});
+    setProblem(null);
+    setIsExample(true);
+  }
+
+  function clearExample() {
+    setSounds([]);
+    setOtherSounds('');
+    setNotes('');
+    setAgeGroup(null);
+    setInterests('');
+    setIsExample(false);
+  }
+
   async function makePlan(event: React.FormEvent) {
     event.preventDefault();
-    if (status === 'sending') return;
     const allSounds = [...sounds, ...splitList(otherSounds, 8)];
     if (allSounds.length === 0) {
       setProblem('Pick at least one sound, or type one the report lists.');
@@ -85,8 +103,6 @@ export default function ReportPage() {
       return;
     }
     setProblem(null);
-    setStatus('sending');
-
     const report: AssessmentReport = {
       source: 'therapist',
       therapistSounds: allSounds,
@@ -100,22 +116,11 @@ export default function ReportPage() {
       interests: splitList(interests, 5),
       createdAt: new Date().toISOString(),
     };
-    try {
-      const res = await fetch('/api/plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ report }),
-      });
-      if (!res.ok) throw new Error(`Plan request failed: ${res.status}`);
-      // Keep the plan on this device and open it on its own page, so a reload keeps it.
-      savePlan((await res.json()) as PracticePlan);
-      router.push('/plan');
-    } catch {
-      setStatus('error');
-    }
+    // Show the built-in plan at once. The plan page swaps in Claude's plan when it arrives.
+    showRulesPlanNow(report);
+    router.push('/plan');
   }
 
-  const sending = status === 'sending';
   return (
     <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6 pb-10">
       <Button href="/checks" variant="ghost" block={false} className="self-start">
@@ -131,6 +136,24 @@ export default function ReportPage() {
       </header>
 
       <ReportFiles files={files} onChange={setFiles} />
+
+      {isExample ? (
+        <div className="flex flex-col gap-3 rounded-2xl border-2 border-violet bg-violet-soft p-4">
+          <p className="flex items-center gap-2 text-lg font-bold text-violet-edge">
+            <span className="rounded-lg border-2 border-violet-edge px-2 py-0.5 text-sm tracking-wide uppercase">
+              {EXAMPLE_REPORT.badge}
+            </span>
+            {EXAMPLE_REPORT.banner}
+          </p>
+          <Button variant="secondary" block={false} className="self-start" onClick={clearExample}>
+            {EXAMPLE_REPORT.clear}
+          </Button>
+        </div>
+      ) : (
+        <Button variant="secondary" block={false} className="self-start" onClick={fillExample}>
+          {EXAMPLE_REPORT.button}
+        </Button>
+      )}
 
       <form onSubmit={makePlan} className="flex flex-col gap-7" noValidate>
         <fieldset className="flex flex-col gap-3">
@@ -214,14 +237,9 @@ export default function ReportPage() {
             {problem}
           </p>
         )}
-        {status === 'error' && (
-          <p role="alert" className="rounded-2xl bg-miss-soft p-4 text-lg font-bold text-miss-ink">
-            The plan could not be made. Check your connection and try again.
-          </p>
-        )}
 
-        <Button type="submit" size="lg" disabled={sending}>
-          {sending ? 'Making your plan…' : 'Make my plan'}
+        <Button type="submit" size="lg">
+          Make my plan
         </Button>
       </form>
     </main>
