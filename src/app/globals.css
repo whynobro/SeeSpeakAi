@@ -1,29 +1,31 @@
 @import 'tailwindcss';
 
 /*
- * The SeeSpeak look: bright blue on white, chunky "clay" cards and buttons with a darker bottom edge.
+ * The SeeSpeak look: baby blue with a little light tan, chunky "clay" cards and buttons with a darker bottom edge.
  * Colors and type are picked once, here. Screens use the Tailwind names (bg-surface, text-muted, bg-accent ...),
  * never raw hex values. Light only, so contrast stays predictable in bright light.
  *
  * Contrast rules (WCAG AA, checked):
  * - "-ink" and "-strong" colors are for text. They pass 4.5:1 on their partner fill.
- * - accent-ink (white) on accent passes 4.55:1: use it only at 16px bold or larger.
+ * - accent-ink (navy) on accent passes 8:1, so baby blue buttons can use text at any size.
+ * - tan (violet) is too light for text on the page: use violet-edge for tan words.
  * - accent, violet, hit and miss fills are for icons, edges and large text, not small text.
  */
 :root {
   color-scheme: light;
-  --background: #eef1fc; /* soft blue-white page */
-  --foreground: #1b1f3b; /* ink, 14:1 on the page */
+  --background: #eef6fd; /* very light baby blue page */
+  --foreground: #1c2b3a; /* deep navy ink, 13:1 on the page */
   --surface: #ffffff; /* cards */
-  --muted: #5b6178; /* small print, 5.4:1 on the page */
-  --line: #d5dcf3; /* quiet borders and the card's bottom edge */
-  --accent: #2f6fed; /* main buttons, the meter marker */
-  --accent-ink: #ffffff; /* text on accent: 16px bold or larger only */
-  --accent-edge: #1f4fbf; /* pressed edge under accent, and small accent text (7:1 on white) */
-  --accent-soft: #eaf0fe; /* light blue tint */
-  --violet: #7b61ff; /* used sparingly: large text and fills only */
-  --violet-edge: #5a3fdb; /* edge under violet, and violet text (5.7:1 on violet-soft) */
-  --violet-soft: #f0ecff;
+  --muted: #4f5d6b; /* small print, 6.2:1 on the page */
+  --line: #d3e5f4; /* soft blue borders and the card's bottom edge */
+  --accent: #9fd0f5; /* baby blue: main buttons, the meter marker */
+  --accent-ink: #11324f; /* navy text on baby blue, 8:1, any size */
+  --accent-edge: #2f6894; /* pressed edge under baby blue, and small blue text (5.5:1 on the page) */
+  --accent-soft: #dcedfb; /* light baby blue tint */
+  --violet: #ecdcc4; /* light tan: the second color, used sparingly */
+  --violet-ink: #4a3520; /* dark brown text on tan, 8.6:1 */
+  --violet-edge: #806040; /* edge under tan, and tan text (5:1 on violet-soft, 5.3:1 on the page) */
+  --violet-soft: #f8efe2;
   --hit: #1e8e57; /* result: the sound was there. Icons, borders, fills. */
   --hit-ink: #ffffff; /* text or icon on a hit fill: large only */
   --hit-strong: #166534; /* hit text on hit-soft, 6.3:1 */
@@ -47,6 +49,7 @@
   --color-accent-edge: var(--accent-edge);
   --color-accent-soft: var(--accent-soft);
   --color-violet: var(--violet);
+  --color-violet-ink: var(--violet-ink);
   --color-violet-edge: var(--violet-edge);
   --color-violet-soft: var(--violet-soft);
   --color-hit: var(--hit);
@@ -75,6 +78,65 @@
 @theme {
   /* The visual twin of a vibration: plays twice when a result appears. Use as motion-safe:animate-result-pulse. */
   --animate-result-pulse: result-pulse 450ms ease-out 2;
+
+  /*
+   * Entrance motion. Use with motion-safe: so people who ask for reduced motion see everything at once.
+   * Stagger by setting animation-delay inline. Easing: a fast start that settles gently.
+   */
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-rise: rise 700ms var(--ease-settle) backwards; /* cards and blocks: fade in while moving up */
+  --animate-word-rise: word-rise 900ms var(--ease-settle) backwards; /* a headline word rising out of its own mask */
+  --animate-spring-in: spring-in 600ms var(--ease-spring) backwards; /* buttons and badges: pop up with a small overshoot */
+  --animate-wipe-in: wipe-in 800ms var(--ease-settle) backwards; /* a card opening from left to right */
+  --animate-turn-in: turn-in 1100ms var(--ease-settle) backwards; /* the laptop preview phone turning to face you */
+  --animate-listen-ring: listen-ring 1.6s ease-out infinite; /* a ring that pulses out while the mic listens */
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+  @keyframes word-rise {
+    from {
+      transform: translateY(110%);
+    }
+  }
+  @keyframes spring-in {
+    from {
+      opacity: 0;
+      transform: translateY(16px) scale(0.92);
+    }
+  }
+  @keyframes wipe-in {
+    from {
+      clip-path: inset(0 100% 0 0 round 24px);
+    }
+    to {
+      clip-path: inset(0 0 0 0 round 24px);
+    }
+  }
+  @keyframes turn-in {
+    from {
+      opacity: 0;
+      transform: perspective(1400px) rotateY(-28deg) translateY(40px) translateZ(0);
+    }
+    to {
+      opacity: 1;
+      transform: perspective(1400px) rotateY(0deg) translateY(0) translateZ(0);
+    }
+  }
+  @keyframes listen-ring {
+    from {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    to {
+      transform: scale(1.12, 1.35);
+      opacity: 0;
+    }
+  }
 
   @keyframes result-pulse {
     0% {

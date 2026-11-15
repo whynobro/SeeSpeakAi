@@ -38,7 +38,7 @@ export function WordCard({ word, showSign }: { word: PracticeWord; showSign: boo
       <p className="text-6xl leading-tight font-bold tracking-wide break-words">
         {before}
         {mark && (
-          <strong className="font-extrabold text-accent underline decoration-[6px] underline-offset-[10px]">
+          <strong className="font-extrabold text-accent-edge underline decoration-accent decoration-[6px] underline-offset-[10px]">
             {mark}
           </strong>
         )}
