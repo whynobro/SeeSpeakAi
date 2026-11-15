@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { loadAttempts, loadProfile, loadSettings, progressFor } from '@/lib/store';
+import {
+  MIN_TRIES_FOR_CHANGE,
+  loadAttempts,
+  loadProfile,
+  loadSettings,
+  progressFor,
+  progressWindow,
+} from '@/lib/store';
 import type { Attempt, TargetSound, Verdict } from '@/lib/types';
 
 function attempt(n: number, verdict: Verdict, target: TargetSound = 's'): Attempt {
@@ -53,8 +60,9 @@ describe('progressFor', () => {
     const list = [attempt(3, 'hit'), attempt(0, 'miss'), attempt(2, 'hit'), attempt(1, 'miss')];
     const p = progressFor(list, 's');
     expect(p.attempts).toBe(4);
-    // Fewer than 20 tries: both windows cover all four.
-    expect(p.firstAccuracy).toBe(0.5);
+    // Four tries: the first 2 (both misses once sorted) against the latest 2 (both hits).
+    expect(p.firstAccuracy).toBe(0);
+    expect(p.latestAccuracy).toBe(1);
     const many = [
       ...Array.from({ length: 12 }, (_, i) => attempt(20 + i, 'hit')),
       ...Array.from({ length: 10 }, (_, i) => attempt(i, 'miss')),
@@ -71,5 +79,36 @@ describe('load functions without localStorage', () => {
     expect(loadProfile()).toBeNull();
     expect(loadAttempts()).toEqual([]);
     expect(loadSettings()).toEqual({ nickname: '', showSigns: false, channels: ['color', 'vibration'] });
+  });
+});
+
+describe('progress with few tries', () => {
+  const at = (i: number, verdict: 'hit' | 'miss'): Attempt => ({
+    id: `a${i}`,
+    wordId: 'cats',
+    target: 's',
+    stage: 'use',
+    createdAt: new Date(Date.UTC(2026, 10, 14, 0, i)).toISOString(),
+    score: {
+      target: 's',
+      verdict,
+      heard: verdict === 'hit' ? 's' : null,
+      meterPosition: null,
+      hissMs: 0,
+      confidence: 1,
+      warnings: [],
+    },
+    channels: ['color'],
+  });
+  it('splits 6 tries into first 3 and latest 3', () => {
+    const list = (['miss', 'miss', 'hit', 'hit', 'hit', 'hit'] as const).map((v, i) => at(i, v));
+    const p = progressFor(list, 's');
+    expect(progressWindow(6)).toBe(3);
+    expect(p.firstAccuracy).toBeCloseTo(1 / 3);
+    expect(p.latestAccuracy).toBe(1);
+  });
+  it('caps each side at 10 tries', () => {
+    expect(progressWindow(30)).toBe(10);
+    expect(MIN_TRIES_FOR_CHANGE).toBe(6);
   });
 });

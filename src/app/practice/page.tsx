@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { HomeIcon, LightbulbIcon, MicIcon } from '@/components/Icons';
+import { LipCamera } from '@/components/LipCamera';
 import { MouthPictures } from '@/components/MouthPictures';
 import { SoundMeter } from '@/components/SoundMeter';
 import { Button, Card, IconTile, buttonClass } from '@/components/ui';
@@ -15,8 +16,10 @@ import { CUES } from '@/content/cues';
 import { wordsFor } from '@/content/words';
 import { loadPlan } from '@/components/planStore';
 import { useCoachFeedback } from '@/hooks/useCoachFeedback';
+import { useLipCamera } from '@/hooks/useLipCamera';
 import { useSoundMeter } from '@/hooks/useSoundMeter';
 import { buzz } from '@/lib/feedback';
+import type { LipSummary } from '@/lib/lips/types';
 import { LIMITATIONS, scoreAttempt } from '@/lib/scoring';
 import { isTargetSound } from '@/lib/scoring/constants';
 import { loadProfile, loadSettings, saveAttempt } from '@/lib/store';
@@ -68,6 +71,8 @@ function PracticeLoop() {
   const meter = useSoundMeter();
   const coach = useCoachFeedback();
   const clearCoach = coach.clear;
+  const { begin: beginLips, collect: collectLips, ...lipCam } = useLipCamera();
+  const [lastLips, setLastLips] = useState<LipSummary | null>(null);
   const [settings, setSettings] = useState<LearnerSettings | null>(null);
   const [profile, setProfile] = useState<HearingProfile | null>(null);
   const [words, setWords] = useState<PracticeWord[]>([]);
@@ -127,13 +132,17 @@ function PracticeLoop() {
 
   async function onStart() {
     setScore(null);
+    setLastLips(null);
     coach.clear();
+    beginLips(); // the lip numbers cover this try only
     await meter.start();
   }
 
   function onDone() {
     if (!word || !settings) return;
     const frames = meter.stop();
+    const lips = collectLips(); // numbers only, null when the camera is off
+    setLastLips(lips);
     const result = scoreAttempt(frames, word);
     setScore(result);
     setTries((n) => n + 1);
@@ -152,7 +161,7 @@ function PracticeLoop() {
       word.position,
     );
     // The verdict is already on screen. The coach's sentence (numbers only go out, never audio) arrives after.
-    void coach.ask(word, result);
+    void coach.ask(word, result, lips);
   }
 
   function onNext() {
@@ -267,6 +276,17 @@ function PracticeLoop() {
         target={target}
         status={meter.status}
         result={score ? { position: score.meterPosition } : null}
+      />
+
+      <LipCamera
+        enabled={lipCam.enabled}
+        onEnabledChange={lipCam.setEnabled}
+        status={lipCam.status}
+        error={lipCam.error}
+        latest={lipCam.latest}
+        videoRef={lipCam.videoRef}
+        target={target}
+        lastTry={score ? lastLips : null}
       />
 
       {meter.status === 'error' && (

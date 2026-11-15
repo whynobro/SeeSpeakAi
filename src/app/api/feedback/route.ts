@@ -1,5 +1,5 @@
 import { buildFeedback } from '@/lib/ai/feedback';
-import { cleanTrace } from '@/lib/ai/validate';
+import { cleanLips, cleanTrace } from '@/lib/ai/validate';
 import { isTargetSound } from '@/lib/scoring/constants';
 import type { AttemptScore, FeedbackRequest, LearnerGoals } from '@/lib/types';
 
@@ -42,6 +42,7 @@ export async function POST(request: Request) {
       recent,
       trace,
       learnerGoals: cleanGoals(body.learnerGoals),
+      lips: cleanLips(body.lips),
     }),
   );
 }

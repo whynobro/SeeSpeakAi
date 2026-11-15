@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { lipFrameFromBlendshapes, lipHint, summarizeLips } from './features';
+import {
+  baselineFrom,
+  frameShape,
+  lipCloseHint,
+  lipFrameFromBlendshapes,
+  lipHint,
+  lipSeparation,
+  shapeAgainst,
+  summarizeLips,
+} from './features';
 import type { LipFrame, LipSummary } from './types';
 
 const frame = (rounded: number, spread: number, over: Partial<LipFrame> = {}): LipFrame => ({
@@ -63,8 +72,16 @@ describe('summarizeLips', () => {
   it('calls neutral when both are weak', () => {
     expect(summarizeLips(many(6, frame(0.1, 0.05))).shape).toBe('neutral');
   });
-  it('calls neutral when the two are too close', () => {
-    expect(summarizeLips(many(6, frame(0.5, 0.45))).shape).toBe('neutral');
+  it('calls neutral between the smile and rounded cutoffs', () => {
+    expect(summarizeLips(many(6, frame(0.3, 0.57))).shape).toBe('neutral');
+  });
+  it('does not call a relaxed, slightly smiling mouth rounded', () => {
+    expect(summarizeLips(many(6, frame(0.02, 0.15))).shape).toBe('neutral');
+  });
+  it('reads the real capture (one face): "sss" is spread, the "shh" end is rounded', () => {
+    // Numbers from the first real capture, Windows laptop webcam, 2026-11-14.
+    expect(summarizeLips(many(6, frame(0.107, 0.449))).shape).toBe('spread');
+    expect(summarizeLips(many(6, frame(0.207, 0.408))).shape).toBe('rounded');
   });
   it('averages only frames with a face', () => {
     const frames = [
@@ -77,7 +94,7 @@ describe('summarizeLips', () => {
     expect(s.faceSeenShare).toBeCloseTo(0.8);
   });
   it('reads the last third separately', () => {
-    const frames = [...many(6, frame(0.05, 0.6)), ...many(3, frame(0.7, 0.05))];
+    const frames = [...many(12, frame(0, 0.9)), ...many(6, frame(0.7, 0.05))];
     const s = summarizeLips(frames);
     expect(s.shapeEnd).toBe('rounded');
     expect(s.roundedEnd).toBeCloseTo(0.7);
@@ -123,5 +140,56 @@ describe('lipHint', () => {
   it('never uses an em dash', () => {
     expect(lipHint('s', summary('rounded'))).not.toContain('—');
     expect(lipHint('sh', summary('spread'))).not.toContain('—');
+  });
+});
+
+describe('frameShape', () => {
+  it('gives a live call per frame and unknown without a face', () => {
+    expect(frameShape(frame(0.1, 0.5))).toBe('spread');
+    expect(frameShape(frame(0.6, 0.1))).toBe('rounded');
+    expect(frameShape(frame(0, 0, { faceSeen: false }))).toBe('unknown');
+    expect(frameShape(null)).toBe('unknown');
+  });
+});
+
+describe('own baseline and separation', () => {
+  const sum = (rounded: number, spread: number) => summarizeLips(many(8, frame(rounded, spread)));
+  it('judges a try against the own smile of the person', () => {
+    const smile = sum(0.107, 0.449);
+    const base = baselineFrom(smile);
+    expect(base.smileLean).toBeCloseTo(-0.342);
+    expect(shapeAgainst(sum(0.207, 0.408), base)).toBe('rounded');
+    expect(shapeAgainst(smile, base)).toBe('spread');
+    expect(shapeAgainst(sum(0.12, 0.4), base)).toBe('neutral');
+  });
+  it('a smaller-smile person still separates by their own baseline', () => {
+    const smile = sum(0.05, 0.25);
+    expect(shapeAgainst(sum(0.2, 0.2), baselineFrom(smile))).toBe('rounded');
+  });
+  it('measures separation as the rise in lean from "s" to "sh"', () => {
+    expect(lipSeparation(sum(0.107, 0.449), sum(0.207, 0.408))).toBeCloseTo(0.141, 2);
+    expect(lipSeparation(sum(0.2, 0.2), sum(0.2, 0.2))).toBe(0);
+  });
+  it('is unknown against a baseline when the try itself is unknown', () => {
+    expect(shapeAgainst(summarizeLips([]), { smileLean: -0.3 })).toBe('unknown');
+  });
+});
+
+describe('lipCloseHint', () => {
+  const sumShape = (shape: LipSummary['shape']): LipSummary => ({
+    ...summarizeLips([]),
+    shape,
+    shapeEnd: shape,
+  });
+  it('puts the lip cause first for a close try', () => {
+    expect(lipCloseHint('s', sumShape('rounded'))).toContain('nearer "sh"');
+    expect(lipCloseHint('sh', sumShape('spread'))).toContain('nearer "s"');
+  });
+  it('is null when the lips match or are unknown', () => {
+    expect(lipCloseHint('s', sumShape('spread'))).toBeNull();
+    expect(lipCloseHint('sh', sumShape('unknown'))).toBeNull();
+  });
+  it('never uses an em dash', () => {
+    expect(lipCloseHint('s', sumShape('rounded'))).not.toContain('—');
   });
 });

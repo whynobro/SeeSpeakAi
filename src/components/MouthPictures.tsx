@@ -63,12 +63,14 @@ const PICTURES: Record<TargetSound, { side: MouthPicture; front: MouthPicture }>
   },
 };
 
-export function MouthPictures({ sound }: { sound: TargetSound }) {
+/** `only` shows one view (used next to the lip camera). Without it, both views show. */
+export function MouthPictures({ sound, only }: { sound: TargetSound; only?: 'front' | 'side' }) {
   const { side, front } = PICTURES[sound];
+  const shown = only === 'front' ? [front] : only === 'side' ? [side] : [side, front];
 
   return (
-    <div className="grid grid-cols-2 gap-2">
-      {[side, front].map((picture) => (
+    <div className={`grid gap-2 ${only ? 'grid-cols-1' : 'grid-cols-2'}`}>
+      {shown.map((picture) => (
         <figure key={picture.src} className="rounded-2xl border-2 border-line bg-surface p-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={picture.src} alt={picture.alt} width={240} height={240} className="h-auto w-full" />
