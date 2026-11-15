@@ -130,6 +130,15 @@ Rules:
 - Priority: after the demo path and the restyle work. The fly-in and perch are about 1 hour, and the beak on
   practice is about 30 minutes. Cut it if it is not solid by the Sunday 9 AM cut.
 
+## New logo and photos (Nov 14)
+
+- **Logo:** `public/brand/seespeak-wordmark.png` (served as `/brand/seespeak-wordmark.png`) is the new wordmark.
+  Use it in the redesign. Its text says "See Speak AI": check with Michael which name to show.
+- **Photos:** `public/photos/photo-1.jpg` to `photo-8.jpg` (served as `/photos/photo-N.jpg`), with
+  `public/photos/CREDITS.md`. Use them to show who the app is for (landing page, "who it's for" sections).
+  Every photo gets a small "Photo: Pinterest" caption, and none goes next to user quotes, test numbers or
+  "people who tried it". Use `next/image` with real alt text.
+
 ## How your AI agent should work with you
 
 Before designing any screen, open `docs/design/README.md` and look at every picture in `docs/design/references/`. Use the brand files and colors listed there. Ask Mason which references matter most for this screen.
