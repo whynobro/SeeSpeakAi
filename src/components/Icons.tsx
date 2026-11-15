@@ -140,6 +140,15 @@ export function UploadIcon(props: IconProps) {
   );
 }
 
+export function LockIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="5" y="11" width="14" height="10" rx="2" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+    </Svg>
+  );
+}
+
 export function SparkleIcon(props: IconProps) {
   return (
     <Svg {...props}>

@@ -3,9 +3,11 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { ArrowLeftIcon, CheckCircleIcon } from '@/components/Icons';
+import { type AudiogramDraft, AudiogramFields, readAudiogram } from '@/components/AudiogramFields';
 import { savePlan } from '@/components/planStore';
 import { type LocalFile, ReportFiles, useFreeOnLeave } from '@/components/ReportFiles';
-import { Button, Card } from '@/components/ui';
+import { SendSummary } from '@/components/SendSummary';
+import { Button } from '@/components/ui';
 import type { AssessmentReport, PracticePlan } from '@/lib/types';
 
 type AgeGroup = AssessmentReport['ageGroup'];
@@ -57,6 +59,7 @@ export default function ReportPage() {
   const [notes, setNotes] = useState('');
   const [ageGroup, setAgeGroup] = useState<AgeGroup | null>(null);
   const [interests, setInterests] = useState('');
+  const [audiogram, setAudiogram] = useState<AudiogramDraft>({});
   const [problem, setProblem] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>('editing');
   const [files, setFiles] = useState<LocalFile[]>([]);
@@ -78,6 +81,11 @@ export default function ReportPage() {
       setProblem('Pick an age group.');
       return;
     }
+    const { thresholds, error } = readAudiogram(audiogram);
+    if (error) {
+      setProblem(error);
+      return;
+    }
     setProblem(null);
     setStatus('sending');
 
@@ -85,7 +93,10 @@ export default function ReportPage() {
       source: 'therapist',
       therapistSounds: allSounds,
       therapistNotes: notes.trim(),
-      profile: null,
+      // The audiogram numbers, when typed, become the hearing profile the plan reads.
+      profile: thresholds
+        ? { source: 'audiogram', thresholdsDb: thresholds, createdAt: new Date().toISOString() }
+        : null,
       baseline: {},
       ageGroup,
       interests: splitList(interests, 5),
@@ -146,11 +157,13 @@ export default function ReportPage() {
               maxLength={80}
             />
             <span className="text-base text-muted">
-              The app can check &ldquo;s&rdquo; and &ldquo;sh&rdquo;. Other sounds get a how-to, with no
-              score.
+              The app can check &ldquo;s&rdquo;, &ldquo;sh&rdquo;, &ldquo;z&rdquo; and &ldquo;ch&rdquo;. Other
+              sounds get a how-to, with no score.
             </span>
           </label>
         </fieldset>
+
+        <AudiogramFields draft={audiogram} onChange={setAudiogram} />
 
         <label className="flex flex-col gap-2">
           <span className="text-xl font-bold">Goals or notes (optional)</span>
@@ -190,13 +203,13 @@ export default function ReportPage() {
           <span className="text-base text-muted">Used to pick practice words you care about.</span>
         </label>
 
-        <Card tone="accent" className="flex flex-col gap-1">
-          <p className="text-base font-bold text-accent-edge">Before you send</p>
-          <p className="text-base leading-relaxed">
-            Tapping the button sends the sounds, notes, age group and interests to the SeeSpeak server once,
-            to make your plan. No name and no voice. Nothing is saved there.
-          </p>
-        </Card>
+        <SendSummary
+          sounds={[...sounds, ...splitList(otherSounds, 8)]}
+          notes={notes}
+          thresholds={readAudiogram(audiogram).thresholds}
+          ageGroup={AGE_GROUPS.find((g) => g.value === ageGroup)?.label ?? null}
+          interests={splitList(interests, 5)}
+        />
 
         {problem && (
           <p role="alert" className="rounded-2xl bg-miss-soft p-4 text-lg font-bold text-miss-ink">
