@@ -105,6 +105,31 @@ from how it really sounds, so they cannot tell their own "s" is missing.
 - Priority: after the demo path and the restyle work. Cut it if it is not solid by the Sunday 9 AM cut. It also
   works as the opening shot of the demo video.
 
+## Bird mascot: "your little guy" (Mason, from the Nov 14 call)
+
+The teal bird from the logo becomes a companion that lives on the site.
+
+- **On load:** the bird flies a loop around the screen, then after about 2 seconds lands and perches on the
+  cursor. On phones (no cursor) it lands in a corner, or on the spot the finger last touched.
+- **During levels and practice:** it sits near the meter and opens its beak in time with the mic level
+  (`meter.reading.level` from `useSoundMeter`, already on the practice screen). No new mic code.
+- **Same bird in the wave animation above:** it sings, the wave loops back into its own ear, and the high "s"
+  part is gone when it arrives.
+- **Build it flat, in code (SVG plus CSS or a small script),** in the logo's style. A 3D look clashes with the
+  flat logo, and phones have no cursor for a head-follow trick. On desktop its head and eyes can follow the
+  cursor.
+
+Rules:
+
+- The bird is never a verdict. Its beak follows loudness only. Hit, close and miss still come from the badge,
+  the meter and the words. It never looks happy or sad about a try unless that matches the real verdict.
+- It never covers the meter, the word or a button. Set `pointer-events: none` so it never blocks a click.
+- `prefers-reduced-motion`: no flight. The bird just sits still.
+- A switch to hide it. Settings stay on the device.
+- Wording and tone: a friend, never a teacher who is disappointed in the learner.
+- Priority: after the demo path and the restyle work. The fly-in and perch are about 1 hour, and the beak on
+  practice is about 30 minutes. Cut it if it is not solid by the Sunday 9 AM cut.
+
 ## How your AI agent should work with you
 
 Before designing any screen, open `docs/design/README.md` and look at every picture in `docs/design/references/`. Use the brand files and colors listed there. Ask Mason which references matter most for this screen.
