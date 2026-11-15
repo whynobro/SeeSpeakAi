@@ -55,6 +55,7 @@ Tailwind is v4 and React is 19. Check their docs when unsure.
 | `src/lib/profile/`  | `pickTargets(profile)`: hearing profile to sounds to practice                | tech    |
 | `src/lib/store/`    | On-device storage and `progressFor`                                          | tech    |
 | `src/lib/testlog/`  | Opt-in shared test log (`/lab` switch), sends try numbers to `/api/attempts` | tech    |
+| `src/lib/levels/`   | Levels 1 to 4 (alone, start, end, phrase), items, pass rule, unlocks         | tech    |
 | `src/lib/lips/`     | Lip check, off by default: `summarizeLips`, `lipHint`, `useLipCamera`        | tech    |
 | `src/lib/feedback/` | Vibration patterns                                                           | tech    |
 | `src/lib/ai/`       | The brain: `buildPlan`, `buildFeedback` (server only), rule fallbacks        | tech    |
@@ -64,6 +65,7 @@ Tailwind is v4 and React is 19. Check their docs when unsure.
 | `src/app/page.tsx`  | Landing page                                                                 | screens |
 | `src/app/profile/`  | Hearing profile (Ling Six check, settings)                                   | screens |
 | `src/app/practice/` | Practice loop: word, live meter, verdict                                     | screens |
+| `src/app/levels/`   | Levels map: 4 stops per sound, locked until the one before is passed         | screens |
 | `src/app/progress/` | Before and after numbers                                                     | screens |
 | `src/components/`   | Shared UI: `SoundMeter`, `VerdictBadge`, `WordCard`                          | screens |
 | `src/content/`      | Word bank, how-to cues, interface wording                                    | content |
