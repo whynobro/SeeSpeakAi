@@ -9,7 +9,7 @@ export default function Home() {
         <div className="flex items-center gap-3">
           <LogoTile size={48} />
           <h1 className="text-3xl font-extrabold tracking-tight">
-            See<span className="text-violet">Speak</span>
+            See<span className="text-violet-edge">Speak</span>
           </h1>
         </div>
         <p className="text-3xl leading-tight font-bold text-balance">{COPY.tagline}</p>

@@ -5,7 +5,7 @@ import { type ReactNode, useEffect, useState } from 'react';
 import { pickTargets } from '@/lib/profile';
 import { loadAttempts, loadProfile, progressFor } from '@/lib/store';
 import type { Attempt, HearingProfile } from '@/lib/types';
-import { ArrowRightIcon, CheckCircleIcon, ClipboardIcon, EarIcon, EyeIcon, SpeakIcon } from './Icons';
+import { ArrowRightIcon, CheckCircleIcon, EarIcon, EyeIcon, MicIcon, SpeakIcon, UploadIcon } from './Icons';
 import { LessonCard } from './LessonCard';
 import { Button, Card, IconTile } from './ui';
 
@@ -76,16 +76,23 @@ function FirstVisit() {
         <StartChoice
           href="/profile"
           tone="accent"
-          title="Test in the app"
-          detail="A quick hearing check, about 1 minute"
+          title="Hearing check"
+          detail="Which sounds reach you, about 1 minute"
           icon={<EarIcon className="h-7 w-7" />}
+        />
+        <StartChoice
+          href="/speech-check"
+          tone="accent"
+          title="Speech check"
+          detail="Say 6 words, about 1 minute"
+          icon={<MicIcon className="h-7 w-7" />}
         />
         <StartChoice
           href="/report"
           tone="violet"
-          title="I have a speech therapist report"
-          detail="Enter the sounds and goals it lists"
-          icon={<ClipboardIcon className="h-7 w-7" />}
+          title="Upload a previous report"
+          detail="From a speech therapist or audiologist"
+          icon={<UploadIcon className="h-7 w-7" />}
         />
         {/* TODO(#4): add the "Enter audiogram" choice here once typed audiogram entry lands. */}
         <Button href="/practice?sound=s" variant="ghost" block={false} className="self-start">

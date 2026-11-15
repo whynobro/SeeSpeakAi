@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeftIcon, CheckCircleIcon } from '@/components/Icons';
 import { PlanView } from '@/components/PlanView';
+import { type LocalFile, ReportFiles, useFreeOnLeave } from '@/components/ReportFiles';
 import { Button, Card } from '@/components/ui';
 import type { AssessmentReport, PracticePlan } from '@/lib/types';
 
@@ -58,11 +59,15 @@ export default function ReportPage() {
   const [problem, setProblem] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>('editing');
   const [plan, setPlan] = useState<PracticePlan | null>(null);
+  const [files, setFiles] = useState<LocalFile[]>([]);
+  useFreeOnLeave(files);
   const resultRef = useRef<HTMLHeadingElement>(null);
 
   // When the plan arrives, start at the top and move focus to its heading so screen reader users hear it.
   useEffect(() => {
     if (status !== 'done') return;
+    // scrollIntoView also works inside the laptop "phone" preview frame, which scrolls on its own.
+    resultRef.current?.closest('main')?.scrollIntoView({ block: 'start' });
     window.scrollTo(0, 0);
     resultRef.current?.focus({ preventScroll: true });
   }, [status]);
@@ -132,11 +137,14 @@ export default function ReportPage() {
         Back
       </Button>
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-extrabold tracking-tight">Your speech therapist report</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight">Your previous report</h1>
         <p className="text-lg text-muted">
-          Copy what the report asks you to practice. SeeSpeak turns it into a step by step plan.
+          From a speech therapist or audiologist. Add the file, then copy what it asks you to practice.
+          SeeSpeak turns it into a step by step plan.
         </p>
       </header>
+
+      <ReportFiles files={files} onChange={setFiles} />
 
       <form onSubmit={makePlan} className="flex flex-col gap-7" noValidate>
         <fieldset className="flex flex-col gap-3">

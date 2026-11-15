@@ -18,7 +18,7 @@ const PRESS = 'active:translate-y-1 active:shadow-none';
 const VARIANTS: Record<ButtonVariant, string> = {
   primary: `bg-accent text-accent-ink shadow-edge-accent ${PRESS}`,
   secondary: `border-2 border-accent bg-surface text-accent-edge shadow-edge-accent ${PRESS}`,
-  violet: `bg-violet text-white shadow-edge-violet ${PRESS}`,
+  violet: `bg-violet text-violet-ink shadow-edge-violet ${PRESS}`,
   danger: `border-2 border-miss-ink bg-surface text-miss-ink shadow-edge-miss ${PRESS}`,
   ghost: 'text-accent-edge underline underline-offset-4 decoration-2',
 };
@@ -103,7 +103,7 @@ export type TileSize = 'sm' | 'md' | 'lg';
 
 const TILE_TONES: Record<TileTone, string> = {
   accent: 'bg-accent text-accent-ink shadow-edge-accent',
-  violet: 'bg-violet text-white shadow-edge-violet',
+  violet: 'bg-violet text-violet-ink shadow-edge-violet',
   hit: 'bg-hit text-hit-ink shadow-edge-hit',
   soft: 'bg-accent-soft text-accent-edge shadow-edge-line',
   'violet-soft': 'bg-violet-soft text-violet-edge shadow-edge-line',
@@ -137,7 +137,7 @@ export function IconTile({
   );
 }
 
-/** The SeeSpeak mark: a blue clay tile over a tilted violet one, with sound waves. */
+/** The SeeSpeak mark: a baby blue clay tile over a tilted tan one, with sound waves. */
 export function LogoTile({ size = 96 }: { size?: number }) {
   return (
     <span aria-hidden="true" className="relative inline-block shrink-0" style={{ width: size, height: size }}>
@@ -151,7 +151,7 @@ export function LogoTile({ size = 96 }: { size?: number }) {
           stroke="currentColor"
           strokeWidth={2.6}
           strokeLinecap="round"
-          className="text-white"
+          className="text-accent-ink"
         >
           <path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2" />
         </svg>
