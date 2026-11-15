@@ -15,7 +15,7 @@ Colors: teal `#2A9D8F` (bird, "See"), sunny yellow `#FFD166` (beak, notes), dark
 
 ## Proposed theme v2
 
-[theme-v2.md](theme-v2.md): one blue and tan theme for every age, an app shell and a no-AI-look checklist (issue #74). A proposal until Michael and Mason agree.
+[theme-v2.md](theme-v2.md): one blue and tan theme for every age, an app shell and a no-AI-look checklist (issue #74). Mason implements it once Michael agrees.
 
 ## Reference photos for the UI
 
