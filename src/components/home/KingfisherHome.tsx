@@ -22,7 +22,8 @@ import { Wordmark } from './Wordmark';
  * - The words and the two links are in the page from the first paint, with a short CSS rise (no wait for the video
  *   or for JavaScript), so a slow connection never shows a blank screen. The bird is an extra on top.
  *   A leafy branch (public/home/branch.png, made in ChatGPT) crosses the open space above the checks.
- * - With reduced motion the words just show. After the first view in a tab, home opens with the bird already perched.
+ * - With reduced motion the words just show. The bird flies in on every page load; going back to Home inside the
+ *   app opens with it already perched.
  */
 
 const VIDEO = '/home/kingfisher.mp4';
@@ -32,7 +33,6 @@ const LANDED_AT = 3.3;
 const FEET = { x: 0.5, y: 0.63 };
 /** Wider than this (in px), the words sit beside the bird; narrower, under it. */
 const WIDE = 1000;
-const SEEN_KEY = 'seespeak:home-flyin-seen';
 /**
  * The clip's own green reads a little yellow, so a pale aqua wash sits over it (not over the bird), and the page
  * takes the same mix. WASH and WASH_ALPHA are used for both, so the video's edges still melt into the page.
@@ -46,19 +46,16 @@ function washed(r: number, g: number, b: number): string {
   return `rgb(${mix(r, WASH.r)}, ${mix(g, WASH.g)}, ${mix(b, WASH.b)})`;
 }
 
+/**
+ * Played once per page load. Kept in memory, not in storage, so every reload (and every fresh visit) flies the
+ * bird in again, while going back to Home from another tab inside the app opens with it already perched.
+ */
+let playedThisLoad = false;
 function seen(): boolean {
-  try {
-    return window.sessionStorage.getItem(SEEN_KEY) === '1';
-  } catch {
-    return false;
-  }
+  return playedThisLoad;
 }
 function markSeen(): void {
-  try {
-    window.sessionStorage.setItem(SEEN_KEY, '1');
-  } catch {
-    // Storage blocked: it plays again next time.
-  }
+  playedThisLoad = true;
 }
 
 /** Haptic click on Android (iPhones have no web vibration); the button's press shrink is the visual twin. */
