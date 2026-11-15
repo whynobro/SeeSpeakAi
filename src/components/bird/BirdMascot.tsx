@@ -123,7 +123,8 @@ export function BirdMascot() {
   }, [path]);
 
   // Not on the /lab tuning pages, the same rule as the tab bar.
-  const show = mounted && !hidden && !path.startsWith('/lab');
+  // Not on home either: the kingfisher is the bird there.
+  const show = mounted && !hidden && !path.startsWith('/lab') && path !== '/';
 
   useEffect(() => {
     if (!show) return;

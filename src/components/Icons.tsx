@@ -240,3 +240,13 @@ export function RestartIcon(props: IconProps) {
     </Svg>
   );
 }
+
+export function HeadphonesIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 15v-3a8 8 0 0 1 16 0v3" />
+      <path d="M4 15h3v6H5.5A1.5 1.5 0 0 1 4 19.5z" />
+      <path d="M20 15h-3v6h1.5a1.5 1.5 0 0 0 1.5-1.5z" />
+    </Svg>
+  );
+}
