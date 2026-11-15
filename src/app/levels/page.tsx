@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
-import { ArrowLeftIcon, CheckCircleIcon, LockIcon } from '@/components/Icons';
+import { CheckCircleIcon, LockIcon } from '@/components/Icons';
+import { PageHeader, Screen } from '@/components/PageHeader';
 import { Button, SegmentedControl } from '@/components/ui';
 import {
   LEVELS,
@@ -159,17 +160,12 @@ function LevelsMap() {
   const current = results ? currentLevel(results, sound) : LEVELS[0];
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-2 pb-8">
-      <Button href="/" variant="ghost" block={false} className="self-start">
-        <ArrowLeftIcon className="h-5 w-5" />
-        Home
-      </Button>
-      <header className="flex flex-col gap-2">
-        <h1 className="text-[28px] leading-tight font-extrabold tracking-tight">Levels</h1>
-        <p className="text-[17px] text-muted">
-          The order speech therapists teach a sound: on its own first, then in words, then in phrases.
-        </p>
-      </header>
+    <Screen>
+      <PageHeader
+        back={{ href: '/', label: 'Home' }}
+        title="Levels"
+        lede="The order speech therapists teach a sound: on its own first, then in words, then in phrases."
+      />
 
       <SegmentedControl label="Sound" options={SOUND_OPTIONS} value={sound} onChange={setSound} />
 
@@ -189,7 +185,7 @@ function LevelsMap() {
           ))}
         </ol>
       )}
-    </main>
+    </Screen>
   );
 }
 

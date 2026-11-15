@@ -37,14 +37,15 @@ export function SendSummary({
   return (
     <section
       aria-labelledby="send-heading"
-      className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-4"
+      className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-4"
     >
       <h2 id="send-heading" className="flex items-center gap-2 text-lg font-bold">
         <LockIcon className="h-5 w-5 text-accent-edge" />
         Before you send
       </h2>
       <p className="text-base leading-relaxed">
-        The button sends only this to the SeeSpeak server, once, to make your plan. Nothing is saved there.
+        The button sends only this to the See Speak AI server, once, to make your plan. Nothing is saved
+        there.
       </p>
       <dl className="flex flex-col divide-y divide-line rounded-lg bg-accent-soft/50">
         {rows.map((row) => (

@@ -8,6 +8,7 @@ import type { Attempt, HearingProfile } from '@/lib/types';
 import { CheckList } from './CheckList';
 import { CheckCircleIcon, EyeIcon, SpeakIcon } from './Icons';
 import { LessonCard } from './LessonCard';
+import { SECTION_TITLE } from './PageHeader';
 import { Button, IconTile } from './ui';
 import { loadPlan, savePlan } from './planStore';
 import { TRY_IT } from '@/content/tryIt';
@@ -22,7 +23,7 @@ const STEPS = [
 export function HowItWorks() {
   return (
     <section aria-labelledby="how-heading" className="flex flex-col gap-4">
-      <h2 id="how-heading" className="text-[20px] font-bold">
+      <h2 id="how-heading" className={SECTION_TITLE}>
         How it works
       </h2>
       <ol className="flex flex-col gap-3">
@@ -69,7 +70,7 @@ function FirstVisit() {
     <>
       {/* "Try it now" lives in the kingfisher hero above. */}
       <section aria-labelledby="start-heading" className="flex flex-col gap-3">
-        <h2 id="start-heading" className="text-[24px] font-extrabold tracking-tight">
+        <h2 id="start-heading" className={SECTION_TITLE}>
           {TRY_IT.personalTitle}
         </h2>
         <p className="text-[15px] text-muted">It sets which sounds and words your practice starts with.</p>
@@ -88,7 +89,7 @@ function StartSkeleton() {
   return (
     <div aria-hidden="true" className="flex flex-col gap-3">
       <div className="h-7 w-56 rounded-lg bg-line motion-safe:animate-pulse" />
-      <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+      <div className="overflow-hidden rounded-xl border border-line bg-surface">
         {[0, 1, 2].map((i) => (
           <div
             key={i}
@@ -111,7 +112,7 @@ function Lessons({ profile, attempts }: { profile: HearingProfile; attempts: Att
   return (
     <>
       <section aria-labelledby="lesson-heading" className="flex flex-col gap-4">
-        <h2 id="lesson-heading" className="text-[20px] font-bold">
+        <h2 id="lesson-heading" className={SECTION_TITLE}>
           Your next practice
         </h2>
         {picks.map((pick, i) => (

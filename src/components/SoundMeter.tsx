@@ -96,7 +96,7 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
   const recentLevel = levels.length > 0 && listening ? levels[levels.length - 1] : 0;
 
   return (
-    <section aria-label="Live sound meter" className="w-full rounded-2xl border border-line bg-surface p-4">
+    <section aria-label="Live sound meter" className="w-full rounded-xl border border-line bg-surface p-4">
       <div className="flex items-end justify-between" aria-hidden="true">
         <span
           className={`text-3xl leading-none font-extrabold ${side === 'sh' ? 'text-accent-edge underline decoration-4 underline-offset-4' : 'text-muted'}`}
@@ -120,7 +120,7 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
         </div>
       )}
       <div className="relative mt-1 h-16" aria-hidden="true">
-        <div className="absolute inset-x-0 top-1/2 h-11 -translate-y-1/2 overflow-hidden rounded-2xl border-2 border-foreground/60 bg-background">
+        <div className="absolute inset-x-0 top-1/2 h-11 -translate-y-1/2 overflow-hidden rounded-xl border-2 border-foreground/60 bg-background">
           {target && (
             <>
               <div

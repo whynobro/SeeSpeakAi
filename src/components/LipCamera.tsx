@@ -72,7 +72,7 @@ export function LipBadge({ shape, className = '' }: { shape: LipShape; className
   const { text, icon } = SHAPE_LABEL[shape];
   return (
     <p
-      className={`flex items-center gap-2 rounded-2xl border border-line bg-accent-soft px-3 py-2 text-lg font-bold ${className}`}
+      className={`flex items-center gap-2 rounded-xl border border-line bg-accent-soft px-3 py-2 text-lg font-bold ${className}`}
     >
       {icon}
       <span>{text}</span>
@@ -128,14 +128,14 @@ export function LipCamera({
 
       {starting && <p className="text-base font-bold">Starting the camera...</p>}
       {failed && (
-        <p role="status" className="rounded-2xl border-2 border-dashed border-miss p-3 text-base font-bold">
+        <p role="status" className="rounded-xl border-2 border-dashed border-miss p-3 text-base font-bold">
           Camera off, voice only. {error}
         </p>
       )}
 
       {/* Always mounted, so the camera can attach to it. Hidden until it is watching. */}
       <div className={watching ? 'mt-1 flex flex-col gap-3' : 'hidden'}>
-        <div className="relative overflow-hidden rounded-2xl border border-line bg-black">
+        <div className="relative overflow-hidden rounded-xl border border-line bg-black">
           <video
             ref={videoRef}
             muted
@@ -145,23 +145,17 @@ export function LipCamera({
           />
           <LipBadge shape={live} className="absolute bottom-2 left-2 py-1.5 text-base shadow-sm" />
         </div>
-        <div className="flex items-center gap-3">
-          <div className="w-28 shrink-0 sm:w-32">
-            <MouthPictures sound={target} only="front" />
-          </div>
-          {/* Polite live region: said once per try, not 10 times a second. */}
-          <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <p className="text-base font-bold">Aim for this look</p>
-            <div aria-live="polite" className="empty:hidden">
-              {watching && lastTry && (
-                <p className="text-base">
-                  {lastTry.shape === 'unknown'
-                    ? 'No face seen in that try, so no lip tip. Voice still counts.'
-                    : `This try: ${SHAPE_LABEL[lastTry.shape].text.replace('Lips: ', 'lips ')}.`}
-                </p>
-              )}
-            </div>
-          </div>
+        {/* One compact row: the small picture, then the label and what the picture shows. */}
+        <MouthPictures sound={target} only="front" label="Aim for this look" />
+        {/* Polite live region: said once per try, not 10 times a second. */}
+        <div aria-live="polite" className="empty:hidden">
+          {watching && lastTry && (
+            <p className="text-base">
+              {lastTry.shape === 'unknown'
+                ? 'No face seen in that try, so no lip tip. Voice still counts.'
+                : `This try: ${SHAPE_LABEL[lastTry.shape].text.replace('Lips: ', 'lips ')}.`}
+            </p>
+          )}
         </div>
       </div>
     </Card>

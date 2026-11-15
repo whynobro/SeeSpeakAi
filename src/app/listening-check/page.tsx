@@ -1,8 +1,17 @@
 'use client';
 
 import { type ReactNode, useEffect, useRef, useState } from 'react';
-import { ArrowLeftIcon, CheckCircleIcon, EarIcon } from '@/components/Icons';
-import { Button, Card, Divider, GroupedList, GroupedRow, SectionLabel, SegmentedControl } from '@/components/ui';
+import { CheckCircleIcon, EarIcon } from '@/components/Icons';
+import { BackLink, Screen } from '@/components/PageHeader';
+import {
+  Button,
+  Card,
+  Divider,
+  GroupedList,
+  GroupedRow,
+  SectionLabel,
+  SegmentedControl,
+} from '@/components/ui';
 import { AGE_LABELS, CHECK_COPY, type CheckAge, LISTEN_PAIRS } from '@/content/checks';
 import { canSpeakWords, playCheckSound, speakWord, unlockAudio } from '@/lib/audio/playback';
 import {
@@ -123,16 +132,14 @@ export default function ListeningCheckPage() {
     <h1
       ref={headingRef}
       tabIndex={-1}
-      className="text-[28px] leading-tight font-extrabold tracking-tight outline-none"
+      className="text-[28px] leading-tight font-extrabold tracking-tight text-balance outline-none"
     >
       {text}
     </h1>
   );
-  const shell = (children: ReactNode) => (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6 pb-10">{children}</main>
-  );
+  const shell = (children: ReactNode) => <Screen>{children}</Screen>;
   const choice =
-    'flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border-4 bg-surface text-2xl font-extrabold transition-[transform,background-color] duration-75 active:scale-[0.98] disabled:opacity-60';
+    'flex min-h-24 flex-col items-center justify-center gap-2 rounded-xl border-4 bg-surface text-2xl font-extrabold transition-[transform,background-color] duration-75 active:scale-[0.98] disabled:opacity-60';
 
   if (phase === 'results' && summary) {
     const share = summary.contrastTotal > 0 ? `${summary.contrastCorrect} of ${summary.contrastTotal}` : null;
@@ -279,10 +286,7 @@ export default function ListeningCheckPage() {
 
   return shell(
     <>
-      <Button href="/checks" variant="ghost" block={false} className="self-start">
-        <ArrowLeftIcon className="h-5 w-5" />
-        Checks
-      </Button>
+      <BackLink href="/checks" label="Checks" />
       {heading(CHECK_COPY.listeningTitle)}
       <p className="text-lg leading-relaxed">{CHECK_COPY.listeningIntro}</p>
       <ol className="flex flex-col gap-3 text-lg">

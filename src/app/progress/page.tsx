@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { BeforeAfterBars } from '@/components/BeforeAfterBars';
 import { ArrowDownIcon, ArrowUpIcon, EqualsIcon, ShareIcon, TrashIcon } from '@/components/Icons';
 import { loadAssignment, quotedSounds, type Assignment } from '@/components/assignmentStore';
+import { PageHeader, SECTION_TITLE, Screen } from '@/components/PageHeader';
 import { Button, Card, IconTile } from '@/components/ui';
 import { COPY } from '@/content/copy';
 import { ASSIGN, THERAPIST_SUMMARY } from '@/content/therapist';
@@ -248,13 +249,11 @@ export default function ProgressPage() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-4 pb-10">
-      <header className="flex flex-col gap-2">
-        <h1 className="text-[28px] leading-tight font-extrabold tracking-tight">Progress</h1>
-      </header>
+    <Screen>
+      <PageHeader title="Progress" />
 
       <Card as="section" tone="accent" aria-labelledby="summary-heading" className="flex flex-col gap-3">
-        <h2 id="summary-heading" className="text-xl font-bold">
+        <h2 id="summary-heading" className={SECTION_TITLE}>
           {THERAPIST_SUMMARY.title}
         </h2>
         {extra.hasData ? (
@@ -313,6 +312,6 @@ export default function ProgressPage() {
       )}
 
       <p className="text-sm text-muted">{COPY.privacy}</p>
-    </main>
+    </Screen>
   );
 }

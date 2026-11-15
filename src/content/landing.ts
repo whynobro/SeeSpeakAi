@@ -44,7 +44,7 @@ export const LANDING = {
     },
     {
       q: 'Is sign language welcome?',
-      a: 'Yes. SeeSpeak is for people who choose to practice spoken English. It does not replace sign language.',
+      a: 'Yes. See Speak AI is for people who choose to practice spoken English. It does not replace sign language.',
     },
   ],
 };

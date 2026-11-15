@@ -25,7 +25,7 @@ export function CoachCard({ feedback, loading }: { feedback: CoachFeedback | nul
         </p>
       )}
       {!loading && feedback && (
-        <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-4 motion-safe:animate-rise">
+        <div className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-4 motion-safe:animate-rise">
           <p className="text-lg leading-relaxed">{feedback.message}</p>
           {feedback.cue && (
             <p className="flex items-start gap-2 rounded-lg bg-accent-soft p-3 text-base leading-relaxed">
