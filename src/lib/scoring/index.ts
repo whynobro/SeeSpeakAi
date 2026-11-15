@@ -34,6 +34,8 @@ import {
   VOICED_REL_LEVEL,
   VOICING_FRAME_MIN,
   Z_HISS_RATIO_MIN,
+  Z_VOICED_CENTROID_MIN_HZ,
+  Z_VOICED_HISS_RATIO_MIN,
   Z_VOICED_SHARE_MIN,
 } from '@/lib/scoring/constants';
 
@@ -64,6 +66,22 @@ export function positionFromCentroid(centroidHz: number | null): number | null {
 export function isHissFrame(frame: FrameFeatures, peakLevel: number, hissRatioMin = HISS_RATIO_MIN): boolean {
   const floor = Math.max(SILENCE_LEVEL, HISS_REL_LEVEL * peakLevel);
   return frame.level >= floor && frame.hissRatio >= hissRatioMin;
+}
+
+/**
+ * "z" only: voiced frication. The buzz of the voice puts most of the energy under 2 kHz, so the plain
+ * hiss share can be far below the bar, but the centroid in the 1.5 to 10 kHz band stays high (a vowel's
+ * does not). `voicing` is missing in old logged frames: then the centroid check alone decides.
+ */
+export function isVoicedHissFrame(frame: FrameFeatures, peakLevel: number): boolean {
+  const floor = Math.max(SILENCE_LEVEL, VOICED_REL_LEVEL * peakLevel);
+  return (
+    frame.level >= floor &&
+    frame.hissRatio >= Z_VOICED_HISS_RATIO_MIN &&
+    frame.centroidHz !== null &&
+    frame.centroidHz >= Z_VOICED_CENTROID_MIN_HZ &&
+    (frame.voicing ?? 1) >= VOICING_FRAME_MIN
+  );
 }
 
 /**
@@ -184,7 +202,9 @@ export function analyse(frames: FrameFeatures[], target?: TargetSound): Analysis
   // All loudness checks are relative to the loudest frame, so the mic gain does not matter.
   const voicedFloor = Math.max(SILENCE_LEVEL, VOICED_REL_LEVEL * maxLevel);
   const hissRatioMin = target === 'z' ? Z_HISS_RATIO_MIN : HISS_RATIO_MIN;
-  const isHiss = frames.map((f) => isHissFrame(f, maxLevel, hissRatioMin));
+  const isHiss = frames.map(
+    (f) => isHissFrame(f, maxLevel, hissRatioMin) || (target === 'z' && isVoicedHissFrame(f, maxLevel)),
+  );
   const isVoiced = frames.map((f) => f.level >= voicedFloor && f.hissRatio <= VOICED_RATIO_MAX);
   const voicedIdx: number[] = [];
   isVoiced.forEach((v, i) => {
@@ -262,11 +282,13 @@ function placedOk(frames: FrameFeatures[], a: Analysis, r: Run, word: PracticeWo
   if (!a.haveVowel) return true; // cannot place it, so accept any (a warning is added by the caller)
   const runStart = frames[r.start].tMs;
   const runEnd = frames[r.end].tMs + a.hopMs;
+  // A "z" hiss frame can also be a voiced frame (the buzz), so the vowel next to it may start inside the
+  // run's last frames, or end inside its first ones: that still counts as next to it.
   const vowelAfter = a.vowels.some(
-    (v) => v.start > r.end && frames[v.start].tMs - runEnd <= MAX_VOWEL_GAP_MS,
+    (v) => v.end > r.end && v.start > r.start && frames[v.start].tMs - runEnd <= MAX_VOWEL_GAP_MS,
   );
   const vowelBefore = a.vowels.some(
-    (v) => v.end < r.start && runStart - (frames[v.end].tMs + a.hopMs) <= MAX_VOWEL_GAP_MS,
+    (v) => v.start < r.start && v.end < r.end && runStart - (frames[v.end].tMs + a.hopMs) <= MAX_VOWEL_GAP_MS,
   );
   if (word.position === 'start') return vowelAfter;
   if (word.position === 'end') return vowelBefore;

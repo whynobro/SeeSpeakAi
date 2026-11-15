@@ -140,6 +140,25 @@ export const BASE_HISS = { s: 's', sh: 'sh', z: 's', ch: 'sh' } as const;
 export const Z_HISS_RATIO_MIN = 0.45;
 
 /**
+ * "z" only: a frame with a lower hiss share than Z_HISS_RATIO_MIN still counts as hiss when it is voiced
+ * frication: its centroid is at least this (Hz) and the buzz is present. A held "z" puts a lot of its
+ * energy under 2 kHz (hiss share 0.02 to 0.6 in a real "zoo"), so the plain hiss share drops most of it
+ * and the run came out 40 to 80 ms: too short, a miss. A vowel's centroid sits at 2300 to 4500 Hz here,
+ * the voiced "z" of "zoo" at 5400 to 6700. Measured 2026-11-14: 3 "zoo" tries on Windows laptops (Edge
+ * and Chrome), all misses before this change.
+ */
+export const Z_VOICED_CENTROID_MIN_HZ = 5200;
+
+/**
+ * "z" only: the lowest hiss share a voiced-frication frame may have. Vowel frames next to a "z" sit at
+ * 0.005 to 0.015 (a few reach 0.04 at the vowel edge), the voiced "z" frames of "zoo" at 0.08 to 0.6.
+ * Known limit: an unstressed vowel with a high centroid can pass this too; the voicing and the held-hiss
+ * checks still apply. A word-final "z" ("dogs", "keys") was fully devoiced in every logged try (hiss share
+ * 0.93 and up, voicing near 0), so it still reads "s": the signal holds no buzz to find.
+ */
+export const Z_VOICED_HISS_RATIO_MIN = 0.03;
+
+/**
  * "z" only: a hiss frame counts as voiced when its voicing (energy under 500 Hz next to the hiss energy,
  * 0 to 1) is at least this. A plain "s" sits near 0; the synthetic "z" sits near 0.2.
  */
