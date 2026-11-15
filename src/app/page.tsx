@@ -1,6 +1,7 @@
 import { COPY } from '@/content/copy';
 import { HomeStart } from '@/components/HomeStart';
 import { LandingSections } from '@/components/LandingSections';
+import { SavedPlanLink } from '@/components/SavedPlanLink';
 import { LogoTile } from '@/components/ui';
 import { LANDING } from '@/content/landing';
 
@@ -40,6 +41,7 @@ export default function Home() {
           {LANDING.privacyTitle}
         </p>
       </header>
+      <SavedPlanLink />
       <HomeStart />
       <LandingSections />
       <footer className="flex flex-col gap-2 border-t-2 border-line pt-6 text-sm leading-relaxed text-muted">

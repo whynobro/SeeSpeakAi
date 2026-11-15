@@ -1,9 +1,10 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { GoalsBox } from '@/components/GoalsBox';
 import { ArrowLeftIcon, CheckCircleIcon, EarIcon, MicIcon } from '@/components/Icons';
-import { PlanView } from '@/components/PlanView';
+import { savePlan } from '@/components/planStore';
 import { SoundMeter } from '@/components/SoundMeter';
 import { Button, Card, IconTile } from '@/components/ui';
 import {
@@ -38,7 +39,7 @@ const BREAK_AFTER = 9;
 /** Tries for each "try it on its own" syllable. */
 const ALONE_TRIES = 2;
 
-type Phase = 'intro' | 'words' | 'break' | 'alone' | 'results' | 'sending' | 'plan' | 'error';
+type Phase = 'intro' | 'words' | 'break' | 'alone' | 'results' | 'sending' | 'error';
 
 const SPOT_WORDS: Record<WordPosition, string> = {
   start: 'at the start of words',
@@ -123,6 +124,7 @@ function SpotRows({ summary, start }: { summary: SpotSummary[]; start: SpotSumma
 
 export default function SpeechCheckPage() {
   const meter = useSoundMeter();
+  const router = useRouter();
   const [age, setAge] = useState<CheckAge | null>(null);
   const [words, setWords] = useState<PracticeWord[]>([]);
   const [phase, setPhase] = useState<Phase>('intro');
@@ -134,7 +136,6 @@ export default function SpeechCheckPage() {
   const [aloneTry, setAloneTry] = useState(0);
   const [aloneHit, setAloneHit] = useState<Partial<Record<SpotKey, boolean>>>({});
   const [goals, setGoals] = useState<LearnerGoals>({ chips: [], text: '' });
-  const [plan, setPlan] = useState<PracticePlan | null>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   // Each new screen starts at the top with focus on its heading.
@@ -257,8 +258,9 @@ export default function SpeechCheckPage() {
         body: JSON.stringify({ report }),
       });
       if (!res.ok) throw new Error(`Plan request failed: ${res.status}`);
-      setPlan((await res.json()) as PracticePlan);
-      setPhase('plan');
+      // Keep the plan on this device and open it on its own page, so a reload keeps it.
+      savePlan((await res.json()) as PracticePlan);
+      router.push('/plan');
     } catch {
       setPhase('error');
     }
@@ -277,19 +279,6 @@ export default function SpeechCheckPage() {
       {meter.error ?? 'The microphone could not be started.'}
     </p>
   );
-
-  if (phase === 'plan' && plan) {
-    return shell(
-      <>
-        {heading('Your practice plan')}
-        <PlanView plan={plan} />
-        <Button href="/listening-check" variant="secondary">
-          <EarIcon className="h-6 w-6" />
-          {CHECK_COPY.listeningNext}
-        </Button>
-      </>,
-    );
-  }
 
   if ((phase === 'results' || phase === 'sending' || phase === 'error') && age) {
     return shell(
