@@ -17,6 +17,8 @@ const KEYS = {
   attempts: 'seespeak.attempts',
   goals: 'seespeak.goals',
   listening: 'seespeak.listening',
+  /** Owned and equipped shop items. Written by src/lib/rewards. */
+  wallet: 'seespeak.wallet',
 } as const;
 
 const DEFAULT_SETTINGS: LearnerSettings = {
