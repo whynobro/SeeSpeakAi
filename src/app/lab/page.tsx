@@ -92,7 +92,8 @@ export default function LabPage() {
           `run ${i + 1}: start ${fmt(r.startMs, 0)} ms, length ${fmt(r.lengthMs, 0)} ms, ` +
           `centroid ${fmt(r.meanCentroidHz, 0)} Hz, position ${fmt(r.meanPosition, 2)}, ` +
           `peak level ${fmt(r.peakLevel, 3)}, held ${fmt(r.sustainedMs, 0)} ms, ` +
-          `voiced share ${fmt(r.voicedShare, 2)}, burst ratio ${fmt(r.burstRatio, 2)}; ` +
+          `voiced share ${fmt(r.voicedShare, 2)}, burst ratio ${fmt(r.burstRatio, 2)}, ` +
+          `flatness ${fmt(r.flatness, 2)}, hiss to vowel ${fmt(r.hissToVowel, 2)}; ` +
           `long enough ${YES(r.passed.longEnough)}, held ${YES(r.passed.held)}, ` +
           `in place ${YES(r.passed.inPlace)}`,
       ),
@@ -117,6 +118,7 @@ export default function LabPage() {
     ['hissRatio', fmt(meter.latest?.hissRatio)],
     ['centroidHz', fmt(meter.latest?.centroidHz, 0)],
     ['voicing', fmt(meter.latest?.voicing)],
+    ['flatness', fmt(meter.latest?.flatness)],
     ['hissing', meter.reading ? String(meter.reading.hissing) : '-'],
     ['position', fmt(meter.reading?.position)],
   ];
@@ -125,7 +127,7 @@ export default function LabPage() {
     <main className="mx-auto flex w-full max-w-xl flex-col gap-6 p-4">
       <p className="text-sm">Lab: for tuning. Audio stays on this device.</p>
       <Link href="/lab/guided" className="text-lg font-bold underline">
-        Quick guided test (hands-free, 24 steps)
+        Quick guided test (hands-free, 28 steps)
       </Link>
 
       <label className="flex flex-col gap-1 font-bold">

@@ -40,6 +40,7 @@ For people who choose to work on spoken English. Sign language is welcome: sign 
 - It checks that the hiss is there and which hiss it is. It does not judge the whole word.
 - The "z" and "ch" limits were set on synthetic sounds only and need real voices. A "z" is an "s" hiss with the voice on; a "ch" is a burst then a short "sh". Both are tested on /lab.
 - Thresholds are starting values, tuned on test sounds and a few voices, not on a clinical data set.
+- Lisp detection is new. It calls a lisp only when an "s" or "z" hiss is both weak next to the vowel and flat (no strong peak), and it was tuned on synthetic sounds and very few real voices, so it can still miss a lisp.
 - Vibration works on Android phones only. iPhones have no vibration for web pages.
 
 ## Similar products

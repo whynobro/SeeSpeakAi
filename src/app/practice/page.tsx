@@ -148,15 +148,18 @@ function PracticeLoop() {
     setTries((n) => n + 1);
     if (result.verdict === 'hit') setHits((n) => n + 1);
     if (settings.channels.includes('vibration')) buzz(result.verdict);
-    saveAttempt({
-      id: crypto.randomUUID(),
-      wordId: word.id,
-      target: word.target,
-      stage: 'use',
-      createdAt: new Date().toISOString(),
-      score: result,
-      channels: settings.channels,
-    });
+    saveAttempt(
+      {
+        id: crypto.randomUUID(),
+        wordId: word.id,
+        target: word.target,
+        stage: 'use',
+        createdAt: new Date().toISOString(),
+        score: result,
+        channels: settings.channels,
+      },
+      word.position,
+    );
     // The verdict is already on screen. The coach's sentence (numbers only go out, never audio) arrives after.
     void coach.ask(word, result, lips);
   }

@@ -1,15 +1,15 @@
-import { analyse, pickRun, positionFromCentroid, runLengthMs, sustainedMsOf } from '@/lib/scoring';
-import { SILENCE_LEVEL, VOICED_RATIO_MAX, VOICED_REL_LEVEL } from '@/lib/scoring/constants';
+import {
+  analyse,
+  hissToVowelOf,
+  pickRun,
+  positionFromCentroid,
+  runLengthMs,
+  sustainedMsOf,
+} from '@/lib/scoring';
 import type { FrameFeatures, PracticeWord, TraceSummary } from '@/lib/types';
 
 function mean(values: number[]): number {
   return values.reduce((a, b) => a + b, 0) / values.length;
-}
-
-function median(values: number[]): number {
-  const sorted = [...values].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 === 1 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
 function clamp01(x: number): number {
@@ -46,19 +46,6 @@ export function summarizeTrace(frames: FrameFeatures[], word: PracticeWord): Tra
   const spread = Math.sqrt(mean(levels.map((l) => (l - avgLevel) ** 2)));
   const steadiness = avgLevel > 0 ? clamp01(1 - spread / avgLevel) : 0;
 
-  // The vowel: the voiced frames between the first and last one. Without a vowel, compare to the loudest.
-  const voicedFloor = Math.max(SILENCE_LEVEL, VOICED_REL_LEVEL * a.maxLevel);
-  const vowelLevels: number[] = [];
-  if (a.haveVowel) {
-    for (let i = a.vowelStart; i <= a.vowelEnd; i++) {
-      if (frames[i].level >= voicedFloor && frames[i].hissRatio <= VOICED_RATIO_MAX) {
-        vowelLevels.push(frames[i].level);
-      }
-    }
-  }
-  const vowelLevel = vowelLevels.length > 0 ? median(vowelLevels) : a.maxLevel;
-  const hissLevel = median(levels);
-
   let gapMs: number | null = null;
   let vowelMs = 0;
   if (a.haveVowel) {
@@ -78,7 +65,7 @@ export function summarizeTrace(frames: FrameFeatures[], word: PracticeWord): Tra
     positionEnd,
     drift: positionEnd - positionStart,
     steadiness,
-    hissToVowel: vowelLevel > 0 ? hissLevel / vowelLevel : 0,
+    hissToVowel: hissToVowelOf(frames, a, run),
     gapMs,
     vowelMs,
   };

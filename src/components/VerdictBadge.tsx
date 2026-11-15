@@ -1,3 +1,4 @@
+import { LISP_COPY } from '@/content/copy';
 import { BASE_HISS } from '@/lib/scoring/constants';
 import type { TargetSound, Verdict } from '@/lib/types';
 
@@ -93,25 +94,34 @@ export function VerdictBadge({
   verdict,
   target,
   heard,
+  lisp,
 }: {
   verdict: Verdict;
   target: TargetSound;
   /** The sound the score found, when it knows. Without it the badge guesses the other hiss. */
   heard?: TargetSound | null;
+  /** score.lisp. When left out, a close try that still heard the target sound is read as a lisp. */
+  lisp?: boolean;
 }) {
   const other = heard ?? (BASE_HISS[target] === 's' ? 'sh' : 's');
+  // The scorer only returns close with heard equal to the target when the hiss was a lisp.
+  const isLisp = verdict === 'close' && (lisp ?? heard === target);
   const title =
     verdict === 'hit'
       ? `Got it: the '${target}' was there`
-      : verdict === 'close'
-        ? `Close: that sounded like '${other}'`
-        : `No '${target}' heard yet`;
+      : isLisp
+        ? LISP_COPY.title
+        : verdict === 'close'
+          ? `Close: that sounded like '${other}'`
+          : `No '${target}' heard yet`;
   const detail =
     verdict === 'hit'
       ? null
-      : verdict === 'close'
-        ? closeDetail(target, other)
-        : 'Take a breath and try again.';
+      : isLisp
+        ? LISP_COPY.detail
+        : verdict === 'close'
+          ? closeDetail(target, other)
+          : 'Take a breath and try again.';
   // Each result differs in grayscale too: a solid tint with a solid border (hit), a solid amber fill (close),
   // white with a dashed border (miss). The icon and the words always say the same thing as the color.
   const look =
