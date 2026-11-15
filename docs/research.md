@@ -44,6 +44,16 @@ Facts we rely on, with sources. Owner: Holly. Add a source for every new claim. 
 - After high school, students leave the special education law that covers school speech services. Colleges provide aids and adjustments such as interpreters or note takers, and the guide we read does not list speech therapy among them ([Hands and Voices](https://handsandvoices.org/needs/transition.htm)).
 - We found no study that measures dropped plural "s" at ages 8 to 12 or at college age. Do not put a number on those.
 
+## Market size (checked Nov 15)
+
+These count how many children have a condition, not new cases each year. Say "8 to 9% of young children have", never "each year".
+
+- 8 to 9% of young children have a speech sound disorder. By first grade, about 5% have a noticeable speech disorder ([NIDCD](https://www.nidcd.nih.gov/health/statistics/quick-statistics-voice-speech-language), citing Shriberg 1999 and Law 2000). This covers every speech sound, and we score only "s", "sh", "z" and "ch": say "the group we start with", not "we help all of them".
+- 5% of US children aged 3 to 17 had a speech disorder lasting a week or longer in the past 12 months (same NIDCD page, NCHS data from 2012). Old data: do not call it "this year".
+- 1,430,000 students aged 3 to 21 were served for speech or language impairment under special education law in 2022-23, out of 7,526,000 served for any disability, about 1 in 5 ([NCES Digest table 204.30](https://nces.ed.gov/programs/digest/d23/tables/dt23_204.30.asp)).
+- 67,640 speech therapist jobs were in elementary and secondary schools in May 2023, out of 172,100 in all ([BLS](https://www.bls.gov/oes/2023/may/oes291127.htm)). These are jobs, not a headcount: say "about 67,000".
+- Our own math, not a source: 67,640 school speech therapists times $120 a seat is about $8 million a year if every one of them bought a seat. All 172,100 is about $20 million. This is a ceiling, not a forecast. Say "if every school speech therapist used it".
+
 ## Prices of similar tools (checked Nov 14)
 
 - Little Bee Speech, for therapists: $119.99 a year. For parents: $83.99 a year ([price page](https://little-bee-speech-tu.instantdocsbase.com/help/how-much-is-the-subscription)).
