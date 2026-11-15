@@ -3,10 +3,10 @@
 import { useRouter } from 'next/navigation';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { GoalsBox } from '@/components/GoalsBox';
-import { ArrowLeftIcon, CheckCircleIcon, EarIcon, MicIcon } from '@/components/Icons';
+import { ArrowLeftIcon, CheckCircleIcon, ChevronRightIcon, EarIcon, MicIcon } from '@/components/Icons';
 import { savePlan } from '@/components/planStore';
 import { SoundMeter } from '@/components/SoundMeter';
-import { Button, Card, IconTile } from '@/components/ui';
+import { Button, Card } from '@/components/ui';
 import {
   AGE_LABELS,
   CHECK_COPY,
@@ -267,7 +267,11 @@ export default function SpeechCheckPage() {
   }
 
   const heading = (text: string) => (
-    <h1 ref={headingRef} tabIndex={-1} className="text-3xl font-extrabold tracking-tight outline-none">
+    <h1
+      ref={headingRef}
+      tabIndex={-1}
+      className="text-[28px] leading-tight font-extrabold tracking-tight outline-none"
+    >
       {text}
     </h1>
   );
@@ -411,9 +415,9 @@ export default function SpeechCheckPage() {
 
   return shell(
     <>
-      <Button href="/" variant="ghost" block={false} className="self-start">
+      <Button href="/checks" variant="ghost" block={false} className="self-start">
         <ArrowLeftIcon className="h-5 w-5" />
-        Back
+        Checks
       </Button>
       {heading(CHECK_COPY.speakingTitle)}
       <p className="text-lg leading-relaxed">{CHECK_COPY.speakingIntro}</p>
@@ -430,23 +434,24 @@ export default function SpeechCheckPage() {
         ))}
       </ul>
       <fieldset className="flex flex-col gap-3">
-        <legend className="pb-3 text-xl font-bold">{CHECK_COPY.whoTitle}</legend>
-        {(['child', 'teen', 'adult'] as const).map((g) => (
-          <button
-            key={g}
-            type="button"
-            onClick={() => begin(g)}
-            className="flex min-h-16 items-center gap-4 rounded-2xl border border-line bg-surface p-4 text-left transition-[transform,background-color] duration-75 active:scale-[0.98]"
-          >
-            <IconTile tone="soft" size="sm">
-              <MicIcon className="h-5 w-5" />
-            </IconTile>
-            <span className="flex flex-col">
-              <span className="text-xl font-bold">{AGE_LABELS[g].title}</span>
-              <span className="text-base text-muted">{AGE_LABELS[g].detail}</span>
-            </span>
-          </button>
-        ))}
+        <legend className="pb-3 text-[20px] font-bold">{CHECK_COPY.whoTitle}</legend>
+        {/* One grouped list, like the Checks tab: thin dividers, no icon square on every row (theme v2). */}
+        <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+          {(['child', 'teen', 'adult'] as const).map((g) => (
+            <button
+              key={g}
+              type="button"
+              onClick={() => begin(g)}
+              className="group flex min-h-16 w-full items-center gap-4 border-t border-line px-4 py-4 text-left transition-colors duration-150 first:border-t-0 hover:bg-accent-soft/60 active:bg-accent-soft"
+            >
+              <span className="flex flex-1 flex-col">
+                <span className="text-[17px] font-bold">{AGE_LABELS[g].title}</span>
+                <span className="text-[15px] text-muted">{AGE_LABELS[g].detail}</span>
+              </span>
+              <ChevronRightIcon className="h-5 w-5 shrink-0 text-muted transition-transform duration-150 group-hover:translate-x-0.5" />
+            </button>
+          ))}
+        </div>
       </fieldset>
     </>,
   );

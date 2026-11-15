@@ -108,7 +108,11 @@ export default function ListeningCheckPage() {
   }
 
   const heading = (text: string) => (
-    <h1 ref={headingRef} tabIndex={-1} className="text-3xl font-extrabold tracking-tight outline-none">
+    <h1
+      ref={headingRef}
+      tabIndex={-1}
+      className="text-[28px] leading-tight font-extrabold tracking-tight outline-none"
+    >
       {text}
     </h1>
   );
@@ -246,9 +250,9 @@ export default function ListeningCheckPage() {
 
   return shell(
     <>
-      <Button href="/" variant="ghost" block={false} className="self-start">
+      <Button href="/checks" variant="ghost" block={false} className="self-start">
         <ArrowLeftIcon className="h-5 w-5" />
-        Back
+        Checks
       </Button>
       {heading(CHECK_COPY.listeningTitle)}
       <p className="text-lg leading-relaxed">{CHECK_COPY.listeningIntro}</p>

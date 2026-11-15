@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { BeforeAfterBars } from '@/components/BeforeAfterBars';
-import { ArrowDownIcon, ArrowUpIcon, EqualsIcon, HomeIcon, ShareIcon, TrashIcon } from '@/components/Icons';
+import { ArrowDownIcon, ArrowUpIcon, EqualsIcon, ShareIcon, TrashIcon } from '@/components/Icons';
 import { Button, Card, IconTile } from '@/components/ui';
 import { COPY } from '@/content/copy';
 import { TARGET_SOUNDS } from '@/lib/scoring/constants';
@@ -168,11 +168,7 @@ export default function ProgressPage() {
   return (
     <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-4 pb-10">
       <header className="flex flex-col gap-2">
-        <Button href="/" variant="ghost" block={false} className="self-start">
-          <HomeIcon className="h-5 w-5" />
-          Home
-        </Button>
-        <h1 className="text-4xl font-extrabold tracking-tight">Progress</h1>
+        <h1 className="text-[28px] leading-tight font-extrabold tracking-tight">Progress</h1>
       </header>
 
       <Card as="section" tone="accent" aria-labelledby="summary-heading" className="flex flex-col gap-3">

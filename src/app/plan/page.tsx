@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowLeftIcon } from '@/components/Icons';
 import { PlanView } from '@/components/PlanView';
 import { loadPlan } from '@/components/planStore';
 import { Button, Card } from '@/components/ui';
@@ -19,11 +18,7 @@ export default function PlanPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6 pb-10">
-      <Button href="/" variant="ghost" block={false} className="self-start">
-        <ArrowLeftIcon className="h-5 w-5" />
-        Home
-      </Button>
-      <h1 className="text-3xl font-extrabold tracking-tight">Your practice plan</h1>
+      <h1 className="text-[28px] leading-tight font-extrabold tracking-tight">Your practice plan</h1>
 
       {plan === undefined && (
         <div aria-hidden="true" className="flex flex-col gap-4">

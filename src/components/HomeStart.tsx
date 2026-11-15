@@ -1,11 +1,11 @@
 'use client';
 
-import Link from 'next/link';
-import { type ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { pickTargets } from '@/lib/profile';
 import { loadAttempts, loadProfile, progressFor } from '@/lib/store';
 import type { Attempt, HearingProfile } from '@/lib/types';
-import { CheckCircleIcon, ChevronRightIcon, EarIcon, EyeIcon, MicIcon, SpeakIcon, UploadIcon } from './Icons';
+import { CheckList } from './CheckList';
+import { CheckCircleIcon, EyeIcon, SpeakIcon } from './Icons';
 import { LessonCard } from './LessonCard';
 import { Button, IconTile } from './ui';
 
@@ -15,10 +15,10 @@ const STEPS = [
   { Icon: CheckCircleIcon, text: 'See if the sound was there' },
 ];
 
-function HowItWorks() {
+export function HowItWorks() {
   return (
     <section aria-labelledby="how-heading" className="flex flex-col gap-4">
-      <h2 id="how-heading" className="text-xl font-bold">
+      <h2 id="how-heading" className="text-[20px] font-bold">
         How it works
       </h2>
       <ol className="flex flex-col gap-3">
@@ -37,78 +37,19 @@ function HowItWorks() {
   );
 }
 
-/** One row in the grouped start list. The whole row is the tap target. */
-function StartRow({
-  href,
-  title,
-  detail,
-  icon,
-}: {
-  href: string;
-  title: string;
-  detail: string;
-  icon: ReactNode;
-}) {
-  return (
-    <li className="border-t border-line first:border-t-0">
-      <Link
-        href={href}
-        className="group flex min-h-20 items-center gap-4 px-4 py-4 transition-colors duration-150 hover:bg-accent-soft/60 active:bg-accent-soft"
-      >
-        <span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center">
-          {icon}
-        </span>
-        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="text-lg leading-snug font-bold">{title}</span>
-          <span className="text-base text-muted">{detail}</span>
-        </span>
-        <ChevronRightIcon className="h-5 w-5 shrink-0 text-muted transition-transform duration-150 group-hover:translate-x-0.5" />
-      </Link>
-    </li>
-  );
-}
-
 function FirstVisit() {
   return (
-    <>
-      <section aria-labelledby="start-heading" className="flex flex-col gap-3">
-        <h2 id="start-heading" className="text-xl font-bold">
-          How do you want to start?
-        </h2>
-        {/* One grouped list, so the three ways in read as a single choice. Rows clip to the list's corners. */}
-        <ul className="overflow-hidden rounded-2xl border border-line bg-surface motion-safe:animate-rise">
-          <StartRow
-            href="/profile"
-            title="Hearing check"
-            detail="Which sounds reach you · about 1 minute"
-            icon={<EarIcon className="h-6 w-6 text-accent-edge" />}
-          />
-          <StartRow
-            href="/speech-check"
-            title="Speech check"
-            detail="Say 18 words · about 2 to 3 minutes"
-            icon={<MicIcon className="h-6 w-6 text-accent-edge" />}
-          />
-          <StartRow
-            href="/listening-check"
-            title="Listening check"
-            detail="Tell sounds and words apart · about 2 minutes"
-            icon={<EarIcon className="h-6 w-6 text-accent-edge" />}
-          />
-          <StartRow
-            href="/report"
-            title="Upload a previous report"
-            detail="From a speech therapist or audiologist"
-            icon={<UploadIcon className="h-6 w-6 text-violet-edge" />}
-          />
-        </ul>
-        {/* TODO(#4): add the "Enter audiogram" choice here once typed audiogram entry lands. */}
-        <Button href="/practice?sound=s" variant="ghost" block={false} className="self-start">
-          Skip and try a word
-        </Button>
-      </section>
-      <HowItWorks />
-    </>
+    <section aria-labelledby="start-heading" className="flex flex-col gap-3">
+      <h2 id="start-heading" className="text-[20px] font-bold">
+        Start with a quick check
+      </h2>
+      <p className="text-[15px] text-muted">It sets which sounds and words your practice starts with.</p>
+      {/* TODO(#4): add the "Enter audiogram" choice to CheckList once typed audiogram entry lands. */}
+      <CheckList />
+      <Button href="/practice?sound=s" variant="ghost" block={false} className="self-start">
+        Skip and try a word
+      </Button>
+    </section>
   );
 }
 
@@ -140,8 +81,8 @@ function Lessons({ profile, attempts }: { profile: HearingProfile; attempts: Att
   return (
     <>
       <section aria-labelledby="lesson-heading" className="flex flex-col gap-4">
-        <h2 id="lesson-heading" className="text-xl font-bold">
-          Start a lesson
+        <h2 id="lesson-heading" className="text-[20px] font-bold">
+          Your next practice
         </h2>
         {picks.map((pick, i) => (
           <LessonCard

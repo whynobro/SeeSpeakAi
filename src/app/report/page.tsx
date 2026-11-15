@@ -118,12 +118,12 @@ export default function ReportPage() {
   const sending = status === 'sending';
   return (
     <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6 pb-10">
-      <Button href="/" variant="ghost" block={false} className="self-start">
+      <Button href="/checks" variant="ghost" block={false} className="self-start">
         <ArrowLeftIcon className="h-5 w-5" />
-        Back
+        Checks
       </Button>
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-extrabold tracking-tight">Your previous report</h1>
+        <h1 className="text-[28px] leading-tight font-extrabold tracking-tight">Your previous report</h1>
         <p className="text-lg text-muted">
           From a speech therapist or audiologist. Add the file, then copy what it asks you to practice.
           SeeSpeak turns it into a step by step plan.

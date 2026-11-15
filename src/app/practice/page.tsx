@@ -204,7 +204,7 @@ function PracticeLoop() {
       <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pt-2 pb-8">
         <header className="flex items-center gap-3">{homeLink}</header>
         <Card className="flex flex-col gap-4">
-          <h1 className="text-4xl font-extrabold tracking-tight">All done</h1>
+          <h1 className="text-[28px] leading-tight font-extrabold tracking-tight">All done</h1>
           {tries > 0 && (
             <ul className="flex flex-wrap gap-2" aria-hidden="true">
               {Array.from({ length: tries }, (_, i) => (
