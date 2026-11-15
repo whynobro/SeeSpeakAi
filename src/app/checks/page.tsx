@@ -9,6 +9,7 @@ export default function ChecksPage() {
   return (
     <Screen>
       <PageHeader
+        back={{ href: '/', label: 'Home' }}
         title="Checks"
         lede="Short checks that set where your practice starts. Do any of them, any time."
       />

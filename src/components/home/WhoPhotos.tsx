@@ -5,7 +5,7 @@ import { LANDING } from '@/content/landing';
 /*
  * "Who it is for" on the home screen: Holly's eight photos (public/photos, rules in public/photos/CREDITS.md) in a
  * slow strip that loops sideways. It pauses while a pointer is on it or it has keyboard focus, and with reduced
- * motion it is a still grid. Each photo has a "Photo: Pinterest" caption. These are not our users: never put this
+ * motion it is a still grid. The photos are from Pinterest (credited in public/photos/CREDITS.md and docs/HACKATHON.md, not on screen). These are not our users: never put this
  * next to quotes, test numbers or "people who tried it".
  */
 
@@ -55,7 +55,6 @@ function Photo({ p, copy }: { p: (typeof PHOTOS)[number]; copy: boolean }) {
           loading="lazy"
           className="h-40 w-auto rounded-xl border border-line bg-surface object-cover"
         />
-        <figcaption className="text-[12px] text-muted">Photo: Pinterest</figcaption>
       </figure>
     </li>
   );
