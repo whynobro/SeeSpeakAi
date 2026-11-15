@@ -27,6 +27,8 @@ import { Wordmark } from './Wordmark';
  */
 
 const VIDEO = '/home/kingfisher.mp4';
+/** The clip's last frame. Shown when the clip cannot play (iPhone Low Power Mode, autoplay blocked, slow network). */
+const PERCHED = '/home/kingfisher-perched.jpg';
 /** Seconds into the clip when the bird has landed. */
 const LANDED_AT = 3.3;
 /** Where the bird perches, as a share of the video frame (measured on the clip). */
@@ -163,6 +165,14 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
     };
     const toEnd = () => {
       if (v.duration && Number.isFinite(v.duration)) v.currentTime = Math.max(0, v.duration - 0.05);
+      else v.addEventListener('loadedmetadata', toEnd, { once: true });
+    };
+    // iPhones load no frames until a clip plays, so jumping to the end alone can leave the stage blank.
+    // The perched still fills in whenever the clip has no frame of its own to show.
+    const perch = () => {
+      v.poster = PERCHED;
+      toEnd();
+      land();
     };
     const onTime = () => {
       if (v.currentTime >= LANDED_AT) land();
@@ -174,29 +184,31 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
     const start = () => {
       matchPage();
       if (reduce || seen()) {
-        toEnd();
-        land();
+        perch();
         return;
       }
-      v.play().catch(() => {
-        toEnd();
-        land();
-      });
+      v.play().catch(perch);
     };
     v.addEventListener('timeupdate', onTime);
     v.addEventListener('ended', onEnd);
     v.addEventListener('seeked', matchPage);
-    v.addEventListener('error', land);
-    const timer = window.setTimeout(land, 6000);
-    if (v.readyState >= 2) start();
-    else v.addEventListener('loadeddata', start, { once: true });
+    v.addEventListener('error', perch);
+    v.addEventListener('loadeddata', matchPage, { once: true });
+    // Never stuck mid-flight or blank: if the bird has not landed by now, show it perched.
+    const timer = window.setTimeout(() => {
+      if (v.currentTime < LANDED_AT) perch();
+      else land();
+    }, 6000);
+    // Play at once: an iPhone does not load the clip (so no loadeddata) until play() is called.
+    start();
     return () => {
       window.clearTimeout(timer);
       v.removeEventListener('timeupdate', onTime);
       v.removeEventListener('ended', onEnd);
       v.removeEventListener('seeked', matchPage);
-      v.removeEventListener('error', land);
-      v.removeEventListener('loadeddata', start);
+      v.removeEventListener('error', perch);
+      v.removeEventListener('loadeddata', matchPage);
+      v.removeEventListener('loadedmetadata', toEnd);
     };
   }, []);
 
