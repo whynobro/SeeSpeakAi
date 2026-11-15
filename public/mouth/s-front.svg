@@ -5,14 +5,14 @@
     <clipPath id="opening"><path d="M38 118 C72 104 168 104 202 118 C168 144 72 144 38 118 Z"/></clipPath>
   </defs>
   <rect x="2" y="2" width="236" height="236" rx="20" fill="#ffffff"/>
-  <g clip-path="url(#panel)" stroke="#1b1f3b" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+  <g clip-path="url(#panel)" stroke="#1e2a3a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
     <path fill="#f2d6c4" d="M20 118 C46 86 96 80 120 92 C144 80 194 86 220 118 C194 170 46 170 20 118 Z"/>
-    <path fill="#1b1f3b" d="M38 118 C72 104 168 104 202 118 C168 144 72 144 38 118 Z"/>
+    <path fill="#1e2a3a" d="M38 118 C72 104 168 104 202 118 C168 144 72 144 38 118 Z"/>
     <g clip-path="url(#opening)" fill="#ffffff" stroke-width="2.5">
       <path d="M30 96 H210 V119 C160 124 80 124 30 119 Z"/>
       <path d="M30 126 C80 130 160 130 210 126 V150 H30 Z"/>
       <path fill="none" d="M120 96 V124 M100 96 V123 M140 96 V123 M80 96 V122 M160 96 V122 M110 128 V150 M130 128 V150 M90 127 V150 M150 127 V150"/>
     </g>
   </g>
-  <rect x="2" y="2" width="236" height="236" rx="20" fill="none" stroke="#d5dcf3" stroke-width="2"/>
+  <rect x="2" y="2" width="236" height="236" rx="20" fill="none" stroke="#e9e2d4" stroke-width="2"/>
 </svg>

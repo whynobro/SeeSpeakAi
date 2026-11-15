@@ -1,31 +1,32 @@
 @import 'tailwindcss';
 
 /*
- * The SeeSpeak look: baby blue with a little light tan, chunky "clay" cards and buttons with a darker bottom edge.
+ * The SeeSpeak look: the brand teal bird with sunny yellow accents and navy ink on a warm off-white page
+ * (see docs/design/README.md). The "violet" token names now hold the yellow accent; the names stay so no screen breaks.
  * Colors and type are picked once, here. Screens use the Tailwind names (bg-surface, text-muted, bg-accent ...),
  * never raw hex values. Light only, so contrast stays predictable in bright light.
  *
  * Contrast rules (WCAG AA, checked):
  * - "-ink" and "-strong" colors are for text. They pass 4.5:1 on their partner fill.
- * - accent-ink (navy) on accent passes 8:1, so baby blue buttons can use text at any size.
- * - tan (violet) is too light for text on the page: use violet-edge for tan words.
+ * - accent-ink (white) on accent (teal) passes 4.8:1, so teal buttons can use text at any size.
+ * - yellow (violet) is too light for text on the page: use violet-edge for yellow-family words.
  * - accent, violet, hit and miss fills are for icons, edges and large text, not small text.
  */
 :root {
   color-scheme: light;
-  --background: #eef6fd; /* very light baby blue page */
-  --foreground: #1c2b3a; /* deep navy ink, 13:1 on the page */
+  --background: #fbf8f2; /* warm off-white page */
+  --foreground: #1e2a3a; /* brand navy ink, 13.7:1 on the page */
   --surface: #ffffff; /* cards */
-  --muted: #4f5d6b; /* small print, 6.2:1 on the page */
-  --line: #d3e5f4; /* soft blue borders and the card's bottom edge */
-  --accent: #9fd0f5; /* baby blue: main buttons, the meter marker */
-  --accent-ink: #11324f; /* navy text on baby blue, 8:1, any size */
-  --accent-edge: #2f6894; /* pressed edge under baby blue, and small blue text (5.5:1 on the page) */
-  --accent-soft: #dcedfb; /* light baby blue tint */
-  --violet: #ecdcc4; /* light tan: the second color, used sparingly */
-  --violet-ink: #4a3520; /* dark brown text on tan, 8.6:1 */
-  --violet-edge: #806040; /* edge under tan, and tan text (5:1 on violet-soft, 5.3:1 on the page) */
-  --violet-soft: #f8efe2;
+  --muted: #5b6472; /* small print, 5.6:1 on the page */
+  --line: #e9e2d4; /* warm borders and the card's bottom edge */
+  --accent: #1f7f74; /* teal: main buttons and the meter marker. A shade deeper than the brand teal #2a9d8f so white text reads (4.8:1) */
+  --accent-ink: #ffffff; /* white text on teal, 4.8:1 */
+  --accent-edge: #155c54; /* pressed edge under teal, and teal text (7.8:1 on white) */
+  --accent-soft: #e2f3f0; /* light teal tint */
+  --violet: #ffd166; /* sunny yellow from the bird's beak and notes: small accents only, never main buttons */
+  --violet-ink: #1e2a3a; /* navy text on yellow, 10:1 */
+  --violet-edge: #6b4e00; /* edge under yellow, and yellow-family text (7:1 on violet-soft) */
+  --violet-soft: #fff3d1;
   --hit: #1e8e57; /* result: the sound was there. Icons, borders, fills. */
   --hit-ink: #ffffff; /* text or icon on a hit fill: large only */
   --hit-strong: #166534; /* hit text on hit-soft, 6.3:1 */

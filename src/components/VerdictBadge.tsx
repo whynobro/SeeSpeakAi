@@ -38,6 +38,49 @@ function Icon({ verdict, target }: { verdict: Verdict; target: TargetSound }) {
   );
 }
 
+/** One music note, drawn in the yellow of the logo's notes with a dark edge so it shows on the green badge. */
+function Note({ delayMs, className }: { delayMs: number; className: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={18}
+      height={18}
+      aria-hidden="true"
+      className={`absolute motion-safe:animate-spring-in ${className}`}
+      style={{ animationDelay: `${delayMs}ms` }}
+    >
+      <path
+        d="M9 18.5a2.5 2.5 0 1 1-1-2V4l11-2v12.5a2.5 2.5 0 1 1-1-2V6L9 7.6v10.9Z"
+        fill="var(--violet)"
+        stroke="var(--violet-edge)"
+        strokeWidth={1.2}
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/** The brand bird singing, shown when the sound landed. Decorative: the words already say "Got it". */
+function SingingBird() {
+  return (
+    <span aria-hidden="true" className="relative ml-auto h-12 w-12 shrink-0">
+      <span className="absolute inset-0 overflow-hidden rounded-full border-2 border-hit bg-white motion-safe:animate-spring-in">
+        {/* eslint-disable-next-line @next/next/no-img-element -- small static brand file, already optimized */}
+        <img
+          src="/brand/seespeak-icon.png"
+          alt=""
+          width={64}
+          height={64}
+          className="h-full w-full object-cover"
+        />
+      </span>
+      <Note delayMs={120} className="-top-3 right-3" />
+      <Note delayMs={200} className="-top-5 -right-1" />
+      <Note delayMs={280} className="-top-1 -right-4" />
+    </span>
+  );
+}
+
 /** What to try next after a close result. "z" without voice and "ch" without a burst get their own hint. */
 function closeDetail(target: TargetSound, heard: TargetSound): string {
   if (target === 'z' && heard === 's')
@@ -96,6 +139,7 @@ export function VerdictBadge({
         <p className="text-2xl leading-tight font-extrabold">{title}</p>
         {detail && <p className="text-base font-semibold">{detail}</p>}
       </div>
+      {verdict === 'hit' && <SingingBird />}
     </div>
   );
 }
