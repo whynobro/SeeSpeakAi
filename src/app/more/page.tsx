@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { BirdSwitch } from '@/components/bird/BirdSwitch';
 import { DingSwitch } from '@/components/DingSwitch';
 import { HowItWorks } from '@/components/HomeStart';
 import { ChevronRightIcon } from '@/components/Icons';
@@ -49,6 +50,9 @@ export default function MorePage() {
         <ul className="divide-y divide-line border-y border-line">
           <li>
             <DingSwitch />
+          </li>
+          <li>
+            <BirdSwitch />
           </li>
         </ul>
       </section>
