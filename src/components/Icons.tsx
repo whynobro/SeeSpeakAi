@@ -106,6 +106,14 @@ export function EarIcon({ crossed = false, ...props }: IconProps & { crossed?: b
   );
 }
 
+export function ChevronRightIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M9 6l6 6-6 6" />
+    </Svg>
+  );
+}
+
 export function PhoneIcon(props: IconProps) {
   return (
     <Svg {...props}>

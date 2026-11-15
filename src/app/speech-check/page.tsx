@@ -136,7 +136,7 @@ export default function SpeechCheckPage() {
                 as="li"
                 key={sound}
                 className="flex items-center gap-4 motion-safe:animate-rise"
-                style={{ animationDelay: `${150 + SOUNDS.indexOf(sound) * 120}ms` }}
+                style={{ animationDelay: `${SOUNDS.indexOf(sound) * 60}ms` }}
               >
                 <IconTile size="lg" className="text-2xl font-extrabold">
                   {sound}

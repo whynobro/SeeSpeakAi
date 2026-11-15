@@ -24,7 +24,7 @@ function StepCard({
       as="li"
       highlight={first}
       className="flex flex-col gap-4 motion-safe:animate-rise"
-      style={{ animationDelay: `${450 + index * 120}ms` }}
+      style={{ animationDelay: `${index * 60}ms` }}
     >
       <div className="flex items-start gap-4">
         <IconTile tone={step.scored ? 'accent' : 'violet-soft'} size="lg" className="text-2xl font-extrabold">
