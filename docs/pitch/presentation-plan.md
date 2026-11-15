@@ -13,8 +13,8 @@ what we say over it.
    `judge-answers.md`.
 2. **Mason's story** (his own words, only what he is OK sharing in public): he had a speech impediment as a kid,
    and he could hear himself fix it.
-3. **The turn** (Michael): "You and I have heard 'cats' thousands of times. Every time we said it wrong, we heard
-   the difference and fixed it. A kid with a speech impediment practices the same way: say it, hear it, fix it.
+3. **The turn** (Michael): "You and I have heard 'sip' and 'ship' thousands of times. Every time we said it wrong, we
+   heard the difference and fixed it. A kid with a speech impediment practices the same way: say it, hear it, fix it.
    But if you're hard of hearing, the 's' is the part you can't hear. You can't hear what you're saying. So how
    are you supposed to fix it? SeeSpeak lets you see it."
 4. **The gap:** school speech therapy averages 1.7 sessions a week, and 30% of hard-of-hearing kids get no school
@@ -45,8 +45,8 @@ or that the app improves speech. None of those has a source.
   leaking.
 - What tells them apart is pitch. "s" is a high hiss (about 4 to 8 kHz), "sh" a lower one (about 2 to 4 kHz).
   "z" is the "s" hiss with the voice on. "ch" is a short burst straight into a "sh".
-- High pitches are usually the first hearing loss takes. So "cats" can sound like "cat" to the person saying it,
-  and they cannot tell that their own "s" is missing.
+- High pitches are usually the first hearing loss takes. So a learner's "s" can drift toward "sh" ("sip" toward
+  "ship"), and they cannot hear that their own "s" changed (Pittman 2018, see `judge-answers.md`).
 - The app does not try to understand the word. It listens for the hiss: was it there, where in the word, and
   was it high ("s") or low ("sh")? It shows that on a meter at once.
 
@@ -62,7 +62,7 @@ Use 1 in 5 on the slide, keep 52.6% for questions.
 
 ## Pitch deck (backs the live 4-minute demo; optional for submission)
 
-1. **Hook:** "cats" with the "s" fading out. (Holly's opening line in `demo-script.md`.)
+1. **Hook:** "sip" drifting into "ship". (Holly's opening line in `demo-script.md`.)
 2. **The problem:** what the hiss is (above), and why you can't copy a sound you can't hear.
 3. **Who:** the user story from `story.md`. The ASL Club president's words, only with her OK.
 4. **The gap:** 1.7 school sessions a week, 30% get no school services, 50 students per speech therapist.
@@ -76,7 +76,7 @@ Use 1 in 5 on the slide, keep 52.6% for questions.
 
 | Time      | Picture                                                     | Voiceover (draft, record it, then time it)                                                                                                                                      |
 | --------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0:00-0:15 | "cats" on screen, the "s" fades                             | "If you can't hear high sounds, 'cats' sounds like 'cat'. And if you can't hear a sound, you can't copy it."                                                                    |
+| 0:00-0:15 | "sip" on screen, the "s" drifts into "sh": "ship"           | "When high sounds fade, 'sip' can drift toward 'ship'. And if you can't hear the difference, you can't fix it."                                                                 |
 | 0:15-0:35 | Clip from the ASL Club call (with her OK), or a quote slide | (Her words, unedited in meaning.)                                                                                                                                               |
 | 0:35-0:50 | Pitch-line graphic                                          | "'s' is a high hiss. Hearing loss takes high pitches first. Speech therapy helps, but it's about two half-hour sessions a week."                                                |
 | 0:50-1:30 | Phone screen recording: plan, a level, a try, the meter     | "SeeSpeak is practice between sessions. You say a word, and the phone shows your hiss at once: there or missing, high or low. Levels go from the sound alone to short phrases." |

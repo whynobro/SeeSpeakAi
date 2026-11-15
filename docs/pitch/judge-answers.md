@@ -6,9 +6,9 @@ has a source. Do not round up, combine numbers, or add ones that are not here. L
 
 ## "They can hear a little. Why not just have the app say the word?"
 
-**Say:** "They have heard 'cats' thousands of times. The part they miss is the 's' itself. It sits at 4 to 8
-kHz, the pitch range hearing loss usually takes first, so a louder word does not bring it back. And they can't
-hear their own 's' while they talk, so they can't check themselves against a model. The app shows their own
+**Say:** "They have heard 'sip' and 'ship' thousands of times. The part they miss is the 's' itself. It sits at 4
+to 8 kHz, the pitch range hearing loss usually takes first, so a louder word does not bring it back. Their 's' can
+drift toward 'sh', 'sip' toward 'ship', and they can't hear their own 's' to catch it. The app shows their own
 sound on screen. That's the feedback they're missing."
 
 Why this holds up:
@@ -18,6 +18,13 @@ Why this holds up:
   ([Koehlinger 2015](https://pmc.ncbi.nlm.nih.gov/articles/PMC4398614)).
 - As high-pitch hearing gets worse, speakers' "s" drifts lower, toward "sh"
   ([Pittman 2018](https://doi.org/10.1044/2018_JSLHR-H-17-0460), abstract only).
+- In children with cochlear implants, "sh" is the most common sound said in place of "s", about 24% of their "s"
+  errors; hearing children do the reverse (Blamey 2001, cited in
+  [Li, Bunta and Tomblin 2017](https://pmc.ncbi.nlm.nih.gov/articles/PMC5831615)). Secondhand, and 24% of
+  errors, not of children: keep it for questions.
+- Children with cochlear implants make a less distinct "s" versus "sh" contrast
+  ([Reidy 2017](https://hesp.umd.edu/sites/hesp.umd.edu/files/pubs/reidyetal2017.pdf)).
+- Check Pittman 2018's author order before putting it on a slide: one listing shows a different first author.
 
 ## "Then why not lower the pitch of 's' so they can hear it?"
 
@@ -65,6 +72,8 @@ the hiss itself."
 
 ## Do not say
 
+- "Deaf lisp" or "lisp". We found no source for it. Say "the 's' can drift toward 'sh'".
+- That deaf children "say ship". Say "can drift toward".
 - A percent of hard-of-hearing children with "s" errors. We found no study that gives one.
 - A private speech therapy price per session. We found only blog numbers.
 - That the app improves speech. No trial exists yet. Our own numbers are in `user-tests.md`.
