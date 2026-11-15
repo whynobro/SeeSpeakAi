@@ -2,6 +2,16 @@
 
 Rules for AI coding agents working in this repo. Your user is one of three teammates. Each owns one lane.
 
+## Before you start (every session)
+
+Read [docs/HACKATHON.md](docs/HACKATHON.md) and [docs/PLAN.md](docs/PLAN.md) before you plan or write anything. This is a contest entry. Work that breaks a contest rule or misses a deadline is worth nothing. The short version:
+
+- **Final submission closes Sunday Nov 15, 12:00 PM Pacific.** Our own feature freeze is 11:00 AM. If a task cannot be finished and merged before then, tell your user and cut it down.
+- **Never make up users, quotes, test results or numbers.** Not in the app, not in docs, not in the pitch, not as sample data that could be mistaken for real. If you do not have a real one, leave a clearly marked blank and tell your user.
+- **Everything is built this weekend.** Do not copy in older project code. Open-source libraries are fine: add any new one to the disclosure list in `docs/HACKATHON.md`.
+- **Weigh every task against the rubric** in `docs/HACKATHON.md`. 45 of 100 points are for real users and a path to customers, 25 for a live, working, easy product. Tell your user when a task does not help any row.
+- **The demo is live, from the production link.** Never fake a flow. Never leave `main` broken.
+
 ## Safety rules (read first)
 
 1. **Stay in your user's lane folders.** Ask your user which lane they own. Lanes:
@@ -13,8 +23,8 @@ Rules for AI coding agents working in this repo. Your user is one of three teamm
 4. **Never commit to `main`.** Work on a branch named `<lane>/<task>` (`tech`, `ui`, `content`). Open a pull request. Never force-push.
 5. **No secrets.** Never write keys, tokens or `.env*` files (except `.env.example`) into the repo. The repo is public. `ANTHROPIC_API_KEY` is server-side only and must never reach browser code.
 6. **Do not reformat or "clean up" files outside the task.** No drive-by renames, no mass formatting, no dependency upgrades.
-7. **Privacy:** never upload or store audio. Sound analysis stays in the browser. Settings and practice history stay on the device (`localStorage`). The server (and the AI behind it) may receive the report with every name removed, target sounds, interest topics and score numbers. Never a name, never a voice. Tell the learner on screen before a report or photo is sent. Send it once. Store nothing on the server.
-8. **Honest scoring.** The phone measures, the brain explains: Claude never receives audio and never decides a verdict. The app scores only the sounds in `TargetSound`; any other sound in a plan is `scored: false` and gets no verdict. Do not add whole-word speech recognition to judge pronunciation (it fails on deaf speech and "autocorrects" missing sounds). Do not claim a sound is scored until `src/lib/scoring` has tests for it.
+7. **Privacy:** never upload or store audio. Sound analysis stays in the browser. Settings and practice history stay on the device (`localStorage`). The server (and the AI behind it) may receive the report with every name removed, target sounds, interest topics and score numbers. Never a name, never a voice. Tell the learner on screen before a report or photo is sent. Send it once. Store nothing on the server. One exception: the shared test log (`src/lib/testlog/`). Every try on `/lab` (our tuning page, which says so) is saved unless switched off there. Practice-screen tries are saved only if a tester switched that on at `/lab`. It stores score numbers and sound measurements, never audio and never a full name, and a GitHub Action publishes them to the public `test-log` branch. Never add logging to learner screens by default. Camera pictures never leave the device and are never saved. Only lip numbers (`LipSummary`) may be sent.
+8. **Honest scoring.** The phone measures, the brain explains: Claude never receives audio and never decides a verdict. The app scores only the sounds in `TargetSound` ("s", "sh", "z", "ch"); any other sound in a plan is `scored: false` and gets no verdict. Do not add whole-word speech recognition to judge pronunciation (it fails on deaf speech and "autocorrects" missing sounds). Do not claim a sound is scored until `src/lib/scoring` has tests for it.
 9. **Respect.** Never write text that frames a learner as broken or as someone to "fix". This is opt-in practice between speech therapy sessions. It is not therapy, not a diagnosis and not a hearing test. Sign language is welcome and sign cards are optional.
 10. Do not add dependencies without telling your user (`package.json` is a hot file).
 
@@ -26,28 +36,32 @@ Tailwind is v4 and React is 19. Check their docs when unsure.
 
 ## Code map
 
-| Path                | Purpose                                                               | Lane    |
-| ------------------- | --------------------------------------------------------------------- | ------- |
-| `src/lib/types.ts`  | Shared contract (hot file)                                            | all     |
-| `src/lib/audio/`    | Mic capture (`mic.ts`), FFT, sound features per frame                 | tech    |
-| `src/lib/scoring/`  | `readFrame`, `scoreAttempt`, `LIMITATIONS`, thresholds, test sounds   | tech    |
-| `src/lib/profile/`  | `pickTargets(profile)`: hearing profile to sounds to practice         | tech    |
-| `src/lib/store/`    | On-device storage and `progressFor`                                   | tech    |
-| `src/lib/feedback/` | Vibration patterns                                                    | tech    |
-| `src/lib/ai/`       | The brain: `buildPlan`, `buildFeedback` (server only), rule fallbacks | tech    |
-| `src/hooks/`        | `useSoundMeter` (listen), `useCoachFeedback` (the brain's sentence)   | tech    |
-| `src/app/api/`      | `POST /api/plan`, `POST /api/feedback`, `POST /api/practice-list`     | tech    |
-| `src/app/lab/`      | Debug page for tuning on real voices                                  | tech    |
-| `src/app/page.tsx`  | Landing page                                                          | screens |
-| `src/app/profile/`  | Hearing profile (Ling Six check, settings)                            | screens |
-| `src/app/practice/` | Practice loop: word, live meter, verdict                              | screens |
-| `src/app/progress/` | Before and after numbers                                              | screens |
-| `src/components/`   | Shared UI: `SoundMeter`, `VerdictBadge`, `WordCard`                   | screens |
-| `src/content/`      | Word bank, how-to cues, interface wording                             | content |
-| `docs/PLAN.md`      | The loop and who builds what. Read it first.                          | all     |
-| `docs/lanes/`       | One build file per lane                                               | all     |
-| `docs/research.md`  | Facts, sources and what we must not claim                             | content |
-| `docs/pitch/`       | Demo script, rubric tracking, user test log                           | content |
+| Path                | Purpose                                                                      | Lane    |
+| ------------------- | ---------------------------------------------------------------------------- | ------- |
+| `src/lib/types.ts`  | Shared contract (hot file)                                                   | all     |
+| `src/lib/audio/`    | Mic capture (`mic.ts`), FFT, sound features per frame                        | tech    |
+| `src/lib/scoring/`  | `readFrame`, `scoreAttempt`, `summarizeTrace`, thresholds, test sounds       | tech    |
+| `src/lib/profile/`  | `pickTargets(profile)`: hearing profile to sounds to practice                | tech    |
+| `src/lib/store/`    | On-device storage and `progressFor`                                          | tech    |
+| `src/lib/testlog/`  | Opt-in shared test log (`/lab` switch), sends try numbers to `/api/attempts` | tech    |
+| `src/lib/lips/`     | Optional on-device lip check: `startLipTracker`, `summarizeLips`, `lipHint`  | tech    |
+| `src/lib/feedback/` | Vibration patterns                                                           | tech    |
+| `src/lib/ai/`       | The brain: `buildPlan`, `buildFeedback` (server only), rule fallbacks        | tech    |
+| `src/hooks/`        | `useSoundMeter` (listen), `useCoachFeedback` (the brain's sentence)          | tech    |
+| `src/app/api/`      | `POST /api/plan`, `POST /api/feedback`, `POST /api/practice-list`            | tech    |
+| `src/app/lab/`      | Debug page for tuning on real voices                                         | tech    |
+| `src/app/page.tsx`  | Landing page                                                                 | screens |
+| `src/app/profile/`  | Hearing profile (Ling Six check, settings)                                   | screens |
+| `src/app/practice/` | Practice loop: word, live meter, verdict                                     | screens |
+| `src/app/progress/` | Before and after numbers                                                     | screens |
+| `src/components/`   | Shared UI: `SoundMeter`, `VerdictBadge`, `WordCard`                          | screens |
+| `src/content/`      | Word bank, how-to cues, interface wording                                    | content |
+| `docs/PLAN.md`      | The loop and who builds what. Read it first.                                 | all     |
+| `docs/HACKATHON.md` | Contest rules, deadlines, rubric, what we submit. No made-up users or data.  | all     |
+| `docs/DEMO.md`      | The demo flow step by step, timing, fallbacks, build order                   | all     |
+| `docs/lanes/`       | One build file per lane                                                      | all     |
+| `docs/research.md`  | Facts, sources and what we must not claim                                    | content |
+| `docs/pitch/`       | Demo script, rubric tracking, user test log                                  | content |
 
 ## Data flow
 

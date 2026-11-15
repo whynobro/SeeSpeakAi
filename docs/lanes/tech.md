@@ -1,6 +1,6 @@
 # Lane: Tech + integration (Michael)
 
-Hand this file to your AI agent. Say: "Read AGENTS.md and docs/lanes/tech.md, then do issue #N."
+Hand this file to your AI agent. Say: "Read AGENTS.md, docs/HACKATHON.md, docs/PLAN.md and docs/lanes/tech.md, then do issue #N."
 
 ## Goal
 
@@ -26,7 +26,7 @@ Read [docs/PLAN.md](../PLAN.md) first: report -> curated plan -> training -> fee
 ## Build list (in priority order)
 
 0. **The brain (do this right after item 1).**
-   Put `ANTHROPIC_API_KEY` in Vercel. In `src/lib/ai/plan.ts`, call Claude (`claude-opus-5-5`) to turn an `AssessmentReport` into a `PracticePlan`. In `src/lib/ai/feedback.ts`, call Claude with the recent scores to write a `CoachFeedback`. Both already work from built-in rules: keep those as the fallback, check everything Claude returns, and never let a sound that is not "s" or "sh" be marked `scored: true`.
+   Put `ANTHROPIC_API_KEY` in Vercel. In `src/lib/ai/plan.ts`, call Claude (`claude-sonnet-5-5`) to turn an `AssessmentReport` into a `PracticePlan`. In `src/lib/ai/feedback.ts`, call Claude with the recent scores to write a `CoachFeedback`. Both already work from built-in rules: keep those as the fallback, check everything Claude returns, and never let a sound that is not "s" or "sh" be marked `scored: true`.
    Done when: with a key, `/api/plan` and `/api/feedback` return `source: 'ai'`; without one they return `source: 'rules'`; feedback comes back in under 3 seconds or falls back.
 
 1. **Tune on real voices.**
@@ -42,7 +42,7 @@ Read [docs/PLAN.md](../PLAN.md) first: report -> curated plan -> training -> fee
    Done when: every verdict produces feedback on both phone types.
 
 4. **Claude practice list.**
-   In `src/lib/ai/practiceList.ts`: when `ANTHROPIC_API_KEY` is set, ask Claude for words around the learner's target sounds and interests. Validate every word against the rules at the top of `src/content/words.ts` (voiceless hiss only, no spelling traps). On any error, fall back to the word bank.
+   In `src/lib/ai/practiceList.ts`: when `ANTHROPIC_API_KEY` is set, ask Claude for words around the learner's target sounds and interests. Validate every word against the rules at the top of `src/content/words.ts` (only the four scored sounds, no spelling traps). On any error, fall back to the word bank.
    Done when: the route returns AI words with a key, word-bank words without one, and never crashes.
 
 5. **Audiogram entry and photo.**

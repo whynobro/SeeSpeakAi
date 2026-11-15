@@ -1,6 +1,11 @@
-import type { AttemptScore, FrameFeatures, PracticeWord, SoundReading } from '@/lib/types';
+import type { AttemptScore, FrameFeatures, PracticeWord, SoundReading, TargetSound } from '@/lib/types';
 import {
   BOUNDARY,
+  CH_BURST_FULL_FACTOR,
+  CH_BURST_RATIO,
+  CH_MAX_HISS_MS,
+  CH_MIN_HISS_MS,
+  CH_ONSET_MS,
   CONFIDENCE_DISTANCE_WEIGHT,
   CONFIDENCE_FULL_DISTANCE,
   CONFIDENCE_FULL_HISS_MS,
@@ -24,15 +29,18 @@ import {
   TOO_QUIET_LEVEL,
   VOICED_RATIO_MAX,
   VOICED_REL_LEVEL,
+  VOICING_FRAME_MIN,
+  Z_HISS_RATIO_MIN,
+  Z_VOICED_SHARE_MIN,
 } from '@/lib/scoring/constants';
 
 /** Things the scoring cannot do. The practice screen must show these honestly. */
 export const LIMITATIONS: string[] = [
-  'Only the "s" and "sh" sounds are scored. Other sounds are ignored.',
+  'Only the "s", "sh", "z" and "ch" sounds are scored. Other sounds are ignored.',
   'It checks that a hiss is there, where it is in the word, and which hiss it is. It does not check that the whole word was right.',
   'The limits were set on synthetic test sounds and a few voices, not on a clinical data set. Children and some voices may be scored wrongly.',
   'Background noise and different phone microphones change the result. A quiet room and holding the phone close work best.',
-  'Voiced sounds, like the "z" at the end of "dogs", are not scored.',
+  'The "z" and "ch" limits were set on synthetic sounds only and still need real voices. A "z" that is partly unvoiced, as at the end of "dogs", may read as "s".',
   'This is a practice tool. It is not therapy and it is not a diagnosis.',
 ];
 
@@ -41,7 +49,7 @@ function clamp01(x: number): number {
 }
 
 /** Map a centroid in Hz to the meter: 0 is "sh", 1 is "s", straight line between the two anchors. */
-function positionFromCentroid(centroidHz: number | null): number | null {
+export function positionFromCentroid(centroidHz: number | null): number | null {
   if (centroidHz === null) return null;
   return clamp01((centroidHz - SH_CENTROID_HZ) / (S_CENTROID_HZ - SH_CENTROID_HZ));
 }
@@ -53,7 +61,7 @@ export function readFrame(frame: FrameFeatures): SoundReading {
 }
 
 /** A stretch of hiss frames, by index into the frames array. */
-interface Run {
+export interface Run {
   start: number;
   end: number;
 }
@@ -120,7 +128,7 @@ function missScore(word: PracticeWord, warnings: string[], confidence: number): 
 }
 
 /** What the scoring found in a recording, shared by `scoreAttempt` and `describeRuns`. */
-interface Analysis {
+export interface Analysis {
   hopMs: number;
   maxLevel: number;
   isHiss: boolean[];
@@ -130,13 +138,15 @@ interface Analysis {
   runs: Run[];
 }
 
-function analyse(frames: FrameFeatures[]): Analysis {
+/** `target` only matters for "z": its buzz lowers the hiss share, so it gets a lower bar (Z_HISS_RATIO_MIN). */
+export function analyse(frames: FrameFeatures[], target?: TargetSound): Analysis {
   const maxLevel = Math.max(...frames.map((f) => f.level));
   const hopMs = hopMsOf(frames);
   // All loudness checks are relative to the loudest frame, so the mic gain does not matter.
   const hissFloor = Math.max(SILENCE_LEVEL, HISS_REL_LEVEL * maxLevel);
   const voicedFloor = Math.max(SILENCE_LEVEL, VOICED_REL_LEVEL * maxLevel);
-  const isHiss = frames.map((f) => f.level >= hissFloor && f.hissRatio >= HISS_RATIO_MIN);
+  const hissRatioMin = target === 'z' ? Z_HISS_RATIO_MIN : HISS_RATIO_MIN;
+  const isHiss = frames.map((f) => f.level >= hissFloor && f.hissRatio >= hissRatioMin);
   const voicedIdx: number[] = [];
   frames.forEach((f, i) => {
     if (f.level >= voicedFloor && f.hissRatio <= VOICED_RATIO_MAX) voicedIdx.push(i);
@@ -154,7 +164,7 @@ function analyse(frames: FrameFeatures[]): Analysis {
   };
 }
 
-function runLengthMs(frames: FrameFeatures[], r: Run, hopMs: number): number {
+export function runLengthMs(frames: FrameFeatures[], r: Run, hopMs: number): number {
   return frames[r.end].tMs - frames[r.start].tMs + hopMs;
 }
 
@@ -163,7 +173,7 @@ function runLengthMs(frames: FrameFeatures[], r: Run, hopMs: number): number {
  * frames count when they are at least SUSTAIN_REL_LEVEL of the loudest frame left. A stop release fades,
  * so little of it counts. A real "s" keeps its level, so most of it counts.
  */
-function sustainedMsOf(frames: FrameFeatures[], r: Run, hopMs: number): number {
+export function sustainedMsOf(frames: FrameFeatures[], r: Run, hopMs: number): number {
   const from = frames[r.start].tMs + ONSET_SKIP_MS;
   const levels: number[] = [];
   for (let i = r.start; i <= r.end; i++) if (frames[i].tMs >= from) levels.push(frames[i].level);
@@ -183,6 +193,92 @@ function meanOf(values: number[]): number | null {
   return values.length === 0 ? null : values.reduce((x, y) => x + y, 0) / values.length;
 }
 
+/**
+ * "z": the share of a hiss run's frames that carry voicing (0 to 1). The first and last hiss frame are
+ * left out when the run has at least 4, because they overlap the neighbouring vowel.
+ */
+export function voicedShareOf(frames: FrameFeatures[], a: Analysis, r: Run): number {
+  const idx: number[] = [];
+  for (let i = r.start; i <= r.end; i++) if (a.isHiss[i]) idx.push(i);
+  const inner = idx.length >= 4 ? idx.slice(1, -1) : idx;
+  if (inner.length === 0) return 0;
+  return inner.filter((i) => (frames[i].voicing ?? 0) >= VOICING_FRAME_MIN).length / inner.length;
+}
+
+/** A hiss run split for "ch": the burst at the start, and the body (the hiss after it). */
+interface Split {
+  /** Loudest onset frame divided by the typical body loudness. null when there is no body. */
+  burstRatio: number | null;
+  bodyLevels: number[];
+  bodyPositions: number[];
+  /** Length of the body from its first to its last frame, ms. */
+  bodyMs: number;
+  /** How much of the body holds its level, ms. */
+  bodyHeldMs: number;
+}
+
+function splitRun(frames: FrameFeatures[], a: Analysis, r: Run): Split {
+  const from = frames[r.start].tMs + CH_ONSET_MS;
+  const onsetLevels: number[] = [];
+  const bodyIdx: number[] = [];
+  for (let i = r.start; i <= r.end; i++) {
+    if (frames[i].tMs < from) onsetLevels.push(frames[i].level);
+    else if (a.isHiss[i]) bodyIdx.push(i);
+  }
+  if (bodyIdx.length === 0)
+    return { burstRatio: null, bodyLevels: [], bodyPositions: [], bodyMs: 0, bodyHeldMs: 0 };
+  const bodyLevels = bodyIdx.map((i) => frames[i].level);
+  const peak = Math.max(...bodyLevels);
+  const typical = median(bodyLevels);
+  return {
+    burstRatio: onsetLevels.length > 0 && typical > 0 ? Math.max(...onsetLevels) / typical : null,
+    bodyLevels,
+    bodyPositions: bodyIdx.flatMap((i) => positionFromCentroid(frames[i].centroidHz) ?? []),
+    bodyMs: frames[bodyIdx[bodyIdx.length - 1]].tMs - frames[bodyIdx[0]].tMs + a.hopMs,
+    bodyHeldMs: bodyLevels.filter((l) => l >= SUSTAIN_REL_LEVEL * peak).length * a.hopMs,
+  };
+}
+
+/** The "ch" found in a recording: which run, and what is in it. */
+interface Affricate {
+  run: Run;
+  split: Split;
+  position: number;
+}
+
+/**
+ * Look for a "ch" for this word: a hiss run in the right place that is a burst followed by a held hiss of
+ * at least CH_MIN_HISS_MS. `burstOnly` is true when a run was in place but had no such hiss after it
+ * (a "t" or "k" release, say). The longest body wins. The hiss may be any pitch: the caller decides.
+ */
+function findAffricate(
+  frames: FrameFeatures[],
+  a: Analysis,
+  word: PracticeWord,
+): { best: Affricate | null; burstOnly: boolean } {
+  let best: Affricate | null = null;
+  let bestMs = -1;
+  let burstOnly = false;
+  for (const run of a.runs) {
+    if (!placedOk(a, run, word)) continue;
+    const split = splitRun(frames, a, run);
+    if (
+      split.bodyMs < CH_MIN_HISS_MS ||
+      split.bodyHeldMs < CH_MIN_HISS_MS ||
+      split.bodyPositions.length === 0
+    ) {
+      burstOnly = true;
+      continue;
+    }
+    if (split.bodyMs > bestMs) {
+      bestMs = split.bodyMs;
+      const position = split.bodyPositions.reduce((x, y) => x + y, 0) / split.bodyPositions.length;
+      best = { run, split, position };
+    }
+  }
+  return { best, burstOnly };
+}
+
 /** One hiss run, with the numbers and the rule results, for the /lab page. */
 export interface RunInfo {
   startMs: number;
@@ -191,6 +287,10 @@ export interface RunInfo {
   meanPosition: number | null;
   peakLevel: number;
   sustainedMs: number;
+  /** "z": share of the hiss frames that carry voicing, 0 to 1. */
+  voicedShare: number;
+  /** "ch": loudest onset frame over the typical loudness of the hiss after it. null when nothing follows. */
+  burstRatio: number | null;
   /** Rule results. `inPlace` is null when no word was given. */
   passed: { longEnough: boolean; held: boolean; inPlace: boolean | null };
 }
@@ -198,7 +298,7 @@ export interface RunInfo {
 /** List every hiss run found in a recording, with what each rule said. Pass a word to check placement. */
 export function describeRuns(frames: FrameFeatures[], word?: PracticeWord): RunInfo[] {
   if (frames.length === 0) return [];
-  const a = analyse(frames);
+  const a = analyse(frames, word?.target);
   return a.runs.map((r) => {
     const own: FrameFeatures[] = [];
     for (let i = r.start; i <= r.end; i++) if (a.isHiss[i]) own.push(frames[i]);
@@ -211,6 +311,8 @@ export function describeRuns(frames: FrameFeatures[], word?: PracticeWord): RunI
       meanPosition: meanOf(own.flatMap((f) => positionFromCentroid(f.centroidHz) ?? [])),
       peakLevel: Math.max(...own.map((f) => f.level)),
       sustainedMs,
+      voicedShare: voicedShareOf(frames, a, r),
+      burstRatio: splitRun(frames, a, r).burstRatio,
       passed: {
         longEnough: lengthMs >= MIN_HISS_MS,
         held: sustainedMs >= MIN_SUSTAINED_MS,
@@ -218,6 +320,90 @@ export function describeRuns(frames: FrameFeatures[], word?: PracticeWord): RunI
       },
     };
   });
+}
+
+/** The runs that pass each rule in turn: long enough and in place, then also held. */
+function candidateRuns(frames: FrameFeatures[], a: Analysis, word: PracticeWord) {
+  const long = a.runs.filter((r) => runLengthMs(frames, r, a.hopMs) >= MIN_HISS_MS);
+  const inPlace = long.filter((r) => placedOk(a, r, word));
+  // A hiss that fades away is the puff after a "t" or "k", not an "s" or "sh": it must hold its level.
+  const held = inPlace.filter((r) => sustainedMsOf(frames, r, a.hopMs) >= MIN_SUSTAINED_MS);
+  return { inPlace, held };
+}
+
+/** If several runs qualify, the longest one is the most likely to be the real sound. */
+function longestRun(frames: FrameFeatures[], runs: Run[], hopMs: number): Run {
+  return runs.reduce((best, r) =>
+    runLengthMs(frames, r, hopMs) > runLengthMs(frames, best, hopMs) ? r : best,
+  );
+}
+
+/**
+ * The hiss run `scoreAttempt` would score for this word, or null when none qualifies. With
+ * `fallbackToAny`, a recording whose hiss is in the wrong place or too short still gives its longest run.
+ */
+export function pickRun(
+  frames: FrameFeatures[],
+  a: Analysis,
+  word: PracticeWord,
+  fallbackToAny = false,
+): Run | null {
+  if (word.target === 'ch') {
+    const { best } = findAffricate(frames, a, word);
+    if (best) return best.run;
+  }
+  const { held } = candidateRuns(frames, a, word);
+  if (held.length > 0) return longestRun(frames, held, a.hopMs);
+  if (fallbackToAny && a.runs.length > 0) return longestRun(frames, a.runs, a.hopMs);
+  return null;
+}
+
+/** Score a "ch": a stop burst straight into a short "sh" hiss. */
+function scoreAffricate(
+  frames: FrameFeatures[],
+  a: Analysis,
+  word: PracticeWord,
+  warnings: string[],
+): AttemptScore {
+  const { best, burstOnly } = findAffricate(frames, a, word);
+  if (!best) {
+    if (burstOnly)
+      warnings.push('I heard a short burst but no hiss after it. Let the burst run into a short "sh".');
+    return missScore(word, warnings, MISS_CONFIDENCE);
+  }
+  const { run, split, position } = best;
+  const ratio = split.burstRatio ?? 0;
+  const hasBurst = ratio >= CH_BURST_RATIO;
+  const shortEnough = split.bodyMs <= CH_MAX_HISS_MS;
+  const distanceTerm = Math.min(1, Math.abs(position - BOUNDARY) / CONFIDENCE_FULL_DISTANCE);
+  const hissMs = runLengthMs(frames, run, a.hopMs);
+
+  let verdict: AttemptScore['verdict'];
+  let heard: TargetSound;
+  let clarity: number; // how sure we are about the burst call, 0 to 1
+  if (position >= BOUNDARY) {
+    // A hiss, but at the "s" pitch: not a "ch" whatever came before it.
+    verdict = 'close';
+    heard = 's';
+    clarity = Math.min(1, split.bodyMs / CONFIDENCE_FULL_HISS_MS);
+  } else if (hasBurst && shortEnough) {
+    verdict = 'hit';
+    heard = 'ch';
+    clarity = Math.min(1, ratio / (CH_BURST_RATIO * CH_BURST_FULL_FACTOR));
+  } else {
+    verdict = 'close';
+    heard = 'sh';
+    if (hasBurst) {
+      warnings.push('The hiss after the burst was long. Make it short and sharp, like a sneeze.');
+      clarity = Math.min(1, (split.bodyMs - CH_MAX_HISS_MS) / CH_MAX_HISS_MS);
+    } else {
+      clarity = 1 - Math.min(1, ratio / CH_BURST_RATIO);
+    }
+  }
+  const confidence = clamp01(
+    CONFIDENCE_DISTANCE_WEIGHT * distanceTerm + (1 - CONFIDENCE_DISTANCE_WEIGHT) * clarity,
+  );
+  return { target: word.target, verdict, heard, meterPosition: position, hissMs, confidence, warnings };
 }
 
 /** Score one spoken word: was the target sound there, in the right place? */
@@ -242,26 +428,22 @@ export function scoreAttempt(frames: FrameFeatures[], word: PracticeWord): Attem
     warnings.push('The room seems noisy, so the result may be wrong. Try somewhere quieter.');
   }
 
-  const a = analyse(frames);
+  const a = analyse(frames, word.target);
   const { hopMs, isHiss } = a;
   if (!a.haveVowel) {
     warnings.push('I could not find the vowel, so I could not check where in the word the hiss was.');
   }
 
-  const long = a.runs.filter((r) => runLengthMs(frames, r, hopMs) >= MIN_HISS_MS);
-  const inPlace = long.filter((r) => placedOk(a, r, word));
-  // A hiss that fades away is the puff after a "t" or "k", not an "s" or "sh": it must hold its level.
-  const held = inPlace.filter((r) => sustainedMsOf(frames, r, hopMs) >= MIN_SUSTAINED_MS);
+  if (word.target === 'ch') return scoreAffricate(frames, a, word, warnings);
+
+  const { inPlace, held } = candidateRuns(frames, a, word);
   if (inPlace.length > 0 && held.length === 0) {
     warnings.push('That sounded like a short burst, not a held hiss. Hold the hiss longer.');
   }
 
   if (held.length === 0) return missScore(word, warnings, MISS_CONFIDENCE);
 
-  // If several runs qualify, the longest one is the most likely to be the real sound.
-  const run = held.reduce((best, r) =>
-    runLengthMs(frames, r, hopMs) > runLengthMs(frames, best, hopMs) ? r : best,
-  );
+  const run = longestRun(frames, held, hopMs);
   const positions: number[] = [];
   for (let i = run.start; i <= run.end; i++) {
     if (!isHiss[i]) continue;
@@ -271,7 +453,11 @@ export function scoreAttempt(frames: FrameFeatures[], word: PracticeWord): Attem
   if (positions.length === 0) return missScore(word, warnings, MISS_CONFIDENCE);
 
   const meterPosition = positions.reduce((a, b) => a + b, 0) / positions.length;
-  const heardSound = meterPosition >= BOUNDARY ? 's' : 'sh';
+  let heardSound: TargetSound = meterPosition >= BOUNDARY ? 's' : 'sh';
+  // "z" is an "s" hiss with the voice on. Without enough voicing it is a plain "s", and the verdict is close.
+  if (word.target === 'z' && heardSound === 's' && voicedShareOf(frames, a, run) >= Z_VOICED_SHARE_MIN) {
+    heardSound = 'z';
+  }
   const hissMs = runLengthMs(frames, run, hopMs);
   const distanceTerm = Math.min(1, Math.abs(meterPosition - BOUNDARY) / CONFIDENCE_FULL_DISTANCE);
   const lengthTerm = Math.min(1, hissMs / CONFIDENCE_FULL_HISS_MS);

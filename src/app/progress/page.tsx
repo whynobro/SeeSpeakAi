@@ -1,97 +1,223 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { BeforeAfterBars } from '@/components/BeforeAfterBars';
+import { ArrowDownIcon, ArrowUpIcon, EqualsIcon, HomeIcon, ShareIcon, TrashIcon } from '@/components/Icons';
+import { Button, Card, IconTile } from '@/components/ui';
 import { COPY } from '@/content/copy';
+import { TARGET_SOUNDS } from '@/lib/scoring/constants';
 import { clearAll, loadAttempts, progressFor } from '@/lib/store';
-import type { SoundProgress, TargetSound } from '@/lib/types';
+import type { Attempt, SoundProgress, TargetSound } from '@/lib/types';
 
-const SOUNDS: TargetSound[] = ['s', 'sh'];
+/** "s" and "sh" always show. "z" and "ch" show once there is a try, so a new learner sees two cards, not four. */
+const ALWAYS: TargetSound[] = ['s', 'sh'];
 
-function pct(n: number | null): string {
-  return n === null ? 'No tries yet' : `${Math.round(n * 100)}%`;
+/** progressFor uses the first 10 and the latest 10 tries. They share no tries only from 20 tries on. */
+const WINDOW = 10;
+const SEPARATE_WINDOWS = WINDOW * 2;
+
+interface SoundView {
+  p: SoundProgress;
+  /** Tries where the sound was there, out of all tries for this sound. */
+  hits: number;
 }
 
-function change(p: SoundProgress): string | null {
-  if (p.firstAccuracy === null || p.latestAccuracy === null || p.attempts < 2) return null;
-  const diff = Math.round(p.latestAccuracy * 100) - Math.round(p.firstAccuracy * 100);
-  if (diff > 0) return '↑ better';
-  if (diff < 0) return '↓ lower';
-  return '= same';
+function viewsFrom(attempts: Attempt[]): SoundView[] {
+  const sounds = TARGET_SOUNDS.filter((s) => ALWAYS.includes(s) || attempts.some((a) => a.target === s));
+  return sounds.map((sound) => ({
+    p: progressFor(attempts, sound),
+    hits: attempts.filter((a) => a.target === sound && a.score.verdict === 'hit').length,
+  }));
+}
+
+function hasBeforeAfter(p: SoundProgress): boolean {
+  return p.attempts >= SEPARATE_WINDOWS && p.firstAccuracy !== null && p.latestAccuracy !== null;
+}
+
+function tries(n: number): string {
+  return n === 1 ? '1 try' : `${n} tries`;
+}
+
+/** One plain line per sound for the summary and the shared text. Numbers only. */
+function summaryLine({ p, hits }: SoundView): string {
+  if (p.attempts === 0) return `${p.sound}: no tries yet`;
+  if (hasBeforeAfter(p)) {
+    const first = Math.round((p.firstAccuracy ?? 0) * WINDOW);
+    const latest = Math.round((p.latestAccuracy ?? 0) * WINDOW);
+    return `${p.sound}: ${first} of the first 10, ${latest} of the latest 10, ${tries(p.attempts)}`;
+  }
+  return `${p.sound}: ${hits} of ${tries(p.attempts)} so far`;
+}
+
+function Change({ p }: { p: SoundProgress }) {
+  const diff = Math.round((p.latestAccuracy ?? 0) * 100) - Math.round((p.firstAccuracy ?? 0) * 100);
+  if (diff > 0) {
+    return (
+      <p className="flex items-center justify-center gap-2 text-2xl font-extrabold text-hit-strong">
+        <ArrowUpIcon className="h-8 w-8" />
+        {diff} points better
+      </p>
+    );
+  }
+  if (diff < 0) {
+    return (
+      <div className="flex flex-col items-center gap-1 text-center">
+        <p className="flex items-center justify-center gap-2 text-2xl font-extrabold">
+          <ArrowDownIcon className="h-8 w-8" />
+          {-diff} points lower
+        </p>
+        <p className="text-muted">Scores go up and down from day to day. Every try is practice.</p>
+      </div>
+    );
+  }
+  return (
+    <p className="flex items-center justify-center gap-2 text-2xl font-extrabold">
+      <EqualsIcon className="h-8 w-8" />
+      About the same
+    </p>
+  );
+}
+
+function SoundCard({ view }: { view: SoundView }) {
+  const { p, hits } = view;
+  return (
+    <Card as="section" aria-labelledby={`sound-${p.sound}`} className="flex flex-col gap-4">
+      <div className="flex items-center gap-4">
+        <IconTile tone="soft" size="lg" className="text-3xl font-extrabold">
+          {p.sound}
+        </IconTile>
+        <h2 id={`sound-${p.sound}`} className="flex-1 text-3xl font-extrabold">
+          &ldquo;{p.sound}&rdquo;
+        </h2>
+        <span className="text-base font-bold text-muted">{tries(p.attempts)}</span>
+      </div>
+
+      {p.attempts === 0 ? (
+        <>
+          <p className="text-lg">No tries yet. Your first word takes a few seconds.</p>
+          <Button href={`/practice?sound=${p.sound}`}>Practice &ldquo;{p.sound}&rdquo;</Button>
+        </>
+      ) : hasBeforeAfter(p) ? (
+        <>
+          <p className="text-muted">Tries where the sound was there</p>
+          <BeforeAfterBars
+            bars={[
+              { label: 'First 10 tries', value: p.firstAccuracy ?? 0, kind: 'before' },
+              { label: 'Latest 10 tries', value: p.latestAccuracy ?? 0, kind: 'after' },
+            ]}
+          />
+          <Change p={p} />
+        </>
+      ) : (
+        <>
+          <p className="text-muted">Tries where the sound was there</p>
+          <BeforeAfterBars bars={[{ label: 'So far', value: hits / p.attempts, kind: 'after' }]} />
+          <p className="text-center text-lg">Keep going: after more tries you will see before and after.</p>
+          <p className="text-center text-muted">{tries(SEPARATE_WINDOWS - p.attempts)} to go.</p>
+        </>
+      )}
+    </Card>
+  );
 }
 
 export default function ProgressPage() {
-  const [progress, setProgress] = useState<SoundProgress[]>(() => SOUNDS.map((s) => progressFor([], s)));
+  const [views, setViews] = useState<SoundView[]>(() => viewsFrom([]));
   const [confirming, setConfirming] = useState(false);
+  const [today, setToday] = useState('');
+  const [canShare, setCanShare] = useState(false);
 
-  // Browser storage is read only here, after the page is on screen.
+  // Browser storage, the date and the share check are read only here, after the page is on screen.
   useEffect(() => {
     const id = setTimeout(() => {
-      const attempts = loadAttempts();
-      setProgress(SOUNDS.map((s) => progressFor(attempts, s)));
+      setViews(viewsFrom(loadAttempts()));
+      setToday(new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }));
+      setCanShare(typeof navigator !== 'undefined' && typeof navigator.share === 'function');
     }, 0);
     return () => clearTimeout(id);
   }, []);
 
   function clear() {
     clearAll();
-    setProgress(SOUNDS.map((s) => progressFor([], s)));
+    setViews(viewsFrom([]));
     setConfirming(false);
   }
 
+  const lines = views.map(summaryLine);
+  const shareText = [
+    `SeeSpeak practice summary${today ? `, ${today}` : ''}`,
+    'Tries where the sound was there:',
+    ...lines,
+    COPY.notTherapy,
+  ].join('\n');
+
+  async function share() {
+    try {
+      await navigator.share({ title: 'SeeSpeak practice summary', text: shareText });
+    } catch {
+      // The person closed the share sheet, or sharing failed. The summary is still on screen.
+    }
+  }
+
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-6 p-4">
+    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-4 pb-10">
       <header className="flex flex-col gap-2">
-        <Link href="/" className="underline">
+        <Button href="/" variant="ghost" block={false} className="self-start">
+          <HomeIcon className="h-5 w-5" />
           Home
-        </Link>
-        <h1 className="text-3xl font-bold">Progress</h1>
+        </Button>
+        <h1 className="text-4xl font-extrabold tracking-tight">Progress</h1>
       </header>
 
-      {progress.map((p) => {
-        const c = change(p);
-        return (
-          <section key={p.sound} className="flex flex-col gap-1 rounded-lg border-2 border-current p-3">
-            <h2 className="text-2xl font-bold">&ldquo;{p.sound}&rdquo;</h2>
-            <p>Tries: {p.attempts}</p>
-            <p>First 10 tries: {pct(p.firstAccuracy)}</p>
-            <p>Latest 10 tries: {pct(p.latestAccuracy)}</p>
-            {c && <p className="text-xl font-bold">{c}</p>}
-          </section>
-        );
-      })}
+      <Card as="section" tone="accent" aria-labelledby="summary-heading" className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+          <h2 id="summary-heading" className="text-xl font-bold">
+            SeeSpeak summary
+          </h2>
+          <span className="text-sm font-bold text-muted">{today}</span>
+        </div>
+        <p className="text-muted">Tries where the sound was there:</p>
+        <ul className="flex flex-col gap-1 text-lg font-semibold">
+          {lines.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+        <p className="text-sm text-muted">{COPY.notTherapy}</p>
+        {canShare && (
+          <Button variant="secondary" onClick={share}>
+            <ShareIcon className="h-6 w-6" />
+            Share
+          </Button>
+        )}
+      </Card>
+
+      {views.map((view) => (
+        <SoundCard key={view.p.sound} view={view} />
+      ))}
+
+      <Button href="/practice" size="lg">
+        Practice now
+      </Button>
 
       {confirming ? (
-        <div className="flex flex-col gap-2 rounded-lg border-2 border-current p-3">
-          <p className="font-bold">Delete your profile, settings and tries from this phone?</p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={clear}
-              className="min-h-14 rounded-lg border-2 border-current px-2 font-bold"
-            >
+        <Card className="flex flex-col gap-4 border-dashed">
+          <p className="text-lg font-bold">Delete your profile, settings and tries from this phone?</p>
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="danger" onClick={clear}>
               Yes, clear it
-            </button>
-            <button
-              type="button"
-              onClick={() => setConfirming(false)}
-              className="min-h-14 rounded-lg border-2 border-current px-2"
-            >
+            </Button>
+            <Button variant="secondary" onClick={() => setConfirming(false)}>
               Cancel
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
       ) : (
-        <button
-          type="button"
-          onClick={() => setConfirming(true)}
-          className="min-h-14 rounded-lg border-2 border-current px-4 text-lg"
-        >
+        <Button variant="danger" onClick={() => setConfirming(true)}>
+          <TrashIcon className="h-5 w-5" />
           Clear my data on this phone
-        </button>
+        </Button>
       )}
 
-      <p className="text-sm">{COPY.privacy}</p>
+      <p className="text-sm text-muted">{COPY.privacy}</p>
     </main>
   );
 }

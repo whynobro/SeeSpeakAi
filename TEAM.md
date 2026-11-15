@@ -105,9 +105,9 @@ Stuck? Ask in team chat, or ask your AI: "Help me resolve this merge conflict. D
 
 Open your AI coding agent in the repo folder and say:
 
-> Read AGENTS.md, docs/PLAN.md and docs/lanes/<your file>, then do issue #N.
+> Read AGENTS.md, docs/HACKATHON.md, docs/PLAN.md and docs/lanes/<your file>, then do issue #N.
 
-Example: "Read AGENTS.md, docs/PLAN.md and docs/lanes/screens.md, then do issue #5."
+Example: "Read AGENTS.md, docs/HACKATHON.md, docs/PLAN.md and docs/lanes/screens.md, then do issue #5."
 
 Each person's AI works only in that person's copy of the repo. The agents do not talk to each other. They stay in sync through the files on GitHub, so pull `main` often and put anything a teammate needs to know in a pull request, not only in your chat.
 
@@ -121,6 +121,24 @@ Read what the AI changed before you push. You are responsible for it.
 - Vibration works on Android phones only. iPhones have no vibration for web pages. Demo on an Android phone if we can get one. Every vibration also shows on screen.
 - `/lab` is the tuning page. It shows the raw numbers behind the meter. Use it to test a new voice before trusting a score.
 - Test in a quiet spot first, then in a noisy one. The demo room will be noisy.
+
+## Test tries are saved for the team (so the scoring can be tuned)
+
+1. Open `/lab`. Pick the word in **Word to test**, press Start, say it, press Stop. That try is saved straight away: numbers only, never your voice.
+2. Then tap what you really said ("I said the s", "I left the s out", ...). That is what tells us if the verdict was right. Try each word both ways, for example "cats" and "cat".
+3. Type a nickname or initials once so we can tell voices apart.
+4. To also save your tries on the practice screen, tick that box on `/lab`. It is off by default, and off for every real learner.
+5. The page tells people their tries are saved and published. Do not send an outside user to `/lab` without saying so first.
+
+Reading the log (you or your AI): it is published every 15 minutes to the `test-log` branch.
+
+```bash
+git fetch origin test-log
+git show origin/test-log:summary.md      # how often the verdict was right, and which tries were wrong
+git show origin/test-log:attempts.jsonl  # every try, one JSON object per line
+```
+
+Or read it on GitHub: switch the branch menu to `test-log`. Michael can refresh it at once with `gh workflow run test-log.yml`.
 
 ## Deploy
 

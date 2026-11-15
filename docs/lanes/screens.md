@@ -1,6 +1,6 @@
 # Lane: Screens + design (Mason)
 
-Hand this file to your AI agent. Say: "Read AGENTS.md and docs/lanes/screens.md, then do issue #N."
+Hand this file to your AI agent. Say: "Read AGENTS.md, docs/HACKATHON.md, docs/PLAN.md and docs/lanes/screens.md, then do issue #N."
 
 ## Goal
 
@@ -71,7 +71,30 @@ Leave alone (ask the owner or use what exists):
 - Phone first. Large type. Touch targets at least 48 px tall.
 - Color is never the only signal. Add a word or an icon. Sound is never the only signal.
 - High contrast. Check it in bright light.
-- Calm and adult-friendly. Not babyish: teens and adults will use this too.
+- Two looks (#36): a play look for younger learners and a plain look for teens and adults. Neither may feel babyish to the person using it. Same practice, same scoring in both.
+
+## Gamified UI and shop
+
+The demo flow is in [docs/DEMO.md](../DEMO.md). The practice is the game: points come from saying words, so the reward pushes toward more real practice. Weekend order: points and streak first, shop second, hiss rocket (#34) only if everything else is done. Cut anything not solid by **Sun 9 AM**.
+
+- **Points.** Earned by practicing, from the tries already saved on the device. Proposal (design judgment, not research): 1 point per try, 2 more for a hit, 5 more once a day for 10 tries. Misses still earn the try point. No lives, no losing points, no leaderboards: learners with very different hearing are never ranked against each other.
+- **Streak that forgives.** Days in a row with at least one try. One missed day does not reset it.
+- **Shop.** Spend points on looks only: meter skins, hats for the mascot, backgrounds. Never sell practice content, hints, or anything that changes scoring. No real money, no ads. About 6 to 9 items; the first one affordable after one session (about 15 points). Our own drawings (SVG in `public/`), nothing copied.
+- **Storage.** Points, owned items and what is equipped live on the device. Read and write them only through Michael's `@/lib/rewards` (`pointsFor`, `streakFor`, `loadWallet`, `buy`, `equip`). Until it lands, use a stub in your component marked `TODO: replace with @/lib/rewards`.
+- **Where things go.** `src/app/shop/page.tsx`, `src/components/shop/` (item list with names and prices, item art). Holly checks item names.
+- **Age look.** The age group from the report picks the default look (#36); a setting switches it. Points and shop exist in both looks.
+- **Accessibility.** Every reward shows a word and an icon, never color or sound alone. Respect `prefers-reduced-motion`. Buttons at least 48 px. A purchase can be undone.
+
+## How your AI agent should work with you
+
+Instructions for Mason's AI agent. Mason decides how it looks; the agent builds and checks.
+
+1. **Ask before building each screen.** Ask Mason 3 to 6 design questions, for example: How should it feel (calm, playful, bold)? Which colors? Is there a mascot, and what is it? What does the shop sell, and what would a 12-year-old want to buy? Should it look younger or older? Wait for the answers.
+2. **Ask for references.** Ask Mason for 2 or 3 reference images or apps (screenshots, links, app names) and wait for them. Do not invent a style without them.
+3. **Build in small steps.** One part of a screen per step (layout, then the main element, then states, then polish). Keep each pull request to one issue.
+4. **Check every step in a browser.** Run `npm run dev`, open the page in the in-app browser or Claude in Chrome, and take a screenshot at 375 px wide and at laptop width with the phone frame. Compare it with the references. Fix what is off and screenshot again.
+5. **Repeat until Mason approves.** Show Mason the screenshot and what changed. Stop only when he says it is right.
+6. **Keep the rules.** Color is never the only signal. Touch targets at least 48 px. High contrast. Wording comes from `src/content/`. The test browser blocks the mic, so tell Mason which steps he must try by hand on a phone.
 
 ## How to test
 

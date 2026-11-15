@@ -24,7 +24,7 @@ For people who choose to work on spoken English. Sign language is welcome: sign 
 ## What the phone does and what the AI does
 
 - **Listening is signal processing, on the phone.** The app measures the pitch of the hiss (an "s" sits around 4 to 8 kHz, an "sh" around 2 to 4 kHz) and checks that it lands in the right place in the word. We do not use speech recognition to judge speech. In a 2024 test of four current systems, it got 52.6% of words wrong for deaf and hard-of-hearing adults and 5% for hearing adults. Even for deaf adults who speak and do not sign, it got about 1 word in 5 wrong ([Zhao 2024](https://koenecke.infosci.cornell.edu/files/Laryngoscope_Zhao2024.pdf)).
-- **The brain is AI (Claude).** It builds the curated plan from the report, and after each try it reads the scores (numbers, never audio) and says what to change and what to do next. Being wired up this weekend: until the key is in, built-in rules do both jobs, and they stay as the fallback.
+- **The brain is AI (Claude).** It builds the curated plan from the report, and after each try it reads the scores (numbers, never audio) and says what to change and what to do next. It also gets the shape of the sound over the word (a few numbers, still never audio), so its tip can say what actually happened. Being wired up this weekend: until the key is in, built-in rules do both jobs, and they stay as the fallback.
 
 ## Privacy
 
@@ -34,8 +34,9 @@ For people who choose to work on spoken English. Sign language is welcome: sign 
 
 ## Honest limits
 
-- Only "s" and "sh" are scored today.
+- Four sounds are scored today: "s", "sh", "z" and "ch".
 - It checks that the hiss is there and which hiss it is. It does not judge the whole word.
+- The "z" and "ch" limits were set on synthetic sounds only and need real voices. A "z" is an "s" hiss with the voice on; a "ch" is a burst then a short "sh". Both are tested on /lab.
 - Thresholds are starting values, tuned on test sounds and a few voices, not on a clinical data set.
 - Vibration works on Android phones only. iPhones have no vibration for web pages.
 
@@ -91,6 +92,7 @@ Each person owns one lane. Stay inside your folders.
 ## Docs
 
 - [docs/PLAN.md](docs/PLAN.md): the loop, who builds what, how the team's AI agents stay in sync. Read it first.
+- [docs/HACKATHON.md](docs/HACKATHON.md): contest rules, deadlines and the judging rubric.
 - [TEAM.md](TEAM.md): setup, the git loop, merge conflicts, demo rules.
 - [AGENTS.md](AGENTS.md): rules for AI coding agents (also read by Claude Code through `CLAUDE.md`).
 - [docs/lanes/](docs/lanes/): one build file per lane.

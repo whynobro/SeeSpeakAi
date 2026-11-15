@@ -1,9 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { setLastRecording } from '@/lib/audio/lastRecording';
 import { startMic } from '@/lib/audio/mic';
 import type { MicHandle } from '@/lib/audio/mic';
 import { readFrame } from '@/lib/scoring';
+import { rememberRecording } from '@/lib/testlog';
 import type { FrameFeatures, SoundReading } from '@/lib/types';
 
 export type MeterStatus = 'idle' | 'starting' | 'listening' | 'error';
@@ -70,6 +72,9 @@ export function useSoundMeter(): SoundMeterState {
 
   const stop = useCallback((): FrameFeatures[] => {
     runRef.current++;
+    // Kept for the shared test log, which only sends anything when a tester switched it on at /lab.
+    rememberRecording(framesRef.current, micRef.current?.sampleRate ?? null);
+    setLastRecording(framesRef.current, micRef.current?.sampleRate ?? null);
     micRef.current?.stop();
     micRef.current = null;
     setStatus((s) => (s === 'error' ? s : 'idle'));

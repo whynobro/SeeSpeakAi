@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title">
+  <title id="title">Front view for "sh": lips rounded and pushed forward into a small round opening</title>
+  <defs>
+    <clipPath id="panel"><rect x="2" y="2" width="236" height="236" rx="20"/></clipPath>
+    <clipPath id="opening"><path d="M99 122 C99 106 110 99 120 99 C130 99 141 106 141 122 C141 138 130 145 120 145 C110 145 99 138 99 122 Z"/></clipPath>
+  </defs>
+  <rect x="2" y="2" width="236" height="236" rx="20" fill="#ffffff"/>
+  <g clip-path="url(#panel)" stroke="#1b1f3b" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path fill="#f2d6c4" d="M50 122 C50 83 81 62 107 70 C112 73 128 73 133 70 C159 62 190 83 190 122 C190 164 159 187 120 187 C81 187 50 164 50 122 Z"/>
+    <path fill="none" stroke-width="2.5" d="M73 122 C73 93 94 83 120 83 C146 83 167 93 167 122 C167 153 146 169 120 169 C94 169 73 153 73 122 Z"/>
+    <path fill="#1b1f3b" d="M99 122 C99 106 110 99 120 99 C130 99 141 106 141 122 C141 138 130 145 120 145 C110 145 99 138 99 122 Z"/>
+    <g clip-path="url(#opening)" fill="#ffffff" stroke-width="2.5">
+      <path d="M90 90 H150 V108 C136 111 104 111 90 108 Z"/>
+    </g>
+  </g>
+  <rect x="2" y="2" width="236" height="236" rx="20" fill="none" stroke="#d5dcf3" stroke-width="2"/>
+</svg>

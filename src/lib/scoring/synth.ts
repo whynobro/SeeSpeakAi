@@ -165,3 +165,60 @@ export function stopRelease(flavour: 't' | 'k', ms: number, sampleRate: number, 
   }
   return out;
 }
+
+/** A hiss that starts as one sound and ends as the other: `first` for half the time, then `second`. */
+export function hissSlide(
+  first: 's' | 'sh',
+  second: 's' | 'sh',
+  ms: number,
+  sampleRate: number,
+): Float32Array {
+  return concat(hiss(first, ms / 2, sampleRate), hiss(second, ms / 2, sampleRate));
+}
+
+/** How strong the buzz of a voiced hiss is next to the hiss itself (loudness ratio). */
+const VOICED_BUZZ_TO_HISS = 0.5;
+/** Length of the stop burst at the start of an affricate ("ch"), in ms. */
+export const AFFRICATE_BURST_MS = 25;
+
+/**
+ * A voiced "s", the "z" of "zoo" or "dogs": the same 4 to 8 kHz hiss as `hiss('s', ...)`, with the buzz of
+ * the voice (150 Hz and its first two harmonics) on top the whole way through. The buzz is half the
+ * loudness of the hiss, so most of the energy is still the hiss.
+ */
+export function voicedHiss(ms: number, sampleRate: number): Float32Array {
+  const n = samplesFor(ms, sampleRate);
+  const hissPart = hiss('s', ms, sampleRate); // already scaled and faded
+  const buzz = new Float32Array(n);
+  const f0 = 150;
+  for (let k = 1; k <= 3; k++) {
+    for (let i = 0; i < n; i++) buzz[i] += (1 / k) * Math.sin((2 * Math.PI * f0 * k * i) / sampleRate);
+  }
+  const fade = Math.min(Math.floor(n / 2), samplesFor(FADE_MS, sampleRate));
+  const buzzGain = rms(buzz) > 0 ? (VOICED_BUZZ_TO_HISS * VOWEL_RMS * HISS_TO_VOWEL) / rms(buzz) : 0;
+  const out = new Float32Array(n);
+  for (let i = 0; i < n; i++) {
+    let g = buzzGain;
+    if (i < fade) g *= i / fade;
+    else if (i >= n - fade) g *= (n - 1 - i) / fade;
+    out[i] = hissPart[i] + buzz[i] * g;
+  }
+  return out;
+}
+
+/**
+ * An affricate, the "ch" of "chip" or "watch": a stop burst (like `burst`, `AFFRICATE_BURST_MS` long) that
+ * runs straight into a "sh" hiss. `ms` is the whole length, so the "sh" part is `ms` minus the burst.
+ * The burst and the hiss overlap by one fade length, so there is no dip between them.
+ */
+export function affricate(ms: number, sampleRate: number): Float32Array {
+  const click = burst(AFFRICATE_BURST_MS, sampleRate);
+  const shPart = hiss('sh', Math.max(0, ms - AFFRICATE_BURST_MS + FADE_MS), sampleRate);
+  const out = new Float32Array(
+    Math.max(click.length, click.length + shPart.length - samplesFor(FADE_MS, sampleRate)),
+  );
+  const start = Math.max(0, click.length - samplesFor(FADE_MS, sampleRate));
+  for (let i = 0; i < click.length; i++) out[i] += click[i];
+  for (let i = 0; i < shPart.length && start + i < out.length; i++) out[start + i] += shPart[i];
+  return out;
+}
