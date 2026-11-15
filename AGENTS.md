@@ -58,6 +58,7 @@ Tailwind is v4 and React is 19. Check their docs when unsure.
 | `src/content/`      | Word bank, how-to cues, interface wording                                    | content |
 | `docs/PLAN.md`      | The loop and who builds what. Read it first.                                 | all     |
 | `docs/HACKATHON.md` | Contest rules, deadlines, rubric, what we submit. No made-up users or data.  | all     |
+| `docs/DEMO.md`      | The demo flow step by step, timing, fallbacks, build order                   | all     |
 | `docs/lanes/`       | One build file per lane                                                      | all     |
 | `docs/research.md`  | Facts, sources and what we must not claim                                    | content |
 | `docs/pitch/`       | Demo script, rubric tracking, user test log                                  | content |
