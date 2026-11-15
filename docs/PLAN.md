@@ -45,6 +45,7 @@ test in the app          and steps                      |        ^
 - The shared contract in `src/lib/types.ts`: `AssessmentReport`, `PracticePlan`, `PlanStep`, `TrainingView`, `FeedbackRequest`, `CoachFeedback`.
 - `POST /api/plan` and `POST /api/feedback`: both work today using built-in rules. The Claude calls slot into `src/lib/ai/plan.ts` and `src/lib/ai/feedback.ts`.
 - The measuring: mic, s, sh, z and ch scoring, live meter, `/lab` tuning page.
+- Optional lip camera on practice: **off by default**, a switch on the screen, saved per device. Only lip numbers are used, as a tip after a try, never a verdict. Cut it from the demo if it is not solid.
 - Plain versions of the profile, practice and progress screens.
 
 ## How the team and the AI agents work together

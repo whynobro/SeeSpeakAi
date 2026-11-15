@@ -1,4 +1,5 @@
 import { WORD_BANK } from '@/content/words';
+import type { LipSummary } from '@/lib/lips/types';
 import { describeRuns, type RunInfo } from '@/lib/scoring';
 import type { AttemptScore, FrameFeatures, PracticeWord, TargetSound, WordPosition } from '@/lib/types';
 
@@ -7,6 +8,8 @@ import type { AttemptScore, FrameFeatures, PracticeWord, TargetSound, WordPositi
  * Every try made on /lab is saved (numbers only, never audio, never a full name) unless the person
  * switches that off on the page. /lab is our tuning page and says so. Tries on the practice screen are
  * only saved when a tester switched that on at /lab. Real learners who never open /lab are never logged.
+ * Lip captures from /lab/lips follow the same switch: the lip shape numbers (`LipSummary`) and the sound
+ * the tester held, never a picture.
  * The saved tries are copied to the public `test-log` branch of the repo, so nothing private goes in.
  */
 
@@ -32,6 +35,20 @@ export interface TestLogEntry {
   score: AttemptScore;
   runs: RunInfo[];
   frames: PackedFrame[];
+}
+
+/** One lip capture from /lab/lips: the sound the tester held and the lip numbers over about 2 seconds. */
+export interface LipLogEntry {
+  v: 1;
+  kind: 'lips';
+  attemptId: string;
+  at: string; // ISO timestamp
+  tester: string;
+  label: string;
+  page: 'lab';
+  sound: 's' | 'sh';
+  device: string;
+  summary: LipSummary;
 }
 
 const KEY_ON = 'seespeak.testlog.on';
@@ -147,7 +164,7 @@ export function buildEntry(input: {
   };
 }
 
-async function send(entry: TestLogEntry): Promise<boolean> {
+async function send(entry: TestLogEntry | LipLogEntry): Promise<boolean> {
   try {
     const response = await fetch('/api/attempts', {
       method: 'POST',
@@ -202,6 +219,46 @@ export function sharePracticeAttempt(wordId: string, target: TargetSound, score:
       frames: lastFrames,
       sampleRate: lastSampleRate,
       said: null,
+      tester: testerId(),
+      label: getLabel(),
+      device: typeof navigator === 'undefined' ? '' : navigator.userAgent,
+      at: new Date().toISOString(),
+      attemptId: newAttemptId(),
+    }),
+  );
+}
+
+/** Build one lip capture entry. Pure, so it can be tested. Numbers only: there is no field for a picture. */
+export function buildLipEntry(input: {
+  sound: 's' | 'sh';
+  summary: LipSummary;
+  tester: string;
+  label: string;
+  device: string;
+  at: string;
+  attemptId: string;
+}): LipLogEntry {
+  return {
+    v: 1,
+    kind: 'lips',
+    attemptId: input.attemptId,
+    at: input.at,
+    tester: input.tester,
+    label: input.label,
+    page: 'lab',
+    sound: input.sound,
+    device: input.device.slice(0, 200),
+    summary: input.summary,
+  };
+}
+
+/** Share one lip capture from /lab/lips with the sound that was held. Resolves true when stored. */
+export function shareLipCapture(sound: 's' | 'sh', summary: LipSummary): Promise<boolean> {
+  if (!isLabSharing()) return Promise.resolve(false);
+  return send(
+    buildLipEntry({
+      sound,
+      summary,
       tester: testerId(),
       label: getLabel(),
       device: typeof navigator === 'undefined' ? '' : navigator.userAgent,

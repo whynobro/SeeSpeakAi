@@ -55,7 +55,7 @@ Tailwind is v4 and React is 19. Check their docs when unsure.
 | `src/lib/profile/`  | `pickTargets(profile)`: hearing profile to sounds to practice                | tech    |
 | `src/lib/store/`    | On-device storage and `progressFor`                                          | tech    |
 | `src/lib/testlog/`  | Opt-in shared test log (`/lab` switch), sends try numbers to `/api/attempts` | tech    |
-| `src/lib/lips/`     | Optional on-device lip check: `startLipTracker`, `summarizeLips`, `lipHint`  | tech    |
+| `src/lib/lips/`     | Lip check, off by default: `summarizeLips`, `lipHint`, `useLipCamera`        | tech    |
 | `src/lib/feedback/` | Vibration patterns                                                           | tech    |
 | `src/lib/ai/`       | The brain: `buildPlan`, `buildFeedback` (server only), rule fallbacks        | tech    |
 | `src/hooks/`        | `useSoundMeter` (listen), `useCoachFeedback` (the brain's sentence)          | tech    |

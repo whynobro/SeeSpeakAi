@@ -1,6 +1,7 @@
 import { WORD_BANK } from '@/content/words';
 import { toPracticeWord } from '@/lib/ai/wordCheck';
 import { isTargetSound } from '@/lib/scoring/constants';
+import type { LipShape, LipSummary } from '@/lib/lips/types';
 import type { CoachFeedback, PlanStep, PracticePlan, PracticeWord, TraceSummary } from '@/lib/types';
 
 // Built from a char code so this file never contains the character itself.
@@ -142,4 +143,24 @@ export function cleanTrace(raw: unknown): TraceSummary | null {
   if (gapMs === null && t.gapMs !== null) return null;
   if (Object.values(out).some((v) => v === null)) return null;
   return { ...(out as Omit<TraceSummary, 'gapMs'>), gapMs };
+}
+
+const LIP_SHAPES: readonly LipShape[] = ['spread', 'rounded', 'neutral', 'unknown'];
+const isLipShape = (v: unknown): v is LipShape => LIP_SHAPES.includes(v as LipShape);
+
+/** Lip numbers from the camera: every number is clamped, the two shape calls must be known words. Anything else drops them. */
+export function cleanLips(raw: unknown): LipSummary | null {
+  if (!isRecord(raw)) return null;
+  const out = {
+    frames: num(raw.frames, 0, 5000),
+    faceSeenShare: num(raw.faceSeenShare, 0, 1),
+    rounded: num(raw.rounded, 0, 1),
+    spread: num(raw.spread, 0, 1),
+    jawOpen: num(raw.jawOpen, 0, 1),
+    roundedEnd: num(raw.roundedEnd, 0, 1),
+    spreadEnd: num(raw.spreadEnd, 0, 1),
+  };
+  if (Object.values(out).some((v) => v === null)) return null;
+  if (!isLipShape(raw.shape) || !isLipShape(raw.shapeEnd)) return null;
+  return { ...(out as Omit<LipSummary, 'shape' | 'shapeEnd'>), shape: raw.shape, shapeEnd: raw.shapeEnd };
 }
