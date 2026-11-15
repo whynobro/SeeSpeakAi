@@ -9,6 +9,8 @@ import { SoundVideo } from '@/components/SoundVideo';
 import { SoundMeter } from '@/components/SoundMeter';
 import { Button, Card, IconTile, buttonClass } from '@/components/ui';
 import { CoachCard } from '@/components/CoachCard';
+import { Confetti } from '@/components/Confetti';
+import { playHitDing } from '@/components/hitDing';
 import { VerdictBadge } from '@/components/VerdictBadge';
 import { WordCard } from '@/components/WordCard';
 import { COPY } from '@/content/copy';
@@ -164,6 +166,7 @@ function PracticeLoop() {
     setScore(result);
     setTries((n) => n + 1);
     if (result.verdict === 'hit') {
+      playHitDing(); // the mic has stopped (meter.stop() above). Extra only: the badge carries the verdict.
       setHits((n) => n + 1);
       setHitByItem((prev) => {
         const next = [...prev];
@@ -236,39 +239,54 @@ function PracticeLoop() {
     return (
       <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pt-2 pb-8">
         <header className="flex items-center gap-3">{homeLink}</header>
-        <Card highlight={ok} className="flex flex-col gap-4">
-          <p className="text-sm font-bold text-muted">
-            Level {level.number}: {level.title}
-          </p>
-          <h1 className="flex items-center gap-2 text-[28px] leading-tight font-extrabold tracking-tight">
-            {ok ? (
-              <>
-                <StarIcon className="h-8 w-8" />
-                Level passed
-              </>
-            ) : (
-              'Nice work, keep going'
-            )}
-          </h1>
-          <ul className="flex flex-wrap gap-2" aria-hidden="true">
+        <section className="relative flex flex-col gap-4 border-y border-line py-6">
+          {ok && <Confetti />}
+          <div className={`flex flex-col gap-1 ${ok ? 'pr-16' : ''}`}>
+            <p className="text-[15px] font-bold text-muted">
+              Level {level.number}: {level.title}
+            </p>
+            <h1 className="flex items-center gap-2 text-[28px] leading-tight font-extrabold tracking-tight">
+              {ok ? (
+                <>
+                  <StarIcon className="h-7 w-7 shrink-0 text-accent" />
+                  Level passed
+                </>
+              ) : (
+                'Nice work, keep going'
+              )}
+            </h1>
+          </div>
+          <ul className="flex flex-wrap gap-1.5" aria-hidden="true">
             {words.map((w, i) => (
               <li
                 key={i}
-                className={`h-8 w-8 rounded-full border-[3px] ${hitByItem[i] ? 'border-hit-strong bg-hit' : 'border-muted bg-surface'}`}
-              />
+                className={`flex h-6 w-6 items-center justify-center rounded-full border ${hitByItem[i] ? 'border-hit-strong bg-hit text-hit-ink' : 'border-muted bg-surface'}`}
+              >
+                {hitByItem[i] && (
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-3.5 w-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={3.5}
+                  >
+                    <path d="M5 12.5l4.5 4.5L19 7.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </li>
             ))}
           </ul>
-          <p className="text-2xl font-bold">
+          <p className="text-[20px] leading-snug font-bold">
             {got} of {words.length} right.
           </p>
-          <p className="text-base text-muted">
+          <p className="text-[17px] leading-relaxed text-muted">
             {ok
               ? next
                 ? `Level ${next.number} is open: ${next.title.toLowerCase()}.`
                 : `That was the last level for "${target}".`
               : `Get ${PASS_ITEMS} of ${words.length} right to open the next level. Tries again count.`}
           </p>
-        </Card>
+        </section>
         {ok && next ? (
           <Button href={`/practice?sound=${target}&level=${next.id}`} size="xl">
             Next level

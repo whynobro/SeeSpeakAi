@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { DingSwitch } from '@/components/DingSwitch';
 import { HowItWorks } from '@/components/HomeStart';
 import { ChevronRightIcon } from '@/components/Icons';
 import { LandingSections } from '@/components/LandingSections';
@@ -39,6 +40,16 @@ export default function MorePage() {
       </Link>
       <HowItWorks />
       <LandingSections />
+      <section aria-labelledby="settings-title" className="flex flex-col gap-2">
+        <h2 id="settings-title" className="text-[20px] leading-snug font-bold">
+          Settings
+        </h2>
+        <ul className="divide-y divide-line border-y border-line">
+          <li>
+            <DingSwitch />
+          </li>
+        </ul>
+      </section>
       <footer className="flex flex-col gap-2 border-t border-line pt-6 text-[15px] leading-relaxed text-muted">
         <p>{COPY.optIn}</p>
         <p>{COPY.notTherapy}</p>
