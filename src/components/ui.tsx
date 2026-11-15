@@ -136,26 +136,3 @@ export function IconTile({
     </span>
   );
 }
-
-/** The SeeSpeak mark: a baby blue clay tile over a tilted tan one, with sound waves. */
-export function LogoTile({ size = 96 }: { size?: number }) {
-  return (
-    <span aria-hidden="true" className="relative inline-block shrink-0" style={{ width: size, height: size }}>
-      <span className="absolute inset-0 translate-x-[8%] translate-y-[6%] rotate-[10deg] rounded-[28%] bg-violet shadow-edge-violet" />
-      <span className="absolute inset-0 flex items-center justify-center rounded-[28%] bg-accent shadow-[0_6px_0_var(--accent-edge)]">
-        <svg
-          viewBox="0 0 24 24"
-          width={size * 0.5}
-          height={size * 0.5}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2.6}
-          strokeLinecap="round"
-          className="text-accent-ink"
-        >
-          <path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2" />
-        </svg>
-      </span>
-    </span>
-  );
-}
