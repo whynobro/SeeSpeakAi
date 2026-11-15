@@ -12,6 +12,8 @@ import { useEffect, useRef, useState } from 'react';
 const SRC = '/brand/seespeak-wordmark.png';
 /** The wordmark without the wide white border around it, as a share of the picture (measured on the file). */
 const CROP = { x: 0.04, y: 0.12, w: 0.92, h: 0.68 };
+/** Just the bird and its notes: the left part of the same crop. Used where the name is set in the page's font. */
+const BIRD_CROP = { x: 0.04, y: 0.12, w: 0.2, h: 0.68 };
 
 function hsl(r: number, g: number, b: number): [number, number, number] {
   const mx = Math.max(r, g, b),
@@ -32,7 +34,17 @@ function rgb(h: number, s: number, l: number): [number, number, number] {
 }
 
 /** The logo. Screen readers hear `label` ("SeeSpeak", the product name used in all screen text). */
-export function Wordmark({ className = '', label = 'See Speak AI' }: { className?: string; label?: string }) {
+export function Wordmark({
+  className = '',
+  label = 'See Speak AI',
+  birdOnly = false,
+}: {
+  className?: string;
+  label?: string;
+  /** Show only the bird; the caller writes the name next to it. */
+  birdOnly?: boolean;
+}) {
+  const crop = birdOnly ? BIRD_CROP : CROP;
   const ref = useRef<HTMLCanvasElement>(null);
   const [ready, setReady] = useState(false);
 
@@ -47,10 +59,10 @@ export function Wordmark({ className = '', label = 'See Speak AI' }: { className
         if (!ctx) return;
         ctx.drawImage(
           img,
-          img.width * CROP.x,
-          img.height * CROP.y,
-          img.width * CROP.w,
-          img.height * CROP.h,
+          img.width * crop.x,
+          img.height * crop.y,
+          img.width * crop.w,
+          img.height * crop.h,
           0,
           0,
           c.width,
@@ -89,21 +101,25 @@ export function Wordmark({ className = '', label = 'See Speak AI' }: { className
         // Keep the original picture.
       }
     };
-  }, []);
+  }, [crop]);
 
   return (
-    <span role="img" aria-label={label} className={`relative block aspect-[1000/246] ${className}`}>
+    <span
+      role="img"
+      aria-label={label}
+      className={`relative block ${birdOnly ? 'aspect-[217/246]' : 'aspect-[1000/246]'} ${className}`}
+    >
       {/* eslint-disable-next-line @next/next/no-img-element -- the plain picture is only the fallback under the canvas */}
       <img
         src={SRC}
         alt={label}
         aria-hidden="true"
         className={`absolute inset-0 h-full w-full object-cover mix-blend-multiply ${ready ? 'invisible' : ''}`}
-        style={{ objectPosition: '50% 45%' }}
+        style={{ objectPosition: birdOnly ? '5% 45%' : '50% 45%' }}
       />
       <canvas
         ref={ref}
-        width={1000}
+        width={birdOnly ? 217 : 1000}
         height={246}
         aria-hidden="true"
         className="absolute inset-0 h-full w-full"
