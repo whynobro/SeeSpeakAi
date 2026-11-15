@@ -1,14 +1,18 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { featuresFromSamples } from '@/lib/audio/features';
 import { scoreAttempt } from '@/lib/scoring';
 import { concat, hiss, silence, vowel } from '@/lib/scoring/synth';
 import {
   buildEntry,
   buildLipEntry,
+  guessPosition,
   isLabSharing,
   isSharing,
   packFrames,
+  rememberRecording,
+  setSharing,
   sharePracticeAttempt,
+  type TestLogEntry,
 } from '@/lib/testlog';
 import type { PracticeWord } from '@/lib/types';
 
@@ -37,10 +41,12 @@ describe('test log', () => {
   it('does nothing and does not throw when sharing is off', () => {
     expect(() => sharePracticeAttempt('bus', 's', scoreAttempt(frames, word))).not.toThrow();
   });
-  it('packs frames as four short numbers and caps the count', () => {
+  it('packs frames as five short numbers (flatness last) and caps the count', () => {
     const packed = packFrames(frames);
     expect(packed.length).toBe(frames.length);
-    expect(packed[0]).toHaveLength(4);
+    expect(packed[0]).toHaveLength(5);
+    expect(packed.every((f) => f[4] >= 0 && f[4] <= 1)).toBe(true);
+    expect(packFrames([{ ...frames[0], flatness: undefined }])[0][4]).toBe(-1);
     expect(packed.every((f) => Number.isInteger(f[0]) && Number.isInteger(f[3]))).toBe(true);
     expect(packFrames(Array.from({ length: 2000 }, () => frames[0])).length).toBe(600);
   });
@@ -66,6 +72,51 @@ describe('test log', () => {
     expect(entry.device.length).toBe(200);
     expect(JSON.stringify(entry).length).toBeLessThan(120_000);
     expect(Object.keys(entry)).not.toContain('audio');
+  });
+});
+
+describe('practice tries in the test log', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  /** Switch practice sharing on with an in-memory storage, and catch what would be sent. */
+  function capture(): TestLogEntry[] {
+    const store = new Map<string, string>();
+    vi.stubGlobal('localStorage', {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => void store.set(k, v),
+      removeItem: (k: string) => void store.delete(k),
+    });
+    const sent: TestLogEntry[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_url: string, init: { body: string }) => {
+        sent.push(JSON.parse(init.body) as TestLogEntry);
+        return new Response('{}');
+      }),
+    );
+    setSharing(true);
+    rememberRecording(frames, SR);
+    return sent;
+  }
+
+  it('logs the position the word was scored with, not "end" for words outside the bank', () => {
+    const sent = capture();
+    const score = scoreAttempt(frames, { ...word, id: 'cereal', text: 'cereal', position: 'start' });
+    sharePracticeAttempt('cereal', 's', score, 'start');
+    sharePracticeAttempt('classic', 's', score, 'middle');
+    expect(sent.map((e) => [e.wordId, e.position])).toEqual([
+      ['cereal', 'start'],
+      ['classic', 'middle'],
+    ]);
+  });
+
+  it('without a position, uses the word bank, then the spelling', () => {
+    expect(guessPosition('bus', 's')).toBe('end');
+    expect(guessPosition('sun', 's')).toBe('start');
+    expect(guessPosition('classic', 's')).toBe('middle');
+    expect(guessPosition('practice', 's')).toBe('end');
   });
 });
 

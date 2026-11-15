@@ -20,6 +20,14 @@ const CENTROID_MIN_ENERGY = 1e-7;
  */
 const VOICING_FROM_HZ = 80;
 const VOICING_TO_HZ = 500;
+/**
+ * Flatness is measured in this band, where an "s" has its strong peak (about 4 to 9 kHz) and a lisp
+ * (tongue between the teeth, or air over the sides of the tongue) spreads its noise evenly.
+ */
+const FLATNESS_LOW_HZ = 2000;
+const FLATNESS_HIGH_HZ = 10000;
+/** Added to each bin's energy before the log, so an empty bin does not make the flatness exactly 0. */
+const FLATNESS_FLOOR = 1e-14;
 
 function clamp01(x: number): number {
   return x < 0 ? 0 : x > 1 ? 1 : x;
@@ -46,6 +54,11 @@ export function featuresFromSpectrum(
   let bandEnergy = 0;
   let bandWeighted = 0;
   let low = 0;
+  // Spectral flatness: geometric mean over arithmetic mean of the bin energies in the flatness band.
+  const flatHigh = Math.min(FLATNESS_HIGH_HZ, nyquist);
+  let flatLogSum = 0;
+  let flatSum = 0;
+  let flatBins = 0;
   // Bin 0 is DC (a steady offset, not sound), so skip it.
   for (let k = 1; k < bins; k++) {
     const hz = k * binHz;
@@ -57,7 +70,18 @@ export function featuresFromSpectrum(
       bandEnergy += energy;
       bandWeighted += energy * hz;
     }
+    if (hz >= FLATNESS_LOW_HZ && hz <= flatHigh) {
+      flatLogSum += Math.log(energy + FLATNESS_FLOOR);
+      flatSum += energy + FLATNESS_FLOOR;
+      flatBins++;
+    }
   }
+  // White noise reads about 0.56 here (a single frame's spectrum is ragged), one clean peak reads near 0.
+  // No energy in the band (silence) reads 0, so it can never look like a flat hiss.
+  const flatness =
+    flatBins > 0 && flatSum - flatBins * FLATNESS_FLOOR > CENTROID_MIN_ENERGY
+      ? clamp01(Math.exp(flatLogSum / flatBins) / (flatSum / flatBins))
+      : 0;
 
   const centroidHz = bandEnergy > CENTROID_MIN_ENERGY ? Math.min(nyquist, bandWeighted / bandEnergy) : null;
   return {
@@ -67,6 +91,7 @@ export function featuresFromSpectrum(
     hissRatio: total > 0 ? clamp01(hiss / total) : 0,
     centroidHz,
     voicing: low + hiss > 0 ? clamp01(low / (low + hiss)) : 0,
+    flatness,
   };
 }
 

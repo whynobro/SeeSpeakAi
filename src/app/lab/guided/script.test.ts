@@ -13,9 +13,16 @@ const score = (verdict: AttemptScore['verdict']): AttemptScore => ({
 });
 
 describe('guided script', () => {
-  it('has 24 steps that all resolve to words in the word bank', () => {
-    expect(GUIDED_SCRIPT).toHaveLength(24);
+  it('has 28 steps that all resolve to words in the word bank', () => {
+    expect(GUIDED_SCRIPT).toHaveLength(28);
     for (const step of GUIDED_SCRIPT) expect(wordOf(step)).toBeTruthy();
+  });
+
+  it('has 4 lisp steps on "s" and "z" words, at the start and the end', () => {
+    const lisp = GUIDED_SCRIPT.filter((s) => s.say === 'lisp').map(wordOf);
+    expect(lisp).toHaveLength(4);
+    expect(lisp.every((w) => w.target === 's' || w.target === 'z')).toBe(true);
+    expect(new Set(lisp.map((w) => w.position))).toEqual(new Set(['start', 'end']));
   });
 
   it('covers all four sounds, both starts and ends, and all three ways to say a word', () => {
@@ -28,13 +35,15 @@ describe('guided script', () => {
   });
 
   it('gives every swapped or dropped step a spoken form', () => {
-    for (const step of GUIDED_SCRIPT) if (step.say !== 'with-sound') expect(step.as).toBeTruthy();
+    for (const step of GUIDED_SCRIPT)
+      if (step.say === 'other-sound' || step.say === 'without-sound') expect(step.as).toBeTruthy();
   });
 
   it('writes plain instructions', () => {
     expect(instructionFor({ wordId: 'cats', say: 'with-sound' })).toBe('cats');
     expect(instructionFor({ wordId: 'sip', say: 'other-sound', as: 'ship' })).toBe('ship');
     expect(instructionFor({ wordId: 'hats', say: 'without-sound', as: 'hat' })).toBe('hat');
+    expect(instructionFor({ wordId: 'cats', say: 'lisp' })).toBe('cats (with a lisp)');
   });
 
   it('judges a match against what was asked', () => {
@@ -43,5 +52,7 @@ describe('guided script', () => {
     expect(matchedExpectation({ wordId: 'hats', say: 'without-sound', as: 'hat' }, score('miss'))).toBe(true);
     expect(matchedExpectation({ wordId: 'sip', say: 'other-sound', as: 'ship' }, score('close'))).toBe(true);
     expect(matchedExpectation({ wordId: 'sip', say: 'other-sound', as: 'ship' }, score('hit'))).toBe(false);
+    expect(matchedExpectation({ wordId: 'cats', say: 'lisp' }, score('close'))).toBe(true);
+    expect(matchedExpectation({ wordId: 'cats', say: 'lisp' }, score('hit'))).toBe(false);
   });
 });

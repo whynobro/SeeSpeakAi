@@ -1,3 +1,4 @@
+import { LISP_COPY } from '@/content/copy';
 import { CUES } from '@/content/cues';
 import { WORD_BANK } from '@/content/words';
 import { askClaudeForJson } from '@/lib/ai/client';
@@ -65,6 +66,7 @@ function traceObservation(
 
 /** The sentence for a "close" try. "z" without voice and "ch" without a burst get their own words. */
 function closeMessage(target: TargetSound, last: AttemptScore): string {
+  if (last.lisp) return LISP_COPY.message;
   if (target === 'z' && last.heard === 's') {
     return 'There was a hiss, but no buzz. Turn your voice on, like a bee, so it is a "z" and not an "s".';
   }
@@ -120,7 +122,8 @@ export function feedbackFromRules(req: FeedbackRequest): CoachFeedback {
     if (lipTip?.closeTip && last.heard === otherHiss) {
       return say(lipTip.closeTip, cues.steps.join(' '), 'repeat');
     }
-    return say(seen?.message ?? closeMessage(target, last), cues.steps.join(' '), 'repeat');
+    const traceMessage = last.lisp ? null : seen?.message; // a lisp is the one thing to fix first
+    return say(traceMessage ?? closeMessage(target, last), cues.steps.join(' '), 'repeat');
   }
   if (missStreak) {
     return say(
