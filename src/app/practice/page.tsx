@@ -18,7 +18,7 @@ import { VerdictBadge } from '@/components/VerdictBadge';
 import { WordCard } from '@/components/WordCard';
 import { BirdMascot } from '@/components/bird/BirdMascot';
 import { CUES } from '@/content/cues';
-import { wordsFor } from '@/content/words';
+import { stepWords } from '@/lib/ai/rulesPlan';
 import {
   countsFor,
   currentTier,
@@ -158,7 +158,7 @@ function PracticeLoop() {
     const planned = step?.words.filter((w) => w.target === target) ?? [];
     return planned.length > 0
       ? { list: planned, planned: true }
-      : { list: wordsFor(target, WORD_COUNT), planned: false };
+      : { list: stepWords(target, WORD_COUNT), planned: false };
   }
 
   // Storage and the word list are read in an effect, never during render.
