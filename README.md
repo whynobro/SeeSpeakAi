@@ -10,6 +10,8 @@ If you cannot hear high sounds like "s" and "sh", you cannot copy them. So "cats
 
 Production: https://seespeak.vercel.app (follows `main`). The tuning page is https://seespeak.vercel.app/lab.
 
+Demo video (1:59): https://github.com/whynobro/SeeSpeakAi/releases/tag/demo-video (direct file: [seespeak-demo.mp4](https://github.com/whynobro/SeeSpeakAi/releases/download/demo-video/seespeak-demo.mp4)). Video files live in releases, never in the repo.
+
 Pull request preview links ask for a Vercel login until Michael turns that off in the Vercel project settings. Until then, test on the production link after your pull request merges.
 
 ## How it works
