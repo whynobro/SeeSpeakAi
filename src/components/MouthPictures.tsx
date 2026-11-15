@@ -63,15 +63,40 @@ const PICTURES: Record<TargetSound, { side: MouthPicture; front: MouthPicture }>
   },
 };
 
-/** `only` shows one view (used next to the lip camera). Without it, both views show. */
-export function MouthPictures({ sound, only }: { sound: TargetSound; only?: 'front' | 'side' }) {
+/**
+ * `only` shows one view (used next to the lip camera). Without it, both views show.
+ * `label` (with `only`) lays the one picture out as a compact row: a small picture, then the label and caption.
+ */
+export function MouthPictures({
+  sound,
+  only,
+  label,
+}: {
+  sound: TargetSound;
+  only?: 'front' | 'side';
+  label?: string;
+}) {
   const { side, front } = PICTURES[sound];
   const shown = only === 'front' ? [front] : only === 'side' ? [side] : [side, front];
+
+  if (only && label) {
+    const picture = shown[0];
+    return (
+      <figure className="flex items-center gap-3 rounded-xl border border-line bg-surface p-2 pr-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={picture.src} alt={picture.alt} width={240} height={240} className="h-20 w-20 shrink-0" />
+        <figcaption className="flex min-w-0 flex-col gap-0.5">
+          <span className="text-base font-bold">{label}</span>
+          <span className="text-sm leading-snug text-muted">{picture.caption}</span>
+        </figcaption>
+      </figure>
+    );
+  }
 
   return (
     <div className={`grid gap-2 ${only ? 'grid-cols-1' : 'grid-cols-2'}`}>
       {shown.map((picture) => (
-        <figure key={picture.src} className="rounded-2xl border border-line bg-surface p-2">
+        <figure key={picture.src} className="rounded-xl border border-line bg-surface p-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={picture.src} alt={picture.alt} width={240} height={240} className="h-auto w-full" />
           <figcaption className="mt-2 text-sm leading-snug font-semibold text-foreground">

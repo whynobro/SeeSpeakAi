@@ -223,7 +223,7 @@ export default function GuidedLabPage() {
     <main className="mx-auto flex w-full max-w-xl flex-col gap-5 p-4">
       <p className="text-sm">
         Guided test. Numbers only are saved for the team. Your voice is never recorded or sent.{' '}
-        <Link href="/lab" className="underline">
+        <Link href="/lab" className="inline-flex min-h-12 items-center underline">
           Back to the lab
         </Link>
       </p>

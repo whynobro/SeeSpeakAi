@@ -19,14 +19,14 @@ import { Wordmark } from './Wordmark';
  *   stays sharp), then holds on the last frame.
  * - Instead of cutting the video's background out, the page takes the video's color: it reads the video's bottom
  *   rows and sets the home screen's background to match. The video's plain-sky top and bottom edges fade into it.
- * - The words and the two links fade in once the bird has landed. A leafy branch (public/home/branch.png, made in
- *   ChatGPT) crosses the open space above the checks.
- * - Never stuck: the words show anyway after a few seconds, if the video fails, and at once with reduced motion.
- *   After the first view in a tab, home opens with the bird already perched.
+ * - The words and the two links are in the page from the first paint, with a short CSS rise (no wait for the video
+ *   or for JavaScript), so a slow connection never shows a blank screen. The bird is an extra on top.
+ *   A leafy branch (public/home/branch.png, made in ChatGPT) crosses the open space above the checks.
+ * - With reduced motion the words just show. After the first view in a tab, home opens with the bird already perched.
  */
 
 const VIDEO = '/home/kingfisher.mp4';
-/** Seconds into the clip when the bird has landed; the words fade in from here. */
+/** Seconds into the clip when the bird has landed. */
 const LANDED_AT = 3.3;
 /** Where the bird perches, as a share of the video frame (measured on the clip). */
 const FEET = { x: 0.5, y: 0.63 };
@@ -49,7 +49,7 @@ function markSeen(): void {
   }
 }
 
-/** Haptic click on Android (iPhones have no web vibration); the button's sinking edge is the visual twin. */
+/** Haptic click on Android (iPhones have no web vibration); the button's press shrink is the visual twin. */
 function buzz() {
   if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') navigator.vibrate(12);
 }
@@ -58,8 +58,8 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [landed, setLanded] = useState(false);
-  const [wide, setWide] = useState(true);
+  // Phone layout first (mobile first, and the laptop demo runs in the phone frame); the effect below widens it.
+  const [wide, setWide] = useState(false);
   const goTry = useTryItNow();
 
   // The home screen takes the video's own color. Restored when leaving home.
@@ -113,7 +113,7 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
     return () => ro.disconnect();
   }, []);
 
-  // Play once, reveal the words when the bird lands, hold the last frame. Match the page to the video's edge.
+  // Play once, hold the last frame. Match the page to the video's edge.
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -123,7 +123,6 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
       if (done) return;
       done = true;
       markSeen();
-      setLanded(true);
     };
     const matchPage = () => {
       try {
@@ -190,19 +189,18 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const rise = () =>
-    `transition-[opacity,translate,filter] duration-900 ease-[cubic-bezier(.2,.7,.1,1)] motion-reduce:transition-none ${
-      landed ? 'opacity-100 translate-y-0 blur-0' : 'opacity-0 translate-y-4 blur-[5px]'
-    }`;
-  const delay = (step: number) => ({ transitionDelay: landed ? `${step * 120}ms` : '0ms' });
+  // A short rise from the first paint, in CSS only: never waits for the video or for JavaScript.
+  const rise = () => 'motion-safe:animate-rise';
+  const delay = (step: number) => ({ animationDelay: `${150 + step * 120}ms` });
 
   return (
     <div ref={rootRef} className="@container relative isolate flex flex-col [overflow-x:clip]">
       <header
         ref={heroRef}
-        className={`relative ${wide ? 'h-[100svh] min-h-[620px]' : 'px-4 pb-6 pt-[var(--stage-h,330px)]'}`}
+        className={`relative ${wide ? 'h-[100svh] min-h-[620px]' : 'px-4 pb-6 pt-[var(--stage-h,calc(64px+64.1cqw))]'}`}
       >
-        {/* The video, exactly as generated. Its top and bottom edges are plain sky, faded into the page. */}
+        {/* The video, exactly as generated. Its top and bottom edges are plain sky, faded into the page.
+            The classes place it for a phone before JavaScript runs (same numbers as the layout effect above). */}
         <video
           ref={videoRef}
           src={VIDEO}
@@ -210,14 +208,13 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
           playsInline
           preload="auto"
           aria-label={HOME_HERO.birdAlt}
-          className="pointer-events-none absolute z-[1] max-w-none [mask-image:linear-gradient(180deg,transparent_0,#000_9%,#000_84%,transparent_100%)]"
+          className="pointer-events-none absolute top-[calc(64px-25.65cqw)] left-[-45cqw] z-[1] h-[106.875cqw] w-[190cqw] max-w-none [mask-image:linear-gradient(180deg,transparent_0,#000_9%,#000_84%,transparent_100%)]"
         />
 
         <div
           className={`absolute inset-x-0 top-0 z-[3] flex items-center justify-between gap-3 ${wide ? 'px-8 pt-5' : 'px-4 pt-3'}`}
         >
           <h1 className={wide ? 'w-[250px]' : 'w-[170px]'}>
-            <span className="sr-only">SeeSpeak AI</span>
             <Wordmark />
           </h1>
           <p className="flex max-w-[160px] items-center gap-1.5 text-right text-[13px] leading-tight font-bold text-accent-edge @3xl:max-w-none">
@@ -237,12 +234,12 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
             {HOME_HERO.lede}
           </p>
           <div className={`mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 ${rise()}`} style={delay(2)}>
-            {/* Raised edge under the button; pressing sinks it onto the edge, plus a short buzz on Android. */}
+            {/* Flat like every other button, in the kingfisher orange token. A tap shrinks it, plus a short buzz on Android. */}
             <button
               type="button"
               onPointerDown={buzz}
               onClick={goTry}
-              className="inline-flex min-h-14 items-center gap-3 rounded-full bg-[linear-gradient(180deg,#f6a25f_0%,#ec7a2d_100%)] py-2.5 pr-2.5 pl-6 text-[18px] font-extrabold text-[#1b0f06] shadow-[0_5px_0_#b9561a,0_10px_18px_-8px_rgba(185,86,26,.55)] transition-[translate,box-shadow,filter] duration-75 hover:brightness-105 active:translate-y-1 active:shadow-[0_1px_0_#b9561a,0_3px_8px_-6px_rgba(185,86,26,.5)]"
+              className="inline-flex min-h-14 items-center gap-3 rounded-full bg-violet py-2.5 pr-2.5 pl-6 text-[18px] font-extrabold text-violet-ink transition-[transform,filter] duration-75 select-none hover:brightness-95 active:scale-[0.98] active:brightness-90"
             >
               {TRY_IT.button}
               <span
@@ -255,7 +252,7 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
             <Link
               href="/therapist"
               onPointerDown={buzz}
-              className="text-[17px] font-bold text-foreground underline decoration-2 underline-offset-[6px]"
+              className="inline-flex min-h-12 items-center text-[17px] font-bold text-foreground underline decoration-2 underline-offset-[6px]"
             >
               {THERAPIST.moreLink} <span aria-hidden="true">↗</span>
             </Link>
@@ -269,6 +266,7 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
         <img
           src="/home/branch.png"
           alt=""
+          aria-hidden="true"
           className="absolute top-1/2 left-1/2 w-[120%] max-w-none -translate-x-1/2 -translate-y-1/2 -scale-x-100 rotate-3 @5xl:w-[105%]"
         />
       </div>

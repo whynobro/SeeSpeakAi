@@ -1,4 +1,5 @@
 import { CheckCircleIcon, EarIcon, EyeIcon, SpeakIcon } from '@/components/Icons';
+import { SECTION_TITLE } from '@/components/PageHeader';
 import { Card, IconTile } from '@/components/ui';
 import { LANDING } from '@/content/landing';
 
@@ -13,7 +14,7 @@ export function LandingSections() {
   return (
     <>
       <section aria-labelledby="who-heading" className="flex flex-col gap-4">
-        <h2 id="who-heading" className="text-xl font-bold">
+        <h2 id="who-heading" className={SECTION_TITLE}>
           {LANDING.whoTitle}
         </h2>
         <ul className="flex flex-col gap-3">
@@ -35,7 +36,7 @@ export function LandingSections() {
       </section>
 
       <Card as="section" tone="accent" aria-labelledby="privacy-heading" className="flex flex-col gap-3">
-        <h2 id="privacy-heading" className="text-xl font-bold">
+        <h2 id="privacy-heading" className={SECTION_TITLE}>
           {LANDING.privacyTitle}
         </h2>
         <ul className="flex flex-col gap-2">
@@ -49,7 +50,7 @@ export function LandingSections() {
       </Card>
 
       <section aria-labelledby="pro-heading" className="flex flex-col gap-3">
-        <h2 id="pro-heading" className="text-xl font-bold">
+        <h2 id="pro-heading" className={SECTION_TITLE}>
           {LANDING.proTitle}
         </h2>
         <ul className="flex flex-col gap-2">
@@ -63,11 +64,11 @@ export function LandingSections() {
       </section>
 
       <section aria-labelledby="faq-heading" className="flex flex-col gap-3">
-        <h2 id="faq-heading" className="text-xl font-bold">
+        <h2 id="faq-heading" className={SECTION_TITLE}>
           {LANDING.faqTitle}
         </h2>
         {LANDING.faq.map(({ q, a }) => (
-          <details key={q} className="group rounded-2xl border border-line bg-surface">
+          <details key={q} className="group rounded-xl border border-line bg-surface">
             <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 text-lg font-bold">
               {q}
               <span aria-hidden="true" className="text-2xl text-accent-edge group-open:rotate-45">

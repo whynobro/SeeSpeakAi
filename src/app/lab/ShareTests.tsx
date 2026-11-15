@@ -114,7 +114,7 @@ export function ShareTests({
 
   return (
     <section className="flex flex-col gap-3 rounded-xl border-2 border-current p-3">
-      <p className="font-bold">Test tries on this page are saved for the SeeSpeak team.</p>
+      <p className="font-bold">Test tries on this page are saved for the See Speak AI team.</p>
       <p className="text-sm">
         Each time you press Stop, the numbers from that try (loudness, pitch and the result) are saved so we
         can make the scoring better. They are copied to our public project page on GitHub. Your voice is never

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { PageHeader, Screen } from '@/components/PageHeader';
 import { PlanView } from '@/components/PlanView';
 import { clearPending, loadPending, loadPlan, savePlan } from '@/components/planStore';
 import { Button, Card } from '@/components/ui';
@@ -54,21 +55,21 @@ export default function PlanPage() {
   }, []);
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6 pb-10">
-      <h1 className="text-[28px] leading-tight font-extrabold tracking-tight">Your practice plan</h1>
+    <Screen>
+      <PageHeader title="Your practice plan" />
 
       {plan === undefined && (
         <div aria-hidden="true" className="flex flex-col gap-4">
-          <div className="h-28 rounded-3xl bg-line motion-safe:animate-pulse" />
-          <div className="h-64 rounded-3xl bg-line/70 motion-safe:animate-pulse" />
+          <div className="h-28 rounded-xl bg-line motion-safe:animate-pulse" />
+          <div className="h-64 rounded-xl bg-line/70 motion-safe:animate-pulse" />
         </div>
       )}
 
       {plan === null && (
         <Card className="flex flex-col gap-4">
           <p className="text-lg leading-relaxed">
-            No plan yet. Start with a hearing check, a speech check or a previous report, and SeeSpeak makes
-            one for you.
+            No plan yet. Start with a hearing check, a speech check or a previous report, and See Speak AI
+            makes one for you.
           </p>
           <Button href="/">Choose how to start</Button>
         </Card>
@@ -82,6 +83,6 @@ export default function PlanPage() {
           </Button>
         </>
       )}
-    </main>
+    </Screen>
   );
 }

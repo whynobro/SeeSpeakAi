@@ -59,9 +59,9 @@ Tailwind is v4 and React is 19. Check their docs when unsure.
 | `src/lib/override/` | Adult code, "an adult heard it right" overrides (not in progress)            | tech    |
 | `src/lib/lips/`     | Lip check, off by default: `summarizeLips`, `lipHint`, `useLipCamera`        | tech    |
 | `src/lib/feedback/` | Vibration patterns                                                           | tech    |
-| `src/lib/ai/`       | The brain: `buildPlan`, `buildFeedback` (server only), rule fallbacks        | tech    |
+| `src/lib/ai/`       | The brain: `buildPlan`, `buildFeedback`, `buildStuckHelp` (server), rules    | tech    |
 | `src/hooks/`        | `useSoundMeter` (listen), `useCoachFeedback` (the brain's sentence)          | tech    |
-| `src/app/api/`      | `POST /api/plan`, `POST /api/feedback`, `POST /api/practice-list`            | tech    |
+| `src/app/api/`      | `POST /api/plan`, `/api/feedback`, `/api/practice-list`, `/api/stuck-help`   | tech    |
 | `src/app/lab/`      | Debug page for tuning on real voices                                         | tech    |
 | `src/app/page.tsx`  | Landing page                                                                 | screens |
 | `src/app/profile/`  | Hearing profile (Ling Six check, settings)                                   | screens |

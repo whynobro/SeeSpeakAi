@@ -35,7 +35,7 @@ const TABS: Tab[] = [
 
 /**
  * The app's bottom tab bar (theme v2: always visible, 4 one-word tabs). The current tab shows a filled pill,
- * bold label and teal color, so it is never color alone. Not shown on the /lab tuning pages.
+ * bold label and blue color, so it is never color alone. Not shown on the /lab tuning pages.
  */
 export function TabBar() {
   const path = usePathname() ?? '/';

@@ -126,7 +126,7 @@ export default function LabPage() {
   return (
     <main className="mx-auto flex w-full max-w-xl flex-col gap-6 p-4">
       <p className="text-sm">Lab: for tuning. Audio stays on this device.</p>
-      <Link href="/lab/guided" className="text-lg font-bold underline">
+      <Link href="/lab/guided" className="inline-flex min-h-12 items-center text-lg font-bold underline">
         Quick guided test (hands-free, 28 steps)
       </Link>
 

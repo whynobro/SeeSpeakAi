@@ -5,7 +5,7 @@ import type { ComponentPropsWithoutRef, ElementType, HTMLAttributes, KeyboardEve
  * Shared building blocks. Every screen uses these so buttons and cards look and press the same.
  * Flat, per theme v2 (docs/design/theme-v2.md): 1 px borders, no bottom-edge shadows. A tap responds at once
  * with a slight shrink and a darker fill, so the press is still felt without the old "clay" edge.
- * Groups use hairline dividers (theme v2 step 4, after the ORYZO style reference). Buttons have 12 px corners.
+ * Groups use hairline dividers (theme v2 step 4, after the ORYZO style reference). Buttons, cards and lists all have 12 px corners.
  */
 
 export type ButtonVariant = 'primary' | 'secondary' | 'violet' | 'danger' | 'ghost';
@@ -74,7 +74,7 @@ const EDGE_HIGHLIGHT = 'border-2 border-accent';
 
 type CardTag = 'div' | 'section' | 'li' | 'article' | 'header' | 'footer';
 
-/** A white rounded card with a thin border. `highlight` gives it a thicker teal border. */
+/** A white rounded card with a thin border. `highlight` gives it a thicker blue border. */
 export function Card({
   as = 'div',
   tone = 'surface',
@@ -93,7 +93,7 @@ export function Card({
   return (
     <Tag
       {...rest}
-      className={`rounded-2xl p-5 ${highlight ? EDGE_HIGHLIGHT : EDGE_PLAIN} ${CARD_TONES[tone]} ${className}`.trim()}
+      className={`rounded-xl p-5 ${highlight ? EDGE_HIGHLIGHT : EDGE_PLAIN} ${CARD_TONES[tone]} ${className}`.trim()}
     >
       {children}
     </Tag>
@@ -178,7 +178,7 @@ export function GroupedList({
   return (
     <ul
       aria-label={label}
-      className={`overflow-hidden rounded-2xl border border-line bg-surface ${className}`.trim()}
+      className={`overflow-hidden rounded-xl border border-line bg-surface ${className}`.trim()}
     >
       {children}
     </ul>
@@ -216,7 +216,7 @@ export function Divider({ className = '' }: { className?: string }) {
 
 /**
  * A pill of choices where exactly one is picked (age, hearing devices). Works as a radio group: arrow keys
- * move the choice. The picked one gets a white fill, a teal border, bold text and a check icon, so the
+ * move the choice. The picked one gets a white fill, a blue border, bold text and a check icon, so the
  * choice never depends on color alone. Each segment is at least 48 px tall and long labels wrap.
  */
 export function SegmentedControl<T extends string>({

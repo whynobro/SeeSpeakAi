@@ -136,7 +136,7 @@ export default function LipLabPage() {
       </p>
 
       <section className="flex flex-col gap-3 rounded-xl border-2 border-current p-3">
-        <p className="font-bold">Lip captures on this page are saved for the SeeSpeak team.</p>
+        <p className="font-bold">Lip captures on this page are saved for the See Speak AI team.</p>
         <p className="text-sm">
           Each time you hold a sound, the lip shape numbers from those 2 seconds (how rounded, how pulled
           back, how open) and which sound you were holding are saved so we can tune the lip tips. They are

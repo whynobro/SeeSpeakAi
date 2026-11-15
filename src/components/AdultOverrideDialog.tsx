@@ -53,7 +53,7 @@ export function AdultOverrideDialog({
       ref={ref}
       onClose={onClose}
       aria-labelledby={`${id}-title`}
-      className="m-auto w-[calc(100%-2rem)] max-w-sm rounded-2xl border-2 border-accent bg-surface p-5 text-foreground backdrop:bg-foreground/50"
+      className="m-auto w-[calc(100%-2rem)] max-w-sm rounded-xl border-2 border-accent bg-surface p-5 text-foreground backdrop:bg-foreground/50"
     >
       <form onSubmit={submit} className="flex flex-col gap-3">
         <h2 id={`${id}-title`} className="text-[22px] leading-tight font-extrabold">

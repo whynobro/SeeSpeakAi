@@ -4,7 +4,7 @@ import { ChevronRightIcon, EarIcon, HeadphonesIcon, MicIcon, UploadIcon } from '
 
 /**
  * One check, as a panel in the grid: a one-color icon above the title and a short line. The whole panel is the
- * tap target. Small corners and no colored icon tiles (redesign, Nov 14).
+ * tap target. 12 px corners like every card, and no colored icon tiles (redesign, Nov 14).
  */
 export function ListRow({
   href,
@@ -21,7 +21,7 @@ export function ListRow({
     <li>
       <Link
         href={href}
-        className="group relative flex h-full min-h-36 flex-col items-start gap-2.5 rounded-md border border-line bg-surface p-[18px] transition-colors duration-150 hover:border-foreground/30 active:bg-accent-soft"
+        className="group relative flex h-full min-h-36 flex-col items-start gap-2.5 rounded-xl border border-line bg-surface p-[18px] transition-colors duration-150 hover:border-foreground/30 active:bg-accent-soft"
       >
         <span aria-hidden="true" className="flex h-7 w-7 items-center justify-center text-foreground">
           {icon}

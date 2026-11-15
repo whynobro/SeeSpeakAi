@@ -29,7 +29,7 @@ export const THERAPIST = {
   copied: 'Copied',
   copyFailed: 'Could not copy. Press and hold the link to copy it.',
   share: 'Share',
-  shareTitle: 'SeeSpeak home practice',
+  shareTitle: 'See Speak AI home practice',
   openAsLearner: 'Open it as the learner',
 } as const;
 
@@ -63,7 +63,7 @@ export const THERAPIST_SUMMARY = {
   copied: 'Copied',
   copyFailed: 'Could not copy. Press and hold the text to copy it.',
 
-  heading: (date: string) => `SeeSpeak practice summary${date ? `, ${date}` : ''}`,
+  heading: (date: string) => `See Speak AI practice summary${date ? `, ${date}` : ''}`,
   assigned: (sounds: string, level: string, days: string) =>
     `Set by the speech therapist: ${[sounds, `from ${level}`, days].filter(Boolean).join(', ')}`,
   daysPracticed: (n: number) => `Practiced on ${n} of the last 7 days`,
