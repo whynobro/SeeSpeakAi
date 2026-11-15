@@ -12,6 +12,7 @@ import { WordCard } from '@/components/WordCard';
 import { COPY } from '@/content/copy';
 import { CUES } from '@/content/cues';
 import { wordsFor } from '@/content/words';
+import { loadPlan } from '@/components/planStore';
 import { useSoundMeter } from '@/hooks/useSoundMeter';
 import { buzz } from '@/lib/feedback';
 import { LIMITATIONS, scoreAttempt } from '@/lib/scoring';
@@ -58,6 +59,9 @@ function PracticeLoop() {
   const searchParams = useSearchParams();
   const wanted = searchParams.get('sound');
   const target: TargetSound = isTargetSound(wanted) ? wanted : 's';
+  // Opened from a plan's start button: ?plan=<id>&step=<n>. Then the words come from that plan step.
+  const planId = searchParams.get('plan');
+  const stepIndex = Number(searchParams.get('step') ?? '-1');
 
   const meter = useSoundMeter();
   const [settings, setSettings] = useState<LearnerSettings | null>(null);
@@ -68,6 +72,17 @@ function PracticeLoop() {
   const [hits, setHits] = useState(0);
   const [tries, setTries] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [fromPlan, setFromPlan] = useState(false);
+
+  /** The plan step's words, in the plan's order, when this page was opened from that plan. Else the word bank. */
+  function pickWords(): { list: PracticeWord[]; planned: boolean } {
+    const plan = planId ? loadPlan() : null;
+    const step = plan && plan.id === planId ? plan.steps[stepIndex] : undefined;
+    const planned = step?.words.filter((w) => w.target === target) ?? [];
+    return planned.length > 0
+      ? { list: planned, planned: true }
+      : { list: wordsFor(target, WORD_COUNT), planned: false };
+  }
 
   // Storage and the word list are read in an effect, never during render.
   // The state is set in a microtask (not synchronously in the effect body) and ignored if the page left.
@@ -77,7 +92,9 @@ function PracticeLoop() {
       if (!active) return;
       setSettings(loadSettings());
       setProfile(loadProfile());
-      setWords(wordsFor(target, WORD_COUNT));
+      const picked = pickWords();
+      setWords(picked.list);
+      setFromPlan(picked.planned);
       setIndex(0);
       setScore(null);
       setHits(0);
@@ -87,7 +104,9 @@ function PracticeLoop() {
     return () => {
       active = false;
     };
-  }, [target]);
+    // pickWords reads only the URL values listed here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target, planId, stepIndex]);
 
   const cue = CUES[target];
   const word = words[index] ?? null;
@@ -125,7 +144,7 @@ function PracticeLoop() {
   }
 
   function onRestart() {
-    setWords(wordsFor(target, WORD_COUNT));
+    setWords(pickWords().list);
     setIndex(0);
     setScore(null);
     setHits(0);
@@ -195,6 +214,17 @@ function PracticeLoop() {
           <h1 className="text-xl font-extrabold tracking-tight">Practice the &apos;{target}&apos; sound</h1>
         </div>
         {words.length > 0 && <WordSteps index={Math.min(index, words.length - 1)} total={words.length} />}
+        {fromPlan && (
+          <p className="text-sm text-muted">
+            Words from your plan.{' '}
+            <Link
+              href="/plan"
+              className="inline-block py-2 font-bold text-accent-edge underline underline-offset-4"
+            >
+              Back to your plan
+            </Link>
+          </p>
+        )}
         {profile === null && settings !== null && (
           <p className="text-sm text-muted">
             No hearing check saved yet.{' '}

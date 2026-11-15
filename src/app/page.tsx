@@ -1,5 +1,6 @@
 import { COPY } from '@/content/copy';
 import { HomeStart } from '@/components/HomeStart';
+import { SavedPlanLink } from '@/components/SavedPlanLink';
 import { LogoTile } from '@/components/ui';
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
         </div>
         <p className="text-3xl leading-tight font-bold text-balance">{COPY.tagline}</p>
       </header>
+      <SavedPlanLink />
       <HomeStart />
       <footer className="flex flex-col gap-2 border-t-2 border-line pt-6 text-sm leading-relaxed text-muted">
         <p>{COPY.optIn}</p>
