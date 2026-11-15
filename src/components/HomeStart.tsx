@@ -6,10 +6,9 @@ import { pickTargets } from '@/lib/profile';
 import { loadAttempts, loadProfile, progressFor } from '@/lib/store';
 import type { Attempt, HearingProfile } from '@/lib/types';
 import { CheckList } from './CheckList';
-import { CheckCircleIcon, EyeIcon, MicIcon, SpeakIcon } from './Icons';
+import { CheckCircleIcon, EyeIcon, SpeakIcon } from './Icons';
 import { LessonCard } from './LessonCard';
 import { Button, IconTile } from './ui';
-import { VoiceLoop } from './VoiceLoop';
 import { loadPlan, savePlan } from './planStore';
 import { TRY_IT } from '@/content/tryIt';
 import { planFromRules } from '@/lib/ai/rulesPlan';
@@ -42,10 +41,10 @@ export function HowItWorks() {
   );
 }
 
-/** One tap into practice with "s" then "sh" words. No report and no check, and no network. */
-function TryItNow() {
+/** One tap into practice with "s" then "sh" words. No report and no check, and no network. Used by the home hero. */
+export function useTryItNow() {
   const router = useRouter();
-  function go() {
+  return function go() {
     let plan = loadPlan();
     if (!plan || !plan.steps.some((st) => st.scored && st.sound === 's')) {
       plan = planFromRules({
@@ -62,27 +61,15 @@ function TryItNow() {
     }
     const step = plan.steps.findIndex((st) => st.scored && st.sound === 's');
     router.push(`/practice?sound=s&plan=${encodeURIComponent(plan.id)}&step=${step}`);
-  }
-  // The voice loop picture above already shows the sound, so this block is just the line and the button.
-  // A hairline closes the block.
-  return (
-    <section aria-label={TRY_IT.button} className="flex flex-col gap-4 border-b border-line pb-6">
-      <p className="text-[17px] leading-snug font-semibold">{TRY_IT.detail}</p>
-      <Button size="lg" onClick={go}>
-        <MicIcon className="h-6 w-6" />
-        {TRY_IT.button}
-      </Button>
-    </section>
-  );
+  };
 }
 
 function FirstVisit() {
   return (
     <>
-      <VoiceLoop />
-      <TryItNow />
+      {/* "Try it now" lives in the kingfisher hero above. */}
       <section aria-labelledby="start-heading" className="flex flex-col gap-3">
-        <h2 id="start-heading" className="text-[20px] font-bold">
+        <h2 id="start-heading" className="text-[24px] font-extrabold tracking-tight">
           {TRY_IT.personalTitle}
         </h2>
         <p className="text-[15px] text-muted">It sets which sounds and words your practice starts with.</p>
