@@ -32,11 +32,10 @@ or that the app improves speech. None of those has a source.
 
 ## Footage and recordings (read first)
 
-- **Never put audio or video files in this repo.** It is public. Raw files go in the team's shared OneDrive
-  `Hackathon` folder. Only the finished video's link goes here.
-- **The Zoom call with the ASL Club president:** before any clip of her goes in the deck or the video, get her
-  OK in writing for that exact use (public video, judges, our site). Log it in `user-tests.md`. No OK, no clip:
-  quote her words on a slide without her name, only if she agrees to that.
+- **Never commit audio or video files to this repo.** Big media goes in a GitHub release (see
+  [user-call-nov14](https://github.com/whynobro/SeeSpeakAi/releases/tag/user-call-nov14)) or the team OneDrive.
+- **The Zoom call with Yuka (former Cal Poly ASL Club member):** she gave permission to record and use it. Notes
+  in `user-call-nov14.md`. Pull exact quotes from the recording, not from Zoom's summary.
 - **Demo recording:** a real person on a real phone, from the production link, screen recorded. Never a faked
   try. If a try misses on camera, keep it or retake it; never edit a miss into a hit.
 
