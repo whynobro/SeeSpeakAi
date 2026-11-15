@@ -45,3 +45,6 @@ next-env.d.ts
 scratchpad/
 scratch_local/
 data/
+
+# Local copy of the demo video for presenting the deck (videos live in releases)
+docs/pitch/deck/media/

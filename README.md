@@ -10,7 +10,7 @@ If you cannot hear high sounds like "s" and "sh", you cannot copy them. So "cats
 
 Production: https://seespeak.vercel.app (follows `main`). The tuning page is https://seespeak.vercel.app/lab.
 
-Demo video (1:59): https://github.com/whynobro/SeeSpeakAi/releases/tag/demo-video (direct file: [seespeak-demo.mp4](https://github.com/whynobro/SeeSpeakAi/releases/download/demo-video/seespeak-demo.mp4)). Video files live in releases, never in the repo.
+Demo video (2:13): https://github.com/whynobro/SeeSpeakAi/releases/tag/demo-video (direct file: [seespeak-demo.mp4](https://github.com/whynobro/SeeSpeakAi/releases/download/demo-video/seespeak-demo.mp4)). Video files live in releases, never in the repo.
 
 Pitch deck (PDF, 7 slides): https://github.com/whynobro/SeeSpeakAi/releases/tag/pitch-deck (direct file: [seespeak-pitch.pdf](https://github.com/whynobro/SeeSpeakAi/releases/download/pitch-deck/seespeak-pitch.pdf)).
 
