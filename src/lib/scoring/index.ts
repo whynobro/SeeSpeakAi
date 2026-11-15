@@ -11,6 +11,8 @@ import {
   CONFIDENCE_FULL_HISS_MS,
   HISS_RATIO_MIN,
   HISS_REL_LEVEL,
+  IOS_HISS_REL_LEVEL,
+  IOS_S_CENTROID_HZ,
   LISP_FLATNESS_MIN,
   LISP_HISS_TO_VOWEL_MAX,
   LISP_METER_POSITION,
@@ -59,9 +61,24 @@ function clamp01(x: number): number {
 }
 
 /** Map a centroid in Hz to the meter: 0 is "sh", 1 is "s", straight line between the two anchors. */
+/**
+ * Which microphone the numbers are tuned for. 'default' is every laptop and Android phone, and changes nothing.
+ * 'ios' (iPhone and iPad, set by startMic) uses IOS_S_CENTROID_HZ and IOS_HISS_REL_LEVEL, measured on an iPhone.
+ */
+export type MicProfile = 'default' | 'ios';
+let micProfile: MicProfile = 'default';
+export function setMicProfile(profile: MicProfile): void {
+  micProfile = profile;
+}
+export function getMicProfile(): MicProfile {
+  return micProfile;
+}
+const sAnchorHz = () => (micProfile === 'ios' ? IOS_S_CENTROID_HZ : S_CENTROID_HZ);
+const hissRelLevel = () => (micProfile === 'ios' ? IOS_HISS_REL_LEVEL : HISS_REL_LEVEL);
+
 export function positionFromCentroid(centroidHz: number | null): number | null {
   if (centroidHz === null) return null;
-  return clamp01((centroidHz - SH_CENTROID_HZ) / (S_CENTROID_HZ - SH_CENTROID_HZ));
+  return clamp01((centroidHz - SH_CENTROID_HZ) / (sAnchorHz() - SH_CENTROID_HZ));
 }
 
 /**
@@ -69,7 +86,7 @@ export function positionFromCentroid(centroidHz: number | null): number | null {
  * and loud enough next to `peakLevel` (the loudest frame of the recording, or so far while live).
  */
 export function isHissFrame(frame: FrameFeatures, peakLevel: number, hissRatioMin = HISS_RATIO_MIN): boolean {
-  const floor = Math.max(SILENCE_LEVEL, HISS_REL_LEVEL * peakLevel);
+  const floor = Math.max(SILENCE_LEVEL, hissRelLevel() * peakLevel);
   return frame.level >= floor && frame.hissRatio >= hissRatioMin;
 }
 

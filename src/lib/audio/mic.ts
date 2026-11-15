@@ -1,5 +1,6 @@
 import { FFT_SIZE, featuresFromFrame } from '@/lib/audio/features';
 import type { FrameFeatures } from '@/lib/types';
+import { setMicProfile } from '@/lib/scoring';
 
 export interface MicHandle {
   sampleRate: number;
@@ -38,6 +39,12 @@ export async function startMic(onFrame: (frame: FrameFeatures) => void): Promise
       'This browser cannot use the microphone here. Open the app over HTTPS (or localhost) in a current browser.',
     );
   }
+
+  // iPhone and iPad mics hear the hiss lower and softer than a laptop does: score with their own numbers.
+  // iPadOS reports itself as a Mac, so a Mac with a touch screen counts too.
+  const ua = navigator.userAgent;
+  const isIos = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  setMicProfile(isIos ? 'ios' : 'default');
 
   let stream: MediaStream;
   try {
