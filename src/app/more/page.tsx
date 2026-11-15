@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { AdultCodeCard } from '@/components/AdultCodeCard';
 import { BirdSwitch } from '@/components/bird/BirdSwitch';
 import { DingSwitch } from '@/components/DingSwitch';
 import { HowItWorks } from '@/components/HomeStart';
@@ -43,6 +44,7 @@ export default function MorePage() {
       </Link>
       <HowItWorks />
       <LandingSections />
+      <AdultCodeCard />
       <section aria-labelledby="settings-title" className="flex flex-col gap-2">
         <h2 id="settings-title" className="text-[20px] leading-snug font-bold">
           Settings

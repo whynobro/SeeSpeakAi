@@ -56,6 +56,7 @@ Tailwind is v4 and React is 19. Check their docs when unsure.
 | `src/lib/store/`    | On-device storage and `progressFor`                                          | tech    |
 | `src/lib/testlog/`  | Opt-in shared test log (`/lab` switch), sends try numbers to `/api/attempts` | tech    |
 | `src/lib/levels/`   | Levels 1 to 4 (alone, start, end, phrase), items, pass rule, unlocks         | tech    |
+| `src/lib/override/` | Adult code, "an adult heard it right" overrides (not in progress)            | tech    |
 | `src/lib/lips/`     | Lip check, off by default: `summarizeLips`, `lipHint`, `useLipCamera`        | tech    |
 | `src/lib/feedback/` | Vibration patterns                                                           | tech    |
 | `src/lib/ai/`       | The brain: `buildPlan`, `buildFeedback` (server only), rule fallbacks        | tech    |

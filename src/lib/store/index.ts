@@ -1,4 +1,4 @@
-import { normalizeLevelResult, type LevelResults } from '@/lib/levels';
+import { normalizeLevelResult, type LevelId, type LevelResults, type Tier } from '@/lib/levels';
 import { isTargetSound } from '@/lib/scoring/constants';
 import { sharePracticeAttempt } from '@/lib/testlog';
 import type {
@@ -23,6 +23,10 @@ const KEYS = {
   wallet: 'seespeak.wallet',
   /** Best result per sound and level. Shape in src/lib/levels. */
   levels: 'seespeak.levels',
+  /** The adult code, stored as a hash. Read and written by src/lib/override. */
+  adultCode: 'seespeak.adult-code',
+  /** Tries an adult marked right. Written by src/lib/override. Never read by progressFor. */
+  overrides: 'seespeak.overrides',
 } as const;
 
 const DEFAULT_SETTINGS: LearnerSettings = {
@@ -153,6 +157,57 @@ export function loadLevelResults(): LevelResults {
 
 export function saveLevelResults(results: LevelResults): void {
   writeJson(KEYS.levels, results);
+}
+
+/** One try an adult marked right. It sits beside the saved tries and never changes them. */
+export interface AdultOverride {
+  wordId: string;
+  target: TargetSound;
+  level?: LevelId;
+  tier?: Tier;
+  /** ISO time of the tap. */
+  at: string;
+}
+
+const MAX_OVERRIDES = 500;
+
+/** The saved adult code hash, or null when no code is set. */
+export function loadAdultCodeHash(): string | null {
+  const v = readJson(KEYS.adultCode);
+  return typeof v === 'string' && v !== '' ? v : null;
+}
+
+export function saveAdultCodeHash(hash: string): void {
+  writeJson(KEYS.adultCode, hash);
+}
+
+export function clearAdultCodeHash(): void {
+  try {
+    if (typeof localStorage === 'undefined') return;
+    localStorage.removeItem(KEYS.adultCode);
+  } catch {
+    // Nothing to clear when storage is blocked.
+  }
+}
+
+/** Saved overrides, oldest first. Anything that is not a valid override is dropped. */
+export function loadAdultOverrides(): AdultOverride[] {
+  const v = readJson(KEYS.overrides);
+  if (!Array.isArray(v)) return [];
+  const out: AdultOverride[] = [];
+  for (const o of v) {
+    if (!isRecord(o) || typeof o.wordId !== 'string' || typeof o.at !== 'string' || !isTargetSound(o.target))
+      continue;
+    const item: AdultOverride = { wordId: o.wordId, target: o.target, at: o.at };
+    if (typeof o.level === 'string') item.level = o.level as LevelId;
+    if (typeof o.tier === 'string') item.tier = o.tier as Tier;
+    out.push(item);
+  }
+  return out;
+}
+
+export function saveAdultOverride(o: AdultOverride): void {
+  writeJson(KEYS.overrides, [...loadAdultOverrides(), o].slice(-MAX_OVERRIDES));
 }
 
 export function clearAll(): void {
