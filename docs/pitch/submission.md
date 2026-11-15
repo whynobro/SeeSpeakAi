@@ -27,6 +27,7 @@ Check every line against what is live before pasting. Sources: `docs/HACKATHON.m
 3. **Short description** (below)
 4. **AI tools used** (below)
 5. **Challenge pick** (below). A challenge entry also needs a **demo video under 2 minutes**.
+6. **Demo video:** https://github.com/whynobro/SeeSpeakAi/releases/tag/demo-video (1:59, no music).
 
 [check with Michael: were the Saturday 2 PM project link and the Saturday 8 PM "Sunday commit" form sent? The
 guide says no Sunday commit means no judging slot. The repo has no record of either.]
