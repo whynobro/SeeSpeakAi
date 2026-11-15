@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { featuresFromSamples } from '@/lib/audio/features';
 import { scoreAttempt } from '@/lib/scoring';
 import { concat, hiss, silence, vowel } from '@/lib/scoring/synth';
-import { buildEntry, isLabSharing, isSharing, packFrames, sharePracticeAttempt } from '@/lib/testlog';
+import {
+  buildEntry,
+  buildLipEntry,
+  isLabSharing,
+  isSharing,
+  packFrames,
+  sharePracticeAttempt,
+} from '@/lib/testlog';
 import type { PracticeWord } from '@/lib/types';
 
 const SR = 48000;
@@ -59,5 +66,36 @@ describe('test log', () => {
     expect(entry.device.length).toBe(200);
     expect(JSON.stringify(entry).length).toBeLessThan(120_000);
     expect(Object.keys(entry)).not.toContain('audio');
+  });
+});
+
+describe('lip capture entry', () => {
+  it('holds the sound and the lip numbers, and nothing else that could be a picture', () => {
+    const summary = {
+      frames: 30,
+      faceSeenShare: 1,
+      rounded: 0.1,
+      spread: 0.4,
+      jawOpen: 0.05,
+      roundedEnd: 0.2,
+      spreadEnd: 0.4,
+      shape: 'spread' as const,
+      shapeEnd: 'spread' as const,
+    };
+    const entry = buildLipEntry({
+      sound: 's',
+      summary,
+      tester: 'abc12345',
+      label: 'MF',
+      device: 'x'.repeat(500),
+      at: '2026-11-14T00:00:00.000Z',
+      attemptId: 'l1',
+    });
+    expect(entry.kind).toBe('lips');
+    expect(entry.sound).toBe('s');
+    expect(entry.device.length).toBe(200);
+    expect(Object.keys(entry).sort()).toEqual(
+      ['at', 'attemptId', 'device', 'kind', 'label', 'page', 'sound', 'summary', 'tester', 'v'].sort(),
+    );
   });
 });

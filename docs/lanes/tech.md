@@ -59,6 +59,11 @@ Read [docs/PLAN.md](../PLAN.md) first: report -> curated plan -> training -> fee
 
 **Lane done when:** a real word said into a phone on the production URL gives a correct verdict, saved and shown in progress.
 
+## Lip camera (optional, off by default)
+
+- `src/lib/lips/` measures, `useLipCamera` (practice) and `useLipTracker` (lab) run the camera, `FeedbackRequest.lips` carries only `LipSummary` numbers. A lip tip never changes a verdict.
+- Cutoffs (`SPREAD_LEAN`, `ROUNDED_LEAN`, `MIN_ROUNDED` in `features.ts`) come from one face. Capture more faces on `/lab/lips` (it saves each capture) and re-tune. Set `LIP_TIPS_ENABLED` to false to switch the tips off and keep the rest.
+
 ## Files you own / files to leave alone
 
 Own: `src/lib/`, `src/hooks/`, `src/app/api/`, `src/app/lab/`.
