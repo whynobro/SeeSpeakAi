@@ -120,6 +120,7 @@ Read what the AI changed before you push. You are responsible for it.
 - The microphone only works over HTTPS or on `localhost`. On a phone, use the Vercel preview link of your pull request, not your laptop's address.
 - Vibration works on Android phones only. iPhones have no vibration for web pages. Demo on an Android phone if we can get one. Every vibration also shows on screen.
 - `/lab` is the tuning page. It shows the raw numbers behind the meter. Use it to test a new voice before trusting a score.
+- Everyone can run `/lab/guided` on a phone to add test data. It is a hands-free checklist of 24 words and takes a few minutes.
 - Test in a quiet spot first, then in a noisy one. The demo room will be noisy.
 
 ## Test tries are saved for the team (so the scoring can be tuned)

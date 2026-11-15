@@ -18,6 +18,7 @@ A real person says a word into a phone and gets a verdict they can trust: the ta
 - `src/lib/ai/practiceList.ts` and `POST /api/practice-list`: return the built-in word bank for now.
 - `src/hooks/useSoundMeter.ts`: start, stop, live reading, captured frames.
 - `/lab`: live numbers behind the meter, and "score as" for a captured recording.
+- `/lab/guided`: hands-free 24-step test script (`script.ts`). Listens, stops itself (`src/lib/audio/autoStop.ts`), scores, saves with the answer pre-filled, then moves on. Log entries have `page: "guided"`.
 
 ## The plan
 

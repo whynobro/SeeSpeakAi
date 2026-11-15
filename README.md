@@ -1,3 +1,5 @@
+<img src="public/brand/seespeak-logo.png" alt="SeeSpeak logo: a teal bird singing" width="480">
+
 # SeeSpeak
 
 Practice the speech sounds your ears miss.
@@ -62,7 +64,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open http://localhost:3000. The tuning page is at `/lab`.
+Open http://localhost:3000. The tuning page is at `/lab`. `/lab/guided` is a hands-free 24-step test script that saves numbers to the shared test log.
 
 The phone microphone only works over HTTPS. So to try it on a phone, open the Vercel preview link of your pull request, not your laptop's address.
 

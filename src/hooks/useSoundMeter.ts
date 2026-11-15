@@ -34,6 +34,8 @@ export function useSoundMeter(): SoundMeterState {
   const micRef = useRef<MicHandle | null>(null);
   const framesRef = useRef<FrameFeatures[]>([]);
   const lastUiRef = useRef(0);
+  // Loudest level so far in this try: the meter judges hiss relative to it, the same way the verdict does.
+  const peakRef = useRef(0);
   // Bumped on every start and stop, so a slow start that finishes after a stop is shut down again.
   const runRef = useRef(0);
 
@@ -42,6 +44,7 @@ export function useSoundMeter(): SoundMeterState {
     const run = ++runRef.current;
     framesRef.current = [];
     lastUiRef.current = 0;
+    peakRef.current = 0;
     setError(null);
     setReading(null);
     setLatest(null);
@@ -50,10 +53,11 @@ export function useSoundMeter(): SoundMeterState {
       const mic = await startMic((frame) => {
         if (run !== runRef.current) return;
         framesRef.current.push(frame);
+        peakRef.current = Math.max(peakRef.current, frame.level);
         if (frame.tMs - lastUiRef.current >= UI_INTERVAL_MS) {
           lastUiRef.current = frame.tMs;
           setLatest(frame);
-          setReading(readFrame(frame));
+          setReading(readFrame(frame, peakRef.current));
         }
       });
       if (run !== runRef.current) {

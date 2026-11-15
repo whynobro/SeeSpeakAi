@@ -13,7 +13,7 @@ The learner brings a speech therapist report and an audiogram (or the app checks
 - **Privacy.** Audio and video never leave the device. Claude receives only: the report text with names removed, the audiogram numbers, age group, interests, score numbers and lip numbers (`LipSummary`). The screen says what will be sent before it is sent, and it is sent once.
 - **The phone measures, Claude explains.** Claude never decides a verdict. Only "s", "sh", "z" and "ch" are scored. Any other sound in a report shows "show how, no score".
 - **No made-up users or data.** The report and audiogram typed in during the demo must be real, from a person who agreed, with names removed. If we have none by Sunday 9 AM, the demo uses the "check me in the app" route with the presenter's own real results. Never type a made-up report and present it as a person.
-- **Age changes how it explains, not what it trains.** Same sounds, same scoring, same words for every age. Only the wording of the plan, the coach sentence and the look change.
+- **Age changes how it explains, not what it trains.** Same sounds, same scoring and same practice words for every age. The speaking and listening checks use harder words for teens and adults (agreed by Michael, Nov 14). Otherwise only the wording of the plan, the coach sentence and the look change.
 - **It works with no key.** If Claude fails, the built-in rules answer (`source: 'rules'`) and the demo goes on.
 
 ## Who the demo user is (proposal, Holly decides)

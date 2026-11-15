@@ -10,14 +10,16 @@
 /** A frame counts as hiss when at least this share of its energy is above 2 kHz. Vowels sit near 0. */
 export const HISS_RATIO_MIN = 0.6;
 
-/** Live meter only: the frame must be at least this loud (0 to 1) to count as hiss. Rejects silence. */
-export const LIVE_MIN_LEVEL = 0.004;
-
 /** Scoring: below this level the whole recording is treated as silence (absolute floor, not gain tuned). */
 export const SILENCE_LEVEL = 0.001;
 
-/** Scoring: warn "too quiet" when even the loudest frame is below this level. */
-export const TOO_QUIET_LEVEL = 0.02;
+/**
+ * Scoring: warn "too quiet" when even the loudest frame is below this level. Only a warning: the verdict
+ * uses levels relative to the loudest frame. Was 0.02, which warned on normal speech: Michael's Windows
+ * laptop mic at normal distance peaks at 0.015 to 0.05 with room noise near 0.001 (9 logged tries,
+ * test log, 2026-11-14), and those quiet tries still scored on relative levels.
+ */
+export const TOO_QUIET_LEVEL = 0.01;
 
 /** Scoring: a hiss frame must be at least this fraction of the loudest frame's level. */
 export const HISS_REL_LEVEL = 0.05;
@@ -61,18 +63,35 @@ export const MIN_SUSTAINED_MS = 60;
 export const MAX_GAP_FRAMES = 1;
 
 /**
- * Centroid (energy-weighted mean frequency, Hz) that maps to meter position 0 ("sh").
- * Source: Ling Six Sound literature puts "sh" energy at 2 to 4 kHz.
+ * Placement: a vowel must start within this many ms after a "start" hiss, or end within this many ms
+ * before an "end" hiss. Judging by the nearest vowel (not the first or last voiced frame of the whole
+ * recording) keeps the click of the Start or Stop button on a laptop from pushing every hiss out of place.
+ * Measured: in 3 logged "ship" tries (Windows laptop, 2026-11-14) the vowel began 20 to 40 ms after the
+ * "sh". 250 also covers the closure and "t" release between vowel and "s" in "cats".
  */
-export const SH_CENTROID_HZ = 3500;
+export const MAX_VOWEL_GAP_MS = 250;
+
+/**
+ * Centroid (energy-weighted mean frequency, Hz) that maps to meter position 0 ("sh").
+ * Measured, 2026-11-14, shared test log, Michael (adult man), Windows laptop mic, Chrome: a held "sh"
+ * he marked as said with the sound (1 try, 5 hiss runs) had run means 3240 to 3670 Hz, median 3440.
+ * Was 3500 (Ling Six: "sh" energy at 2 to 4 kHz), so the measurement agrees with the literature.
+ * Note: "sh" inside a word reads higher. His "sh" in "ship" (3 practice tries) read 4430 to 5810 Hz,
+ * median about 5170, because the lips spread for the vowel.
+ */
+export const SH_CENTROID_HZ = 3400;
 
 /**
  * Centroid (Hz) that maps to meter position 1 ("s").
- * Source: Ling Six puts "s" at 4 to 8 kHz; Jongman, Wayland and Wong (2000) put /s/ peaks near 6 to 8 kHz.
+ * Measured, same source: a held "s" marked as said with the sound (1 try, 3 runs) had run means 7220
+ * to 7540 Hz, median 7360. "s" in words read 5990 to 7600 (2 practice "cats" tries). Was 6500 (Ling
+ * Six: 4 to 8 kHz; Jongman, Wayland and Wong 2000: /s/ peaks near 6 to 8 kHz). With 3500 and 6500 the
+ * "s"/"sh" line sat at 5000 Hz, right on his in-word "sh", so "ship" read as "s". Now it sits at 5400.
+ * One speaker on one mic: re-measure with more voices (a lower "s" would now read "sh" sooner).
  */
-export const S_CENTROID_HZ = 6500;
+export const S_CENTROID_HZ = 7400;
 
-/** Meter position at or above this reads as "s", below as "sh". */
+/** Meter position at or above this reads as "s", below as "sh". With the anchors above: 5400 Hz. */
 export const BOUNDARY = 0.5;
 
 /** Confidence: distance from the boundary that already counts as fully sure. */

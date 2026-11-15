@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 import type { MeterStatus } from '@/hooks/useSoundMeter';
-import { BASE_HISS } from '@/lib/scoring/constants';
+import { BASE_HISS, BOUNDARY } from '@/lib/scoring/constants';
 import type { SoundReading, TargetSound } from '@/lib/types';
 
-/** Matches BOUNDARY in src/lib/scoring: at or above this the hiss reads as "s", below as "sh". */
-const BOUNDARY = 0.5;
 /** How many recent hiss positions to keep as a fading trail (readings arrive about 20 per second). */
 const TRAIL_LENGTH = 24;
 /** How many recent loudness values to draw as bars. */

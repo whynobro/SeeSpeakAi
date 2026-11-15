@@ -1,7 +1,6 @@
 import { COPY } from '@/content/copy';
 import { HomeStart } from '@/components/HomeStart';
 import { LandingSections } from '@/components/LandingSections';
-import { RisingText } from '@/components/RisingText';
 import { LogoTile } from '@/components/ui';
 import { LANDING } from '@/content/landing';
 
@@ -29,16 +28,14 @@ export default function Home() {
   return (
     <main className="mx-auto flex w-full max-w-md flex-col gap-8 px-4 pt-8 pb-10">
       <header className="flex flex-col gap-5">
-        <div className="flex items-center gap-3 motion-safe:animate-rise">
+        <div className="flex items-center gap-3">
           <LogoTile size={48} />
           <h1 className="text-3xl font-extrabold tracking-tight">
             See<span className="text-accent-edge">Speak</span>
           </h1>
         </div>
-        <p className="text-3xl leading-tight font-bold text-balance">
-          <RisingText text={COPY.tagline} delayMs={150} />
-        </p>
-        <p className="flex items-center gap-2 text-lg font-bold text-accent-edge motion-safe:animate-rise">
+        <p className="text-3xl leading-tight font-bold text-balance">{COPY.tagline}</p>
+        <p className="flex items-center gap-2 text-lg font-bold text-accent-edge">
           <LockIcon />
           {LANDING.privacyTitle}
         </p>
