@@ -2,6 +2,7 @@
 
 import { type ReactNode, useEffect, useState } from 'react';
 import { LaptopIcon, PhoneIcon } from './Icons';
+import { StartOver } from './StartOver';
 
 type ViewMode = 'phone' | 'laptop';
 
@@ -75,6 +76,7 @@ export function ViewModeFrame({ children }: { children: ReactNode }) {
             : 'flex flex-1 flex-col md:[&_main]:max-w-3xl md:[&_main]:px-8 md:[&_main]:pt-20'
         }
       >
+        <StartOver />
         {children}
       </div>
     </div>

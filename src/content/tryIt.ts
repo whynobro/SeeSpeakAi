@@ -26,3 +26,10 @@ export const EXAMPLE_REPORT = {
   ageGroup: 'teen' as const,
   interests: 'soccer, cooking',
 } as const;
+
+export const START_OVER = {
+  button: 'Start over',
+  ask: 'Clear all practice on this device?',
+  yes: 'Yes',
+  cancel: 'Cancel',
+} as const;
