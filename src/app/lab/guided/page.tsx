@@ -275,6 +275,7 @@ export default function GuidedLabPage() {
                 verdict={current.score.verdict}
                 target={word.target}
                 heard={current.score.heard}
+                lisp={current.score.lisp ?? false}
               />
               <p className="text-xl font-bold">
                 {current.matched

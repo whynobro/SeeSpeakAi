@@ -62,6 +62,8 @@ export interface FrameFeatures {
   centroidHz: number | null; // "center of pitch" of the hiss band, null when there is no hiss
   /** Voicing, 0 to 1: energy under 500 Hz next to the hiss energy. About 0 for a plain hiss, higher with the voice on. Older saved frames lack it. */
   voicing?: number;
+  /** Spectral flatness of the 2 to 10 kHz band, 0 (one sharp peak) to about 0.56 (flat noise). A clear "s" is peaky, a lisp is flat. Older saved frames lack it. */
+  flatness?: number;
 }
 /** The shape of the hiss over one try, boiled down to a few numbers. Never audio. */
 export interface TraceSummary {
@@ -82,6 +84,8 @@ export interface SoundReading {
   /** 0 = clear "sh", 1 = clear "s". null while not hissing. */
   position: number | null;
   level: number; // 0 to 1, for a loudness bar
+  /** true when the hiss is weak and flat, like a lisp. `position` then sits just on the "sh" side of the middle. */
+  lisp?: boolean;
 }
 /** hit: target sound was there. close: a hiss was there but it was the other one. miss: no hiss where it belongs. */
 export type Verdict = 'hit' | 'close' | 'miss';
@@ -94,6 +98,8 @@ export interface AttemptScore {
   hissMs: number; // how long the hiss lasted
   confidence: number; // 0 to 1
   warnings: string[]; // plain English: "too quiet", "room too noisy", ...
+  /** true when an "s" or "z" hiss was in place but weak and flat, like a lisp. The verdict is then close. */
+  lisp?: boolean;
 }
 
 // ---------- Feedback and progress (steps 4 and 5) ----------

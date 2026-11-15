@@ -222,3 +222,32 @@ export function affricate(ms: number, sampleRate: number): Float32Array {
   for (let i = 0; i < shPart.length && start + i < out.length; i++) out[start + i] += shPart[i];
   return out;
 }
+
+/** A lisp is much weaker than a clear "s" next to the vowel: 0.1 of the vowel loudness (about -20 dB). */
+export const LISP_TO_VOWEL = 0.1;
+
+/**
+ * A lisped "s" (tongue between the teeth, a "th"-like hiss): flat noise spread evenly from 1.5 to 10 kHz,
+ * with no strong peak, at LISP_TO_VOWEL of the vowel loudness. Its centre still lands on the "s" side of
+ * the meter, which is why a plain "is it nearer s or sh" check scored it as a clear "s".
+ * `voiced` adds the buzz of the voice on top, for a lisped "z".
+ */
+export function lispHiss(ms: number, sampleRate: number, voiced = false): Float32Array {
+  const n = samplesFor(ms, sampleRate);
+  const high = Math.min(10000, sampleRate / 2 - 100);
+  const noise = finish(bandNoise(n, sampleRate, 1500, high, 61), VOWEL_RMS * LISP_TO_VOWEL, sampleRate);
+  if (!voiced) return noise;
+  const buzz = new Float32Array(n);
+  for (let k = 1; k <= 3; k++) {
+    for (let i = 0; i < n; i++) buzz[i] += (1 / k) * Math.sin((2 * Math.PI * 150 * k * i) / sampleRate);
+  }
+  const fade = Math.min(Math.floor(n / 2), samplesFor(FADE_MS, sampleRate));
+  const buzzGain = rms(buzz) > 0 ? (VOICED_BUZZ_TO_HISS * VOWEL_RMS * LISP_TO_VOWEL) / rms(buzz) : 0;
+  for (let i = 0; i < n; i++) {
+    let g = buzzGain;
+    if (i < fade) g *= i / fade;
+    else if (i >= n - fade) g *= (n - 1 - i) / fade;
+    noise[i] += buzz[i] * g;
+  }
+  return noise;
+}

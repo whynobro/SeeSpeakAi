@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { LISP_COPY } from '@/content/copy';
 import type { MeterStatus } from '@/hooks/useSoundMeter';
 import { BASE_HISS, BOUNDARY } from '@/lib/scoring/constants';
 import type { SoundReading, TargetSound } from '@/lib/types';
@@ -26,8 +27,14 @@ function soundsLike(position: number): string {
   return 'between sh and s';
 }
 
-function describe(position: number): string {
-  return `Hiss heard: ${soundsLike(position)}`;
+function describe(position: number, lisp = false): string {
+  return `Hiss heard: ${lisp ? LISP_COPY.meter : soundsLike(position)}`;
+}
+
+/** One dot of the trail. A lisp frame (weak, flat hiss) is drawn hollow, never in the "s" zone. */
+interface TrailDot {
+  p: number;
+  lisp: boolean;
 }
 
 export interface SoundMeterProps {
@@ -45,12 +52,13 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
   // The meter shows pitch only: "z" sits on the "s" side and "ch" on the "sh" side.
   const side = target ? BASE_HISS[target] : undefined;
   const position = reading?.hissing && reading.position !== null ? clamp01(reading.position) : null;
+  const lispNow = position !== null && reading?.lisp === true;
 
   // The trail and loudness history are kept from the `reading` prop. State is adjusted during render
   // when the prop changes (React's documented pattern), so there is no effect and no extra render pass.
   const [prevReading, setPrevReading] = useState<SoundReading | null>(reading);
   const [prevListening, setPrevListening] = useState(listening);
-  const [trail, setTrail] = useState<number[]>([]);
+  const [trail, setTrail] = useState<TrailDot[]>([]);
   const [levels, setLevels] = useState<number[]>([]);
 
   if (listening !== prevListening) {
@@ -66,8 +74,8 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
       const lvl = displayLevel(reading.level);
       setLevels((old) => [...old.slice(-(LEVEL_BARS - 1)), lvl]);
       if (reading.hissing && reading.position !== null) {
-        const p = clamp01(reading.position);
-        setTrail((old) => [...old.slice(-(TRAIL_LENGTH - 1)), p]);
+        const dot = { p: clamp01(reading.position), lisp: reading.lisp === true };
+        setTrail((old) => [...old.slice(-(TRAIL_LENGTH - 1)), dot]);
       }
     }
   }
@@ -79,7 +87,8 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
   let stateLine: string;
   if (status === 'starting') stateLine = 'Starting the microphone...';
   else if (status === 'error') stateLine = 'The microphone is off.';
-  else if (listening) stateLine = position === null ? 'Listening... say the word' : describe(position);
+  else if (listening)
+    stateLine = position === null ? 'Listening... say the word' : describe(position, lispNow);
   else if (result)
     stateLine = landed === null ? 'No hiss found this try' : `Your hiss landed here: ${soundsLike(landed)}`;
   else stateLine = 'Tap Start, then say the word.';
@@ -132,12 +141,12 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
           )}
 
           {/* Fading trail: where the marker has been during this try. Older dots are smaller and fainter. */}
-          {trail.map((p, i) => {
+          {trail.map(({ p, lisp }, i) => {
             const age = (i + 1) / trail.length;
             return (
               <span
                 key={i}
-                className="absolute top-1/2 rounded-full bg-accent"
+                className={`absolute top-1/2 rounded-full ${lisp ? 'border-2 border-accent-edge' : 'bg-accent'}`}
                 style={{
                   left: `${p * 100}%`,
                   width: 6 + age * 10,
@@ -150,12 +159,20 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
           })}
         </div>
 
-        {/* Live marker while hissing. */}
-        {listening && position !== null && (
+        {/* Live marker while hissing. A lisp shows as a hollow ring with "lisp?" in it, near the middle. */}
+        {listening && position !== null && !lispNow && (
           <span
             className="absolute top-1/2 h-14 w-14 rounded-full border-4 border-surface bg-accent shadow-[0_4px_0_var(--accent-edge)] motion-safe:transition-[left] motion-safe:duration-75"
             style={{ left: `${position * 100}%`, transform: 'translate(-50%, -50%)' }}
           />
+        )}
+        {listening && position !== null && lispNow && (
+          <span
+            className="absolute top-1/2 flex h-14 w-14 items-center justify-center rounded-full border-4 border-dashed border-accent-edge bg-surface text-xs font-extrabold text-foreground motion-safe:transition-[left] motion-safe:duration-75"
+            style={{ left: `${position * 100}%`, transform: 'translate(-50%, -50%)' }}
+          >
+            lisp?
+          </span>
         )}
 
         {/* After a result: where the attempt landed, as a pin (shape differs from the live marker). */}
@@ -196,7 +213,11 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
         {stateLine}
       </p>
       <p className="sr-only" aria-live="polite">
-        {listening ? (position === null ? 'Listening. No hiss heard.' : `${describe(position)}.`) : stateLine}
+        {listening
+          ? position === null
+            ? 'Listening. No hiss heard.'
+            : `${describe(position, lispNow)}.`
+          : stateLine}
       </p>
     </section>
   );

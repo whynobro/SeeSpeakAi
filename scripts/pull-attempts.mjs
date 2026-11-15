@@ -79,7 +79,7 @@ writeFileSync(
 );
 
 // For tries where the tester told us what they really said: was the verdict right?
-const expected = { 'with-sound': 'hit', 'without-sound': 'miss', 'other-sound': 'close' };
+const expected = { 'with-sound': 'hit', 'without-sound': 'miss', 'other-sound': 'close', lisp: 'close' };
 const rows = new Map();
 const wrong = [];
 for (const e of entries) {

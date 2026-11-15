@@ -7,6 +7,7 @@ import type {
   LearnerSettings,
   SoundProgress,
   TargetSound,
+  WordPosition,
 } from '@/lib/types';
 
 /** Everything here stays on this device. Every function is safe with no storage, blocked storage or bad JSON. */
@@ -88,10 +89,11 @@ export function loadAttempts(): Attempt[] {
   );
 }
 
-export function saveAttempt(a: Attempt): void {
+/** `position` is where the sound sits in the scored word, so the shared test log records it right. */
+export function saveAttempt(a: Attempt, position?: WordPosition): void {
   writeJson(KEYS.attempts, [...loadAttempts(), a]);
   // Does nothing unless a tester switched on the shared test log at /lab.
-  sharePracticeAttempt(a.wordId, a.target, a.score);
+  sharePracticeAttempt(a.wordId, a.target, a.score, position);
 }
 
 /** The learner's goals from the goals screen, already cleaned of names. */
