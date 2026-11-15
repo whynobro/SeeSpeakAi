@@ -5,6 +5,7 @@ import { BeforeAfterBars } from '@/components/BeforeAfterBars';
 import { ArrowDownIcon, ArrowUpIcon, EqualsIcon, ShareIcon, TrashIcon } from '@/components/Icons';
 import { loadAssignment, quotedSounds, type Assignment } from '@/components/assignmentStore';
 import { PageHeader, SECTION_TITLE, Screen } from '@/components/PageHeader';
+import { SoundMap } from '@/components/SoundMap';
 import { Button, Card, IconTile } from '@/components/ui';
 import { COPY } from '@/content/copy';
 import { ASSIGN, THERAPIST_SUMMARY } from '@/content/therapist';
@@ -190,13 +191,16 @@ export default function ProgressPage() {
   const [today, setToday] = useState('');
   const [canShare, setCanShare] = useState(false);
   const [extra, setExtra] = useState<Extra>(NO_EXTRA);
+  const [levelResults, setLevelResults] = useState<LevelResults>({});
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   // Browser storage, the date and the share check are read only here, after the page is on screen.
   useEffect(() => {
     const id = setTimeout(() => {
       const attempts = loadAttempts();
-      const levels = levelLines(loadLevelResults());
+      const saved = loadLevelResults();
+      const levels = levelLines(saved);
+      setLevelResults(saved);
       setViews(viewsFrom(attempts));
       setExtra({
         hasData: attempts.length > 0 || levels.length > 0,
@@ -214,6 +218,7 @@ export default function ProgressPage() {
     clearAll();
     setViews(viewsFrom([]));
     setExtra({ ...NO_EXTRA, assignment: extra.assignment });
+    setLevelResults({});
     setCopyState('idle');
     setConfirming(false);
   }
@@ -251,6 +256,8 @@ export default function ProgressPage() {
   return (
     <Screen>
       <PageHeader back={{ href: '/', label: 'Home' }} title="Progress" />
+
+      <SoundMap results={levelResults} />
 
       <Card as="section" tone="accent" aria-labelledby="summary-heading" className="flex flex-col gap-3">
         <h2 id="summary-heading" className={SECTION_TITLE}>
