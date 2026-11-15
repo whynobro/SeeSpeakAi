@@ -23,7 +23,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /** Numbers with units ("120 ms", "4kHz") and technical words must never reach the learner. */
-const TECHNICAL_TEXT = /\d\s*(ms|k?hz)\b|\b(pitch|centroid|frequenc(y|ies))\b/i;
+export const TECHNICAL_TEXT = /\d\s*(ms|k?hz)\b|\b(pitch|centroid|frequenc(y|ies))\b/i;
 
 /** A usable string: non-empty after trimming, within the cap. Em dashes become commas. Otherwise null. */
 export function cleanText(value: unknown, max: number): string | null {
