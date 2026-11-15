@@ -278,7 +278,8 @@ export function sustainedMsOf(frames: FrameFeatures[], r: Run, hopMs: number): n
  * first or last voiced frame of the whole recording: on a laptop the click of the Start or Stop button
  * reads as a voiced frame, and used to make every start or end hiss look out of place.
  */
-function placedOk(frames: FrameFeatures[], a: Analysis, r: Run, word: PracticeWord): boolean {
+function placedOk(frames: FrameFeatures[], a: Analysis, r: Run, word: PracticeWord, alone = false): boolean {
+  if (alone) return true; // a sound said on its own ("sss") has no word around it to place it in
   if (!a.haveVowel) return true; // cannot place it, so accept any (a warning is added by the caller)
   const runStart = frames[r.start].tMs;
   const runEnd = frames[r.end].tMs + a.hopMs;
@@ -361,12 +362,13 @@ function findAffricate(
   frames: FrameFeatures[],
   a: Analysis,
   word: PracticeWord,
+  alone = false,
 ): { best: Affricate | null; burstOnly: boolean } {
   let best: Affricate | null = null;
   let bestMs = -1;
   let burstOnly = false;
   for (const run of a.runs) {
-    if (!placedOk(frames, a, run, word)) continue;
+    if (!placedOk(frames, a, run, word, alone)) continue;
     const split = splitRun(frames, a, run);
     if (
       split.bodyMs < CH_MIN_HISS_MS ||
@@ -434,9 +436,9 @@ export function describeRuns(frames: FrameFeatures[], word?: PracticeWord): RunI
 }
 
 /** The runs that pass each rule in turn: long enough and in place, then also held. */
-function candidateRuns(frames: FrameFeatures[], a: Analysis, word: PracticeWord) {
+function candidateRuns(frames: FrameFeatures[], a: Analysis, word: PracticeWord, alone = false) {
   const long = a.runs.filter((r) => runLengthMs(frames, r, a.hopMs) >= MIN_HISS_MS);
-  const inPlace = long.filter((r) => placedOk(frames, a, r, word));
+  const inPlace = long.filter((r) => placedOk(frames, a, r, word, alone));
   // A hiss that fades away is the puff after a "t" or "k", not an "s" or "sh": it must hold its level.
   const held = inPlace.filter((r) => sustainedMsOf(frames, r, a.hopMs) >= MIN_SUSTAINED_MS);
   return { long, inPlace, held };
@@ -475,8 +477,9 @@ function scoreAffricate(
   a: Analysis,
   word: PracticeWord,
   warnings: string[],
+  alone = false,
 ): AttemptScore {
-  const { best, burstOnly } = findAffricate(frames, a, word);
+  const { best, burstOnly } = findAffricate(frames, a, word, alone);
   if (!best) {
     if (burstOnly)
       warnings.push('I heard a short burst but no hiss after it. Let the burst run into a short "sh".');
@@ -517,8 +520,23 @@ function scoreAffricate(
   return { target: word.target, verdict, heard, meterPosition: position, hissMs, confidence, warnings };
 }
 
+/** Options for `scoreAttempt`. */
+export interface ScoreOptions {
+  /**
+   * The sound is said on its own ("sss", the first practice level), not in a word. There is no vowel to
+   * place it by, so any held hiss counts wherever it is, and the lisp rule (which needs a vowel to compare
+   * the hiss with) only runs when a vowel was found.
+   */
+  alone?: boolean;
+}
+
 /** Score one spoken word: was the target sound there, in the right place? */
-export function scoreAttempt(frames: FrameFeatures[], word: PracticeWord): AttemptScore {
+export function scoreAttempt(
+  frames: FrameFeatures[],
+  word: PracticeWord,
+  opts: ScoreOptions = {},
+): AttemptScore {
+  const alone = opts.alone === true;
   const warnings: string[] = [];
   if (frames.length === 0) {
     return missScore(word, ['Nothing was recorded. Check that the microphone is allowed and try again.'], 0);
@@ -541,13 +559,13 @@ export function scoreAttempt(frames: FrameFeatures[], word: PracticeWord): Attem
 
   const a = analyse(frames, word.target);
   const { hopMs, isHiss } = a;
-  if (!a.haveVowel) {
+  if (!a.haveVowel && !alone) {
     warnings.push('I could not find the vowel, so I could not check where in the word the hiss was.');
   }
 
-  if (word.target === 'ch') return scoreAffricate(frames, a, word, warnings);
+  if (word.target === 'ch') return scoreAffricate(frames, a, word, warnings, alone);
 
-  const { long, inPlace, held } = candidateRuns(frames, a, word);
+  const { long, inPlace, held } = candidateRuns(frames, a, word, alone);
   if (long.length > 0 && inPlace.length === 0) {
     const where = word.position === 'middle' ? 'in the middle' : `at the ${word.position}`;
     warnings.push(`I heard a hiss, but not ${where} of the word.`);
@@ -584,6 +602,7 @@ export function scoreAttempt(frames: FrameFeatures[], word: PracticeWord): Attem
   // It is close, never a hit, and the meter shows it at LISP_METER_POSITION so meter and verdict agree.
   const lisp =
     (word.target === 's' || word.target === 'z') &&
+    (!alone || a.haveVowel) &&
     isLispLike(meterPosition, flatnessOf(frames, a, run), hissToVowelOf(frames, a, run), 1);
   if (lisp) {
     return {

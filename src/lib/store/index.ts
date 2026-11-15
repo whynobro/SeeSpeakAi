@@ -1,3 +1,4 @@
+import type { LevelResults } from '@/lib/levels';
 import { isTargetSound } from '@/lib/scoring/constants';
 import { sharePracticeAttempt } from '@/lib/testlog';
 import type {
@@ -20,6 +21,8 @@ const KEYS = {
   listening: 'seespeak.listening',
   /** Owned and equipped shop items. Written by src/lib/rewards. */
   wallet: 'seespeak.wallet',
+  /** Best result per sound and level. Shape in src/lib/levels. */
+  levels: 'seespeak.levels',
 } as const;
 
 const DEFAULT_SETTINGS: LearnerSettings = {
@@ -134,6 +137,28 @@ export function loadListeningRuns(): ListeningRun[] {
 
 export function saveListeningRun(run: ListeningRun): void {
   writeJson(KEYS.listening, [...loadListeningRuns(), run].slice(-MAX_LISTENING_RUNS));
+}
+
+/** Saved level results (see `src/lib/levels`). Anything that is not a valid result is dropped. */
+export function loadLevelResults(): LevelResults {
+  const raw = readJson(KEYS.levels);
+  if (!isRecord(raw)) return {};
+  const out: LevelResults = {};
+  for (const [key, v] of Object.entries(raw)) {
+    if (
+      isRecord(v) &&
+      typeof v.bestHits === 'number' &&
+      typeof v.passed === 'boolean' &&
+      typeof v.updatedAt === 'string'
+    ) {
+      out[key] = { bestHits: v.bestHits, passed: v.passed, updatedAt: v.updatedAt };
+    }
+  }
+  return out;
+}
+
+export function saveLevelResults(results: LevelResults): void {
+  writeJson(KEYS.levels, results);
 }
 
 export function clearAll(): void {

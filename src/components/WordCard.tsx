@@ -6,6 +6,10 @@ function splitTarget(word: PracticeWord): { before: string; mark: string; after:
   const lower = text.toLowerCase();
   let index = -1;
   let length = 1;
+  // The sound on its own ("sss", "shhh"): every letter is the sound.
+  if (lower.length > 0 && [...lower].every((c) => word.target.includes(c))) {
+    return { before: '', mark: text, after: '' };
+  }
   if (word.target === 'sh' || word.target === 'ch') {
     length = 2;
     index = word.position === 'start' ? lower.indexOf(word.target) : lower.lastIndexOf(word.target);

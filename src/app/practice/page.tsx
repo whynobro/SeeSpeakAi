@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
-import { HomeIcon, LightbulbIcon, MicIcon } from '@/components/Icons';
+import { HomeIcon, LightbulbIcon, MicIcon, StarIcon } from '@/components/Icons';
 import { LipCamera } from '@/components/LipCamera';
 import { SoundVideo } from '@/components/SoundVideo';
 import { SoundMeter } from '@/components/SoundMeter';
@@ -14,6 +14,16 @@ import { WordCard } from '@/components/WordCard';
 import { COPY } from '@/content/copy';
 import { CUES } from '@/content/cues';
 import { wordsFor } from '@/content/words';
+import {
+  isLevelId,
+  itemsHit,
+  levelById,
+  levelItems,
+  mergeResult,
+  nextLevel,
+  passed,
+  PASS_ITEMS,
+} from '@/lib/levels';
 import { loadPlan } from '@/components/planStore';
 import { useCoachFeedback } from '@/hooks/useCoachFeedback';
 import { useLipCamera } from '@/hooks/useLipCamera';
@@ -22,7 +32,7 @@ import { buzz } from '@/lib/feedback';
 import type { LipSummary } from '@/lib/lips/types';
 import { LIMITATIONS, scoreAttempt } from '@/lib/scoring';
 import { isTargetSound } from '@/lib/scoring/constants';
-import { loadProfile, loadSettings, saveAttempt } from '@/lib/store';
+import { loadLevelResults, loadProfile, loadSettings, saveAttempt, saveLevelResults } from '@/lib/store';
 import type { AttemptScore, HearingProfile, LearnerSettings, PracticeWord, TargetSound } from '@/lib/types';
 
 const WORD_COUNT = 8;
@@ -67,6 +77,9 @@ function PracticeLoop() {
   // Opened from a plan's start button: ?plan=<id>&step=<n>. Then the words come from that plan step.
   const planId = searchParams.get('plan');
   const stepIndex = Number(searchParams.get('step') ?? '-1');
+  // Opened from the levels map: ?level=alone|start|end|phrase. Then the words come from that level.
+  const levelParam = searchParams.get('level');
+  const level = isLevelId(levelParam) ? levelById(levelParam) : null;
 
   const meter = useSoundMeter();
   const coach = useCoachFeedback();
@@ -82,9 +95,12 @@ function PracticeLoop() {
   const [tries, setTries] = useState(0);
   const [finished, setFinished] = useState(false);
   const [fromPlan, setFromPlan] = useState(false);
+  /** Level mode: did each item get at least one hit (retries count). */
+  const [hitByItem, setHitByItem] = useState<boolean[]>([]);
 
   /** The plan step's words, in the plan's order, when this page was opened from that plan. Else the word bank. */
   function pickWords(): { list: PracticeWord[]; planned: boolean } {
+    if (level) return { list: levelItems(target, level.id), planned: false };
     const plan = planId ? loadPlan() : null;
     const step = plan && plan.id === planId ? plan.steps[stepIndex] : undefined;
     const planned = step?.words.filter((w) => w.target === target) ?? [];
@@ -108,6 +124,7 @@ function PracticeLoop() {
       setScore(null);
       setHits(0);
       setTries(0);
+      setHitByItem([]);
       setFinished(false);
     });
     return () => {
@@ -115,7 +132,7 @@ function PracticeLoop() {
     };
     // pickWords reads only the URL values listed here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, planId, stepIndex]);
+  }, [target, planId, stepIndex, levelParam]);
 
   const cue = CUES[target];
   const word = words[index] ?? null;
@@ -143,17 +160,24 @@ function PracticeLoop() {
     const frames = meter.stop();
     const lips = collectLips(); // numbers only, null when the camera is off
     setLastLips(lips);
-    const result = scoreAttempt(frames, word);
+    const result = scoreAttempt(frames, word, { alone: level?.id === 'alone' });
     setScore(result);
     setTries((n) => n + 1);
-    if (result.verdict === 'hit') setHits((n) => n + 1);
+    if (result.verdict === 'hit') {
+      setHits((n) => n + 1);
+      setHitByItem((prev) => {
+        const next = [...prev];
+        next[index] = true;
+        return next;
+      });
+    }
     if (settings.channels.includes('vibration')) buzz(result.verdict);
     saveAttempt(
       {
         id: crypto.randomUUID(),
         wordId: word.id,
         target: word.target,
-        stage: 'use',
+        stage: level?.stage ?? 'use',
         createdAt: new Date().toISOString(),
         score: result,
         channels: settings.channels,
@@ -166,8 +190,10 @@ function PracticeLoop() {
 
   function onNext() {
     setScore(null);
-    if (index + 1 >= words.length) setFinished(true);
-    else setIndex(index + 1);
+    if (index + 1 >= words.length) {
+      if (level) saveLevelResults(mergeResult(loadLevelResults(), target, level.id, itemsHit(hitByItem)));
+      setFinished(true);
+    } else setIndex(index + 1);
   }
 
   function onRestart() {
@@ -176,6 +202,7 @@ function PracticeLoop() {
     setScore(null);
     setHits(0);
     setTries(0);
+    setHitByItem([]);
     setFinished(false);
   }
 
@@ -201,6 +228,63 @@ function PracticeLoop() {
       <span>Home</span>
     </Link>
   );
+
+  if (finished && level) {
+    const got = itemsHit(hitByItem);
+    const ok = passed(got);
+    const next = nextLevel(level.id);
+    return (
+      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pt-2 pb-8">
+        <header className="flex items-center gap-3">{homeLink}</header>
+        <Card highlight={ok} className="flex flex-col gap-4">
+          <p className="text-sm font-bold text-muted">
+            Level {level.number}: {level.title}
+          </p>
+          <h1 className="flex items-center gap-2 text-[28px] leading-tight font-extrabold tracking-tight">
+            {ok ? (
+              <>
+                <StarIcon className="h-8 w-8" />
+                Level passed
+              </>
+            ) : (
+              'Nice work, keep going'
+            )}
+          </h1>
+          <ul className="flex flex-wrap gap-2" aria-hidden="true">
+            {words.map((w, i) => (
+              <li
+                key={i}
+                className={`h-8 w-8 rounded-full border-[3px] ${hitByItem[i] ? 'border-hit-strong bg-hit' : 'border-muted bg-surface'}`}
+              />
+            ))}
+          </ul>
+          <p className="text-2xl font-bold">
+            {got} of {words.length} right.
+          </p>
+          <p className="text-base text-muted">
+            {ok
+              ? next
+                ? `Level ${next.number} is open: ${next.title.toLowerCase()}.`
+                : `That was the last level for "${target}".`
+              : `Get ${PASS_ITEMS} of ${words.length} right to open the next level. Tries again count.`}
+          </p>
+        </Card>
+        {ok && next ? (
+          <Button href={`/practice?sound=${target}&level=${next.id}`} size="xl">
+            Next level
+          </Button>
+        ) : (
+          <Button size="xl" onClick={onRestart}>
+            {ok ? 'Play again' : 'Try the level again'}
+          </Button>
+        )}
+        <Button href={`/levels?sound=${target}`} variant="secondary" size="lg">
+          All levels
+        </Button>
+        {footer}
+      </main>
+    );
+  }
 
   if (finished) {
     return (
@@ -240,6 +324,27 @@ function PracticeLoop() {
           {homeLink}
           <h1 className="text-xl font-extrabold tracking-tight">Practice the &apos;{target}&apos; sound</h1>
         </div>
+        {level && (
+          <p className="text-base font-bold">
+            Level {level.number} of 4: {level.title}.{' '}
+            <Link
+              href={`/levels?sound=${target}`}
+              className="inline-block py-2 text-sm text-accent-edge underline underline-offset-4"
+            >
+              All levels
+            </Link>
+          </p>
+        )}
+        {!level && (
+          <p className="text-sm text-muted">
+            <Link
+              href={`/levels?sound=${target}`}
+              className="inline-block py-2 font-bold text-accent-edge underline underline-offset-4"
+            >
+              Practice by level
+            </Link>
+          </p>
+        )}
         {words.length > 0 && <WordSteps index={Math.min(index, words.length - 1)} total={words.length} />}
         {fromPlan && (
           <p className="text-sm text-muted">
