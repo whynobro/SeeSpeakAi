@@ -21,14 +21,14 @@
         --ink: #1f2d36;
         --muted: #5d6b74;
         --faint: #8a979f;
-        --grid: #e3e9e4;
-        --line: #dde5da;
-        --page: #f4f7f1;
-        --blue: #1b628f;
-        --blue-soft: #e4eef5;
-        --orange: #e07a35;
-        --orange-soft: #fcebdd;
-        --gray-bar: #bccad1;
+        --grid: #e1ece2;
+        --line: #cfe2d3;
+        --page: #eef6ec;
+        --blue: #1f7f74; /* teal, the brand bird (deeper so text reads) */
+        --blue-soft: #e2f3f0;
+        --orange: #e9b021; /* yellow, the bird's beak and notes */
+        --orange-soft: #fff3d1;
+        --gray-bar: #c3d3c8;
       }
       * {
         box-sizing: border-box;
@@ -37,7 +37,7 @@
       }
       html,
       body {
-        background: #e8ece6;
+        background: #e3ede1;
       }
       body {
         font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -84,6 +84,7 @@
       .panel {
         background: #fff;
         border: 1px solid var(--line);
+        border-top: 4px solid var(--blue);
         border-radius: 14px;
         padding: 26px 30px 22px;
       }
@@ -258,8 +259,8 @@
       /* 1. Cover */
       .cover {
         background:
-          radial-gradient(70% 90% at 100% 0%, #ffe08a 0%, rgba(255, 224, 138, 0) 60%),
-          linear-gradient(135deg, #9fd8b8 0%, #c6e6a6 45%, #f6e27a 100%);
+          radial-gradient(55% 75% at 78% 30%, rgba(255, 214, 102, 0.85) 0%, rgba(255, 214, 102, 0) 70%),
+          linear-gradient(135deg, #a9dcc0 0%, #bfe3b4 55%, #d3e9b0 100%);
       }
       .blob {
         position: absolute;
@@ -349,14 +350,6 @@
   <body>
     <!-- 1. COVER: the one slide with color blobs -->
     <section class="slide cover">
-      <div
-        class="blob"
-        style="width: 520px; height: 520px; left: -160px; bottom: -200px; background: #7cc4ff"
-      ></div>
-      <div
-        class="blob"
-        style="width: 420px; height: 420px; left: 520px; top: -180px; background: #ffd166; opacity: 0.6"
-      ></div>
       <div class="bird">
         <img src="img/kingfisher.jpg" alt="A kingfisher on a branch, from the app's home screen" />
       </div>
@@ -421,7 +414,7 @@
           <p class="chart-sub">Speech or deaf-education services, as their parents reported (155 children)</p>
           <div class="stack">
             <div style="width: 70%; background: var(--blue)">70%</div>
-            <div style="width: 30%; background: var(--orange)">30%</div>
+            <div style="width: 30%; background: var(--orange); color: var(--ink)">30%</div>
           </div>
           <div class="legend">
             <span><b style="background: var(--blue)"></b>Getting services</span>
@@ -476,7 +469,7 @@
       <div style="display: flex; align-items: baseline; gap: 56px; margin-top: 46px">
         <div class="word"><span style="color: var(--blue)">s</span>ip</div>
         <div style="font-size: 80px; color: var(--faint)">→</div>
-        <div class="word"><span style="color: var(--orange)">sh</span>ip</div>
+        <div class="word"><span style="color: #d99a00">sh</span>ip</div>
       </div>
       <p style="font-size: 36px; font-weight: 700; margin-top: 22px">
         When high sounds fade, “sip” can drift toward “ship”.
@@ -521,7 +514,7 @@
               height: 34px;
               background: var(--orange);
               border-radius: 2px;
-              color: #fff;
+              color: var(--ink);
               font-weight: 800;
               display: flex;
               align-items: center;
@@ -582,7 +575,7 @@
           </p>
         </div>
         <div style="display: grid; place-items: center; color: var(--faint); font-size: 30px">→</div>
-        <div class="panel" style="background: var(--blue-soft); border-color: #cfe0ec">
+        <div class="panel" style="background: var(--blue-soft); border-color: #bfe0da">
           <p class="eyebrow" style="font-size: 14px">2 · Numbers only</p>
           <p style="font-size: 20px; line-height: 1.4; margin-top: 10px">
             Never your voice. Never your video. Names removed from reports.
@@ -618,7 +611,7 @@
           <div class="row" style="height: 40px">
             <span class="lab" style="font-weight: 500; color: var(--muted)">… who use speech only</span>
             <div class="track">
-              <div class="bar" style="width: 24.6%; background: #f0b58a"></div>
+              <div class="bar" style="width: 24.6%; background: #f5d77f"></div>
               <span class="val">19.7%</span>
             </div>
           </div>
@@ -805,18 +798,18 @@
           </ul>
         </div>
         <div class="panel" style="padding: 28px 34px">
-          <p class="eyebrow" style="font-size: 14px; color: var(--orange)">3 next steps</p>
+          <p class="eyebrow" style="font-size: 14px; color: #8a6700">3 next steps</p>
           <ul class="list" style="margin-top: 10px">
             <li>
-              <span class="badge" style="background: var(--orange-soft); color: #b4561b">1</span
+              <span class="badge" style="background: var(--orange-soft); color: #7a5a00">1</span
               ><span>A caseload dashboard where Claude summarizes every student</span>
             </li>
             <li>
-              <span class="badge" style="background: var(--orange-soft); color: #b4561b">2</span
+              <span class="badge" style="background: var(--orange-soft); color: #7a5a00">2</span
               ><span>“r” and “th”: show how first, scoring once it’s tested</span>
             </li>
             <li>
-              <span class="badge" style="background: var(--orange-soft); color: #b4561b">3</span
+              <span class="badge" style="background: var(--orange-soft); color: #7a5a00">3</span
               ><span>Tune on deaf speakers’ voices, with permission (Yuka offered introductions)</span>
             </li>
           </ul>
