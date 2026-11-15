@@ -62,7 +62,7 @@ export function GoalsBox({
         value={goals.text}
         onChange={(e) => onChange({ ...goals, text: e.target.value })}
         placeholder={CHECK_COPY.goalsPlaceholder}
-        className="w-full rounded-2xl border border-line bg-surface p-4 text-lg leading-relaxed"
+        className="w-full rounded-xl border border-line bg-surface p-4 text-lg leading-relaxed"
       />
       <p className="text-base text-muted">{CHECK_COPY.goalsNoNames}</p>
       {cleaned.trim() !== '' && cleaned !== goals.text && (

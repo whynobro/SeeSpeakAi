@@ -58,7 +58,7 @@ export function AssignView() {
     <>
       <h1 className="text-[28px] leading-tight font-extrabold tracking-tight text-balance">{ASSIGN.title}</h1>
 
-      <dl className="overflow-hidden rounded-2xl border border-line bg-surface">
+      <dl className="overflow-hidden rounded-xl border border-line bg-surface">
         <div className="flex flex-col gap-2 px-4 py-4">
           <dt className="text-[15px] text-muted">{ASSIGN.soundsLabel}</dt>
           <dd>

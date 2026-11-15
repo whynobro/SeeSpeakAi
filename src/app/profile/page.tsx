@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeftIcon, EarIcon, StarIcon } from '@/components/Icons';
+import { BackLink } from '@/components/PageHeader';
 import { Button, Card, IconTile } from '@/components/ui';
 import { COPY } from '@/content/copy';
 import { HEARING_CHECK } from '@/content/hearingCheck';
@@ -140,23 +141,18 @@ export default function ProfilePage() {
     </>
   );
 
-  const homeLink = (
-    <Button href="/checks" variant="ghost" block={false} className="self-start">
-      <ArrowLeftIcon className="h-5 w-5" />
-      Checks
-    </Button>
-  );
+  const homeLink = <BackLink href="/checks" label="Checks" />;
 
   if (typeof step === 'number') {
     const sound = LING[step];
     const previous = answers[sound];
     return (
-      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pt-4 pb-8">
+      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pt-6 pb-8">
         <Button
           variant="ghost"
           block={false}
           onClick={() => go(step === 0 ? 'intro' : step - 1)}
-          className="self-start"
+          className="-ml-2 self-start"
         >
           <ArrowLeftIcon className="h-5 w-5" />
           Back
@@ -183,7 +179,7 @@ export default function ProfilePage() {
                 type="button"
                 aria-pressed={chosen}
                 onClick={() => answer(step, heard)}
-                className={`flex min-h-20 w-full items-center gap-4 rounded-2xl bg-surface px-4 py-3 text-left text-xl font-bold text-foreground transition-[transform,background-color] duration-75 active:scale-[0.98] ${
+                className={`flex min-h-20 w-full items-center gap-4 rounded-xl bg-surface px-4 py-3 text-left text-xl font-bold text-foreground transition-[transform,background-color] duration-75 active:scale-[0.98] ${
                   chosen ? 'border-2 border-accent' : 'border border-line'
                 }`}
               >
@@ -208,7 +204,7 @@ export default function ProfilePage() {
     const top = picks[0];
     const recommend = top && top.risk !== 'low';
     return (
-      <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-4 pb-10">
+      <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6 pb-10">
         {homeLink}
         <header className="flex flex-col gap-2">
           <h1
@@ -263,7 +259,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-4 pb-10">
+    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6 pb-10">
       {homeLink}
       <header className="flex flex-col gap-4">
         <IconTile size="lg">

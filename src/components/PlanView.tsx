@@ -48,7 +48,7 @@ function StepCard({
         </div>
       </div>
       <p className="text-lg leading-relaxed">{step.why}</p>
-      <div className="flex flex-col gap-1 rounded-2xl bg-accent-soft p-4">
+      <div className="flex flex-col gap-1 rounded-xl bg-accent-soft p-4">
         <p className="text-sm font-bold text-accent-edge">Goal</p>
         <p className="text-lg">{step.goal}</p>
         {preview && <p className="pt-1 text-base text-muted">Words: {preview}</p>}

@@ -22,7 +22,7 @@ export function SavedPlanLink() {
   return (
     <Link
       href="/plan"
-      className="flex min-h-16 items-center gap-4 rounded-2xl border-2 border-accent bg-accent-soft px-4 py-3 transition-colors hover:bg-accent-soft/70"
+      className="flex min-h-16 items-center gap-4 rounded-xl border-2 border-accent bg-accent-soft px-4 py-3 transition-colors hover:bg-accent-soft/70"
     >
       <ClipboardIcon className="h-6 w-6 shrink-0 text-accent-edge" />
       <span className="flex min-w-0 flex-1 flex-col">

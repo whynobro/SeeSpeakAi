@@ -53,8 +53,8 @@ export function ReportFiles({
       <h2 id="files-heading" className="text-xl font-bold">
         Upload your report (optional)
       </h2>
-      <label className="flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed border-accent bg-accent-soft p-5 transition-transform duration-75 active:scale-[0.98]">
-        <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-accent text-accent-ink">
+      <label className="flex cursor-pointer items-center gap-4 rounded-xl border-2 border-dashed border-accent bg-accent-soft p-5 transition-transform duration-75 active:scale-[0.98]">
+        <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-ink">
           <UploadIcon className="h-7 w-7" />
         </span>
         <span className="flex flex-col">
@@ -81,7 +81,7 @@ export function ReportFiles({
       {files.length > 0 && (
         <ul className="flex flex-col gap-3">
           {files.map((file) => (
-            <li key={file.id} className="flex flex-col gap-2 rounded-2xl border border-line bg-surface p-3">
+            <li key={file.id} className="flex flex-col gap-2 rounded-xl border border-line bg-surface p-3">
               {file.isImage ? (
                 <a
                   href={file.url}
@@ -93,7 +93,7 @@ export function ReportFiles({
                   <img
                     src={file.url}
                     alt={`Your report: ${file.name}`}
-                    className="max-h-96 w-full rounded-2xl object-contain"
+                    className="max-h-96 w-full rounded-xl object-contain"
                   />
                 </a>
               ) : (
@@ -101,7 +101,7 @@ export function ReportFiles({
                   href={file.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-3 rounded-2xl bg-accent-soft p-4 text-lg font-bold text-accent-edge underline underline-offset-4"
+                  className="flex items-center gap-3 rounded-xl bg-accent-soft p-4 text-lg font-bold text-accent-edge underline underline-offset-4"
                 >
                   <ClipboardIcon className="h-6 w-6 shrink-0" />
                   Open {file.name}

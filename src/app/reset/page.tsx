@@ -1,7 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { PageHeader, Screen } from '@/components/PageHeader';
+import { Button } from '@/components/ui';
 
 /** Remove every SeeSpeak key from one storage area. Safe when storage is blocked. */
 function clearArea(area: Storage | undefined): number {
@@ -37,16 +38,16 @@ export default function ResetPage() {
   }, []);
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-6 p-6 text-center">
-      <h1 className="text-3xl font-bold">Start over</h1>
+    <Screen>
+      <PageHeader title="Start over" />
       <p role="status" className="text-lg">
         {cleared === null
           ? 'Clearing this device...'
           : 'Done. Everything saved on this device is cleared: hearing check, plan, practice and progress.'}
       </p>
-      <Link href="/" className="min-h-14 rounded-2xl bg-teal-700 px-6 py-4 text-xl font-bold text-white">
+      <Button href="/" size="lg">
         Start from the beginning
-      </Link>
-    </main>
+      </Button>
+    </Screen>
   );
 }

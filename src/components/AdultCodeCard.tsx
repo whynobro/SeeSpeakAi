@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useId, useState, type FormEvent } from 'react';
+import { SECTION_TITLE } from '@/components/PageHeader';
 import { Button, Card } from '@/components/ui';
 import { checkAdultCode, clearAdultCode, hasAdultCode, isValidAdultCode, setAdultCode } from '@/lib/override';
 
@@ -70,7 +71,7 @@ export function AdultCodeCard() {
 
   return (
     <Card as="section" aria-labelledby="adult-code-title" id="adult-code" className="flex flex-col gap-3">
-      <h2 id="adult-code-title" className="text-[20px] leading-snug font-bold">
+      <h2 id="adult-code-title" className={SECTION_TITLE}>
         For parents and speech therapists
       </h2>
       <p className="text-[17px] leading-snug">

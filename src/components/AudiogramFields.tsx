@@ -51,7 +51,7 @@ export function AudiogramFields({
         {AUDIOGRAM_FIELDS.map((hz) => (
           <label key={hz} className="flex flex-col gap-1.5">
             <span className="text-base font-bold">{hz.toLocaleString('en-US')} Hz</span>
-            <span className="flex items-center rounded-2xl border border-line bg-surface focus-within:border-accent">
+            <span className="flex items-center rounded-xl border border-line bg-surface focus-within:border-accent">
               <input
                 type="text"
                 inputMode="numeric"
@@ -61,7 +61,7 @@ export function AudiogramFields({
                 onChange={(e) => onChange({ ...draft, [hz]: e.target.value.replace(/[^0-9-]/g, '') })}
                 placeholder="40"
                 aria-label={`${hz} hertz, in decibels hearing level`}
-                className="w-full min-w-0 rounded-2xl bg-transparent px-4 py-3 text-lg outline-none placeholder:text-muted/70"
+                className="w-full min-w-0 rounded-xl bg-transparent px-4 py-3 text-lg outline-none placeholder:text-muted/70"
               />
               <span className="pr-4 text-base text-muted" aria-hidden="true">
                 dB

@@ -3,7 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { GoalsBox } from '@/components/GoalsBox';
-import { ArrowLeftIcon, CheckCircleIcon, ChevronRightIcon, EarIcon, MicIcon } from '@/components/Icons';
+import { CheckCircleIcon, ChevronRightIcon, EarIcon, MicIcon } from '@/components/Icons';
+import { BackLink, Screen } from '@/components/PageHeader';
 import { showRulesPlanNow } from '@/components/planStore';
 import { SoundMeter } from '@/components/SoundMeter';
 import { Button, Card, Divider, GroupedList, GroupedRow, SectionLabel } from '@/components/ui';
@@ -70,7 +71,7 @@ function RecordButton({
       <div className="relative">
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-2xl border-2 border-accent-edge motion-safe:animate-listen-ring"
+          className="pointer-events-none absolute inset-0 rounded-xl border-2 border-accent-edge motion-safe:animate-listen-ring"
         />
         <Button size="xl" onClick={onDone}>
           Listening. Tap when done
@@ -274,16 +275,14 @@ export default function SpeechCheckPage() {
     <h1
       ref={headingRef}
       tabIndex={-1}
-      className="text-[28px] leading-tight font-extrabold tracking-tight outline-none"
+      className="text-[28px] leading-tight font-extrabold tracking-tight text-balance outline-none"
     >
       {text}
     </h1>
   );
-  const shell = (children: ReactNode) => (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6 pb-10">{children}</main>
-  );
+  const shell = (children: ReactNode) => <Screen>{children}</Screen>;
   const micError = meter.status === 'error' && (
-    <p role="alert" className="rounded-2xl bg-miss-soft p-4 text-lg font-bold text-miss-ink">
+    <p role="alert" className="rounded-xl bg-miss-soft p-4 text-lg font-bold text-miss-ink">
       {meter.error ?? 'The microphone could not be started.'}
     </p>
   );
@@ -311,7 +310,7 @@ export default function SpeechCheckPage() {
           <p className="text-base leading-relaxed">{CHECK_COPY.sendBody}</p>
         </Card>
         {phase === 'error' && (
-          <p role="alert" className="rounded-2xl bg-miss-soft p-4 text-lg font-bold text-miss-ink">
+          <p role="alert" className="rounded-xl bg-miss-soft p-4 text-lg font-bold text-miss-ink">
             The plan could not be made. Check your connection and try again.
           </p>
         )}
@@ -397,7 +396,7 @@ export default function SpeechCheckPage() {
           <div className="flex flex-col gap-4">
             <p
               role="status"
-              className="flex items-center gap-3 rounded-2xl bg-hit-soft p-4 text-xl font-bold text-hit-strong motion-safe:animate-result-pulse"
+              className="flex items-center gap-3 rounded-xl bg-hit-soft p-4 text-xl font-bold text-hit-strong motion-safe:animate-result-pulse"
             >
               <CheckCircleIcon className="h-7 w-7" />
               {CHECK_COPY.gotIt}
@@ -420,10 +419,7 @@ export default function SpeechCheckPage() {
 
   return shell(
     <>
-      <Button href="/checks" variant="ghost" block={false} className="self-start">
-        <ArrowLeftIcon className="h-5 w-5" />
-        Checks
-      </Button>
+      <BackLink href="/checks" label="Checks" />
       {heading(CHECK_COPY.speakingTitle)}
       <p className="text-lg leading-relaxed">{CHECK_COPY.speakingIntro}</p>
       <ul className="flex flex-col gap-3 text-lg">
@@ -441,7 +437,7 @@ export default function SpeechCheckPage() {
       <fieldset className="flex flex-col gap-3">
         <legend className="pb-3 text-[20px] font-bold">{CHECK_COPY.whoTitle}</legend>
         {/* One grouped list, like the Checks tab: thin dividers, no icon square on every row (theme v2). */}
-        <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+        <div className="overflow-hidden rounded-xl border border-line bg-surface">
           {(['child', 'teen', 'adult'] as const).map((g) => (
             <button
               key={g}
