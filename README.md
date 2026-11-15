@@ -1,3 +1,5 @@
+<img src="public/brand/seespeak-logo.png" alt="SeeSpeak logo: a teal bird singing" width="480">
+
 # SeeSpeak
 
 Practice the speech sounds your ears miss.
