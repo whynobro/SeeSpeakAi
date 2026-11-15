@@ -56,3 +56,15 @@ describe('guided script', () => {
     expect(matchedExpectation({ wordId: 'cats', say: 'lisp' }, score('hit'))).toBe(false);
   });
 });
+
+import { SIP_DRILL, scriptFor } from './script';
+
+describe('sip drill', () => {
+  it('is 10 drifted then 10 clear "sip" tries, and ?set=sip picks it', () => {
+    expect(SIP_DRILL).toHaveLength(20);
+    expect(SIP_DRILL.slice(0, 10).every((s) => s.wordId === 'sip' && s.say === 'other-sound')).toBe(true);
+    expect(SIP_DRILL.slice(10).every((s) => s.wordId === 'sip' && s.say === 'with-sound')).toBe(true);
+    expect(scriptFor('sip')).toBe(SIP_DRILL);
+    expect(scriptFor(null)).not.toBe(SIP_DRILL);
+  });
+});
