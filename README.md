@@ -12,6 +12,8 @@ Production: https://seespeak.vercel.app (follows `main`). The tuning page is htt
 
 Demo video (1:59): https://github.com/whynobro/SeeSpeakAi/releases/tag/demo-video (direct file: [seespeak-demo.mp4](https://github.com/whynobro/SeeSpeakAi/releases/download/demo-video/seespeak-demo.mp4)). Video files live in releases, never in the repo.
 
+Pitch deck (PDF, 7 slides): https://github.com/whynobro/SeeSpeakAi/releases/tag/pitch-deck (direct file: [seespeak-pitch.pdf](https://github.com/whynobro/SeeSpeakAi/releases/download/pitch-deck/seespeak-pitch.pdf)).
+
 Pull request preview links ask for a Vercel login until Michael turns that off in the Vercel project settings. Until then, test on the production link after your pull request merges.
 
 ## How it works
