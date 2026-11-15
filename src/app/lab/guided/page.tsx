@@ -13,7 +13,9 @@ import type { AttemptScore, TargetSound } from '@/lib/types';
 import { GUIDED_SCRIPT, instructionFor, matchedExpectation, wordOf } from './script';
 
 /** How long the result stays on screen before the next step starts listening (ms). */
-const ADVANCE_MS = 1200;
+const ADVANCE_MS = 2000;
+/** Time to read the next word before the microphone starts listening (ms). */
+const READY_MS = 1800;
 /** Wait before listening again when nothing was heard (ms). */
 const RETRY_MS = 800;
 
@@ -92,7 +94,11 @@ export default function GuidedLabPage() {
     }
     setIndex(next);
     live.current = { ...live.current, index: next };
-    void listen();
+    setCurrent(null);
+    setNotice('Get ready...');
+    timer.current = setTimeout(() => {
+      if (live.current.phase === 'running') void listen();
+    }, READY_MS);
   }, [listen]);
 
   /** The try is over: stop, score, save, show the verdict, then go on. */
@@ -242,7 +248,10 @@ export default function GuidedLabPage() {
       {(phase === 'running' || phase === 'paused') && (
         <section className="flex flex-col gap-4">
           <p className="text-3xl leading-tight font-extrabold" aria-live="polite">
-            {index + 1} of {GUIDED_SCRIPT.length}. {instructionFor(step)}
+            <span className="block text-lg font-bold text-current/70">
+              {index + 1} of {GUIDED_SCRIPT.length}. Say:
+            </span>
+            <span className="block text-6xl">{instructionFor(step)}</span>
           </p>
 
           {meter.error && (
