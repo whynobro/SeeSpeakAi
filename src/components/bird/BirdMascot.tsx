@@ -284,7 +284,10 @@ export function BirdMascot() {
       if (!placed) {
         placed = true;
         // No loop on the practice screen: it would cross the word and the meter.
-        if (!reduced && !onPractice && !hasFlown) {
+        // No loop on home either: the kingfisher flies in there, and two birds at once is too much.
+        const onHome = pathRef.current === '/';
+        if (onHome) hasFlown = true;
+        if (!reduced && !onPractice && !onHome && !hasFlown) {
           hasFlown = true;
           flying = true;
           flightStart = now;

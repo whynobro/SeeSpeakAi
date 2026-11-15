@@ -1,6 +1,7 @@
 import { COPY } from '@/content/copy';
 import { AssignedCard } from '@/components/AssignedCard';
 import { HomeStart } from '@/components/HomeStart';
+import { KingfisherHero } from '@/components/KingfisherHero';
 import { SavedPlanLink } from '@/components/SavedPlanLink';
 import Image from 'next/image';
 import { LANDING } from '@/content/landing';
@@ -45,11 +46,14 @@ export default function Home() {
           {LANDING.privacyTitle}
         </p>
       </header>
-      <p className="text-[28px] leading-tight font-extrabold tracking-tight text-balance">{COPY.tagline}</p>
-      {/* Theme v2: home opens on the next task. What SeeSpeak is, privacy details and questions live in More. */}
-      <AssignedCard />
-      <SavedPlanLink />
-      <HomeStart />
+      {/* The kingfisher flies in and lands; then the rest of home fades in below it. */}
+      <KingfisherHero>
+        <p className="text-[28px] leading-tight font-extrabold tracking-tight text-balance">{COPY.tagline}</p>
+        {/* Theme v2: home opens on the next task. What SeeSpeak is, privacy details and questions live in More. */}
+        <AssignedCard />
+        <SavedPlanLink />
+        <HomeStart />
+      </KingfisherHero>
     </main>
   );
 }

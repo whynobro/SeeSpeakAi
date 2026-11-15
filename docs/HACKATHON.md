@@ -68,6 +68,7 @@ A chatbot added for show scores about 3 of 15 on the AI row. See "What the AI do
 - ChatGPT image generation (OpenAI): the SeeSpeak logo and bird mascot (`public/brand/`). Earlier drafts were also tried in Google Gemini.
 - Peachie Speechie "How to say the ... sound" videos (YouTube, by Meredith Avren, speech-language pathologist): embedded on the practice screen for "s", "sh", "z" and "ch". Free videos the owner invites people to share; embedding is allowed. They load only when the learner taps play, from youtube-nocookie.com. Their captions are YouTube's automatic ones.
 - Refero Styles, "ORYZO AI" style reference (styles.refero.design): inspiration for theme v2 step 4 (pill buttons, hairline dividers, small capital labels). We kept our own colors and fonts.
+- Thinking Gods (thinkingods.com), free "Kingfisher" hero prompt: the kingfisher video at the top of the home screen and the blend-mode technique that puts the bird in front of the word. The video loads from their site, as the prompt instructs. Not our footage.
 - Add anything else you use here on the day you add it.
 
 ## What this means for our work
