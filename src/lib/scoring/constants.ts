@@ -63,6 +63,21 @@ export const SUSTAIN_REL_LEVEL = 0.5;
  */
 export const MIN_SUSTAINED_MS = 50;
 
+/**
+ * iPhone and iPad only (see setMicProfile in scoring/index.ts). Measured 2026-11-15 on /lab, one adult
+ * tester, iPhone Safari: a clear "s" hiss centred near 5150 Hz (median of 77 hiss frames) and a clear "sh"
+ * near 3370 Hz (71 frames), so the iPhone "s" sat on the "sh" side of the laptop line (5400 Hz). With this
+ * anchor the line moves to about 4275 Hz, midway between the two. Laptops keep S_CENTROID_HZ.
+ */
+export const IOS_S_CENTROID_HZ = 5150;
+
+/**
+ * iPhone and iPad only. The "p" in "sip" pops very loud on the iPhone mic (the loudest frame of the
+ * recording), so the real "s" hiss sat at 1 to 3% of it and fell under HISS_REL_LEVEL. Same test as above.
+ * Laptops keep HISS_REL_LEVEL.
+ */
+export const IOS_HISS_REL_LEVEL = 0.01;
+
 /** A hiss run may bridge this many non-hiss frames (real "s" sounds flicker a little). */
 export const MAX_GAP_FRAMES = 1;
 
