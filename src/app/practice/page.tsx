@@ -15,6 +15,7 @@ import { wordsFor } from '@/content/words';
 import { useSoundMeter } from '@/hooks/useSoundMeter';
 import { buzz } from '@/lib/feedback';
 import { LIMITATIONS, scoreAttempt } from '@/lib/scoring';
+import { isTargetSound } from '@/lib/scoring/constants';
 import { loadProfile, loadSettings, saveAttempt } from '@/lib/store';
 import type { AttemptScore, HearingProfile, LearnerSettings, PracticeWord, TargetSound } from '@/lib/types';
 
@@ -55,7 +56,8 @@ function WordSteps({ index, total }: { index: number; total: number }) {
 
 function PracticeLoop() {
   const searchParams = useSearchParams();
-  const target: TargetSound = searchParams.get('sound') === 'sh' ? 'sh' : 's';
+  const wanted = searchParams.get('sound');
+  const target: TargetSound = isTargetSound(wanted) ? wanted : 's';
 
   const meter = useSoundMeter();
   const [settings, setSettings] = useState<LearnerSettings | null>(null);
@@ -266,7 +268,7 @@ function PracticeLoop() {
 
       {score && word && (
         <div className="flex flex-col gap-3">
-          <VerdictBadge verdict={score.verdict} target={word.target} />
+          <VerdictBadge verdict={score.verdict} target={word.target} heard={score.heard} />
           {score.warnings.length > 0 && (
             <ul className="flex flex-col gap-1 text-base text-muted">
               {score.warnings.map((warning) => (

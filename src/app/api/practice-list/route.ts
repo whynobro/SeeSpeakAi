@@ -1,6 +1,7 @@
 // Server only. The API key must never reach the browser.
 // No names, audio or hearing thresholds are accepted here: only target sounds, interests and a count.
 import { getPracticeList } from '@/lib/ai/practiceList';
+import { isTargetSound } from '@/lib/scoring/constants';
 import type { PracticeListRequest, TargetSound } from '@/lib/types';
 
 function bad(error: string): Response {
@@ -18,8 +19,8 @@ export async function POST(request: Request): Promise<Response> {
   const b = body as Record<string, unknown>;
 
   const t = b.targets;
-  if (!Array.isArray(t) || t.length === 0 || !t.every((x) => x === 's' || x === 'sh')) {
-    return bad('targets must be a non-empty array of "s" or "sh".');
+  if (!Array.isArray(t) || t.length === 0 || !t.every(isTargetSound)) {
+    return bad('targets must be a non-empty array of "s", "sh", "z" or "ch".');
   }
   const targets = t as TargetSound[];
 

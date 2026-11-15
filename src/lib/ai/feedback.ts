@@ -2,7 +2,15 @@ import { CUES } from '@/content/cues';
 import { WORD_BANK } from '@/content/words';
 import { askClaudeForJson } from '@/lib/ai/client';
 import { mergeFeedback } from '@/lib/ai/validate';
-import type { CoachFeedback, FeedbackRequest, TargetSound, TraceSummary, WordPosition } from '@/lib/types';
+import { BASE_HISS } from '@/lib/scoring/constants';
+import type {
+  AttemptScore,
+  CoachFeedback,
+  FeedbackRequest,
+  TargetSound,
+  TraceSummary,
+  WordPosition,
+} from '@/lib/types';
 
 // Starting values for the sound-trace rules. To be tuned on real voices, like the scoring constants.
 /** The hiss slid at least this far on the meter (0 to 1) toward the other sound. */
@@ -28,18 +36,21 @@ function traceObservation(
   target: TargetSound,
   position: WordPosition | null,
 ): { message: string } | null {
-  const other = target === 's' ? 'sh' : 's';
+  // "z" is a voiced "s" and "ch" ends in "sh", so the hiss they are measured against is BASE_HISS.
+  const base = BASE_HISS[target];
+  const other = base === 's' ? 'sh' : 's';
   // Drift is positive toward "s", so the wrong direction is negative for "s" and positive for "sh".
-  const wrongWay = target === 's' ? -trace.drift : trace.drift;
+  const wrongWay = base === 's' ? -trace.drift : trace.drift;
   if (wrongWay >= SLIDE_DRIFT) {
-    const startedRight = target === 's' ? trace.positionStart >= 0.5 : trace.positionStart < 0.5;
+    const startedRight = base === 's' ? trace.positionStart >= 0.5 : trace.positionStart < 0.5;
     return {
       message: startedRight
         ? `Your "${target}" started right, then slid toward "${other}". Keep it the same all the way through.`
         : `The hiss slid toward "${other}" as you held it. Try to keep it a steady "${target}".`,
     };
   }
-  if (trace.heldMs < SHORT_HELD_MS) {
+  // A "ch" is short on purpose, so "hold it longer" would be the wrong advice.
+  if (target !== 'ch' && trace.heldMs < SHORT_HELD_MS) {
     return { message: `The "${target}" was too short. Hold it a little longer.` };
   }
   if (trace.hissToVowel < QUIET_HISS_TO_VOWEL) {
@@ -51,10 +62,22 @@ function traceObservation(
   return null;
 }
 
+/** The sentence for a "close" try. "z" without voice and "ch" without a burst get their own words. */
+function closeMessage(target: TargetSound, last: AttemptScore): string {
+  if (target === 'z' && last.heard === 's') {
+    return 'There was a hiss, but no buzz. Turn your voice on, like a bee, so it is a "z" and not an "s".';
+  }
+  if (target === 'ch' && last.heard === 'sh') {
+    return 'The "sh" was there. Start with a quick "t" pop, then let it run into a short "sh".';
+  }
+  const fallback = BASE_HISS[target] === 's' ? 'sh' : 's';
+  const other = target === 'z' || target === 'ch' ? (last.heard ?? fallback) : fallback;
+  return `There was a hiss, but it was nearer "${other}" than "${target}".`;
+}
+
 /** Built-in feedback, used when there is no key or the AI call fails. Pure, so it is easy to test. */
 export function feedbackFromRules(req: FeedbackRequest): CoachFeedback {
   const { target, recent, trace } = req;
-  const other = target === 's' ? 'sh' : 's';
   const cues = CUES[target];
   const last = recent[recent.length - 1];
   const say = (
@@ -79,11 +102,7 @@ export function feedbackFromRules(req: FeedbackRequest): CoachFeedback {
     return say(`The "${target}" was there. Do it again to lock it in.`, null, 'repeat');
   }
   if (last.verdict === 'close') {
-    return say(
-      seen?.message ?? `There was a hiss, but it was nearer "${other}" than "${target}".`,
-      cues.steps.join(' '),
-      'repeat',
-    );
+    return say(seen?.message ?? closeMessage(target, last), cues.steps.join(' '), 'repeat');
   }
   if (missStreak) {
     return say(
@@ -95,13 +114,14 @@ export function feedbackFromRules(req: FeedbackRequest): CoachFeedback {
   return say(seen?.message ?? `No "${target}" heard that time. Make the hiss longer.`, cues.touch, 'repeat');
 }
 
-const FEEDBACK_SYSTEM = `You are a warm practice coach for a learner practicing the "s" or "sh" speech sound between speech therapy sessions.
+const FEEDBACK_SYSTEM = `You are a warm practice coach for a learner practicing the "s", "sh", "z" or "ch" speech sound between speech therapy sessions.
 You get numbers only, never audio. The app has already decided the verdict for the latest try (latestVerdict). Do not contradict it: if it is "hit" do not say it was missed, if it is "miss" or "close" do not say it was right.
 Rules:
 - One or two short, plain, kind sentences, at most 240 characters. Never say the learner is broken or needs fixing.
 - "cue" is one thing to change with the mouth (at most 200 characters), or null. Base it on cueText when you can.
 - This is not therapy and not a diagnosis. Do not use em dashes.
 - "trace" (when present) is the shape of the sound over the latest try, boiled down to numbers. Fields:
+  For "z" the meter side is "s" (a voiced "s"); for "ch" it is "sh" (a quick burst, then a short "sh"). Voicing and the burst are decided by the app, not shown in the trace.
   hissMs = how long the hiss lasted; heldMs = how much of it kept its loudness; positionStart, positionMid, positionEnd = where the hiss sat in the first, middle and last third (0 = "sh", 1 = "s"); drift = end minus start (negative means it slid toward "sh", positive toward "s"); steadiness = 0 (wobbly loudness) to 1 (smooth); hissToVowel = hiss loudness divided by vowel loudness (small means the hiss was soft); gapMs = silence between the vowel and the hiss, or null; vowelMs = length of the vowel.
 - Describe at most ONE thing the trace shows, in everyday words, with no numbers and no jargon. Never use the words "pitch", "centroid" or "frequency", and never write units like ms or Hz.
 - The mouth cue must come from cueText for that sound. You may shorten it or lightly reword it. Never invent a new mouth instruction.

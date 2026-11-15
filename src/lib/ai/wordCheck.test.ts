@@ -98,3 +98,70 @@ describe('baseWordFor and toPracticeWord', () => {
     expect(toPracticeWord('dogs', 's')).toBeNull();
   });
 });
+
+describe('checkWord for z and ch', () => {
+  it('accepts z words: plurals after a vowel or a voiced sound, and z at the start', () => {
+    const good: [string, 'z', string][] = [
+      ['dogs', 'z', 'end'],
+      ['beds', 'z', 'end'],
+      ['bees', 'z', 'end'],
+      ['toys', 'z', 'end'],
+      ['cars', 'z', 'end'],
+      ['zoo', 'z', 'start'],
+      ['zip', 'z', 'start'],
+    ];
+    for (const [word, target, position] of good) {
+      const r = checkWord(word, target);
+      expect(r.ok, word).toBe(true);
+      if (r.ok) expect(r.position).toBe(position);
+    }
+  });
+
+  it('rejects z words that borrow a voiceless sound or hold a second hiss', () => {
+    expect(checkWord('cats', 'z').ok).toBe(false); // ends in "s"
+    expect(checkWord('zebras', 'z').ok).toBe(false); // too long
+    expect(checkWord('zoos', 'z').ok).toBe(false); // two z sounds
+    expect(checkWord('shoes', 'z').ok).toBe(false); // has "sh" as well
+    expect(checkWord('blorptastic', 'z').ok).toBe(false);
+  });
+
+  it('accepts ch words at the start and end', () => {
+    const good: [string, string][] = [
+      ['chip', 'start'],
+      ['chair', 'start'],
+      ['cheek', 'start'],
+      ['watch', 'end'],
+      ['beach', 'end'],
+      ['lunch', 'end'],
+      ['catch', 'end'],
+    ];
+    for (const [word, position] of good) {
+      const r = checkWord(word, 'ch');
+      expect(r.ok, word).toBe(true);
+      if (r.ok) expect(r.position).toBe(position);
+    }
+  });
+
+  it('rejects ch words spoken as k or sh, and ch words with another hiss', () => {
+    expect(checkWord('school', 'ch').ok).toBe(false); // spoken "k"
+    expect(checkWord('chef', 'ch').ok).toBe(false); // spoken "sh"
+    expect(checkWord('cheese', 'ch').ok).toBe(false); // has a "z"
+    expect(checkWord('chairs', 'ch').ok).toBe(false); // has a "z"
+    expect(checkWord('church', 'ch').ok).toBe(false); // two "ch"
+    expect(checkWord('chips', 'ch').ok).toBe(false); // has an "s"
+  });
+
+  it('keeps "s" and "sh" strict about z and ch sounds', () => {
+    expect(checkWord('cheese', 's').ok).toBe(false);
+    expect(checkWord('dogs', 'sh').ok).toBe(false);
+    expect(checkWord('chip', 'sh').ok).toBe(false);
+  });
+
+  it('gives a base word for a z plural, and for nothing when the sounds differ', () => {
+    expect(baseWordFor('bees', 'Z')).toBe('bee');
+    expect(baseWordFor('cars', 'Z')).toBe('car');
+    expect(baseWordFor('bees')).toBeNull(); // default ending is "s", and "bees" ends in "z"
+    expect(toPracticeWord('toys', 'z')?.baseWord).toBe('toy');
+    expect(toPracticeWord('cheese', 'ch')).toBeNull();
+  });
+});

@@ -5,9 +5,13 @@ import { SoundMeter } from '@/components/SoundMeter';
 import { WORD_BANK } from '@/content/words';
 import { useSoundMeter } from '@/hooks/useSoundMeter';
 import { describeRuns, scoreAttempt } from '@/lib/scoring';
+import { TARGET_SOUNDS } from '@/lib/scoring/constants';
 import { summarizeTrace } from '@/lib/scoring/trace';
 import { ShareTests } from './ShareTests';
 import type { AttemptScore, FrameFeatures, PracticeWord, TargetSound, WordPosition } from '@/lib/types';
+
+/** Placeholder word shown when testing "just a sound". */
+const SAMPLE_TEXT: Record<TargetSound, string> = { s: 'sip', sh: 'ship', z: 'zip', ch: 'chip' };
 
 const YES = (b: boolean | null) => (b === null ? 'n/a' : b ? 'pass' : 'FAIL');
 
@@ -47,7 +51,7 @@ export default function LabPage() {
   const word = useMemo<PracticeWord>(
     () => ({
       id: picked || 'lab-word',
-      text: picked || (target === 's' ? 'sip' : 'ship'),
+      text: picked || SAMPLE_TEXT[target],
       target,
       position,
       baseWord: null,
@@ -86,7 +90,8 @@ export default function LabPage() {
         (r, i) =>
           `run ${i + 1}: start ${fmt(r.startMs, 0)} ms, length ${fmt(r.lengthMs, 0)} ms, ` +
           `centroid ${fmt(r.meanCentroidHz, 0)} Hz, position ${fmt(r.meanPosition, 2)}, ` +
-          `peak level ${fmt(r.peakLevel, 3)}, held ${fmt(r.sustainedMs, 0)} ms; ` +
+          `peak level ${fmt(r.peakLevel, 3)}, held ${fmt(r.sustainedMs, 0)} ms, ` +
+          `voiced share ${fmt(r.voicedShare, 2)}, burst ratio ${fmt(r.burstRatio, 2)}; ` +
           `long enough ${YES(r.passed.longEnough)}, held ${YES(r.passed.held)}, ` +
           `in place ${YES(r.passed.inPlace)}`,
       ),
@@ -110,6 +115,7 @@ export default function LabPage() {
     ['hissLevel', fmt(meter.latest?.hissLevel)],
     ['hissRatio', fmt(meter.latest?.hissRatio)],
     ['centroidHz', fmt(meter.latest?.centroidHz, 0)],
+    ['voicing', fmt(meter.latest?.voicing)],
     ['hissing', meter.reading ? String(meter.reading.hissing) : '-'],
     ['position', fmt(meter.reading?.position)],
   ];
@@ -134,6 +140,12 @@ export default function LabPage() {
               ['sh', 'start'],
               ['sh', 'end'],
               ['sh', 'middle'],
+              ['z', 'start'],
+              ['z', 'end'],
+              ['z', 'middle'],
+              ['ch', 'start'],
+              ['ch', 'end'],
+              ['ch', 'middle'],
             ] as const
           ).map(([sound, where]) => {
             const words = WORD_BANK.filter((w) => w.target === sound && w.position === where);
@@ -192,8 +204,11 @@ export default function LabPage() {
                 onChange={(e) => setTarget(e.target.value as TargetSound)}
                 className="min-h-12 rounded-lg border-2 border-current bg-transparent px-2"
               >
-                <option value="s">s</option>
-                <option value="sh">sh</option>
+                {TARGET_SOUNDS.map((sound) => (
+                  <option key={sound} value={sound}>
+                    {sound}
+                  </option>
+                ))}
               </select>
             </label>
             <label className="flex flex-col gap-1 text-sm font-bold">

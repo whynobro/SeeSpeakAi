@@ -34,8 +34,9 @@ For people who choose to work on spoken English. Sign language is welcome: sign 
 
 ## Honest limits
 
-- Only "s" and "sh" are scored today.
+- Four sounds are scored today: "s", "sh", "z" and "ch".
 - It checks that the hiss is there and which hiss it is. It does not judge the whole word.
+- The "z" and "ch" limits were set on synthetic sounds only and need real voices. A "z" is an "s" hiss with the voice on; a "ch" is a burst then a short "sh". Both are tested on /lab.
 - Thresholds are starting values, tuned on test sounds and a few voices, not on a clinical data set.
 - Vibration works on Android phones only. iPhones have no vibration for web pages.
 

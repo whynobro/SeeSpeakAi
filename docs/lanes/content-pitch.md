@@ -61,8 +61,8 @@ Leave alone (ask the owner or use what exists):
 
 ## Rules for words in the word bank
 
-- Target "s" at the end of a plural: only after p, t, k or f sounds (cats, cups, books). In "dogs" or "beds" the letter s is spoken as "z", and the app does not score that.
-- No spelling traps: "sugar" and "sure" have an "sh" sound, "is" and "nose" have a "z" sound.
+- Target "s" at the end of a plural: only after p, t, k or f sounds (cats, cups, books). In "dogs" or "beds" the letter s is spoken as "z": those are "z" words (plurals after a vowel or a voiced sound). "ch" words are spelled ch or tch and spoken "ch" (not "school" or "chef"), with no other hiss in them (skip "cheese").
+- No spelling traps: "sugar" and "sure" have an "sh" sound, "is" and "nose" have a "z" sound (fine for the "z" target, wrong for "s").
 - Common, concrete, short words.
 
 ## How to test

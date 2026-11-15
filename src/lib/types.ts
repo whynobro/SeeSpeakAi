@@ -3,7 +3,7 @@
 // ---------- Sounds ----------
 
 /** Sounds the app can score today. Add one only when src/lib/scoring can really detect it. */
-export type TargetSound = 's' | 'sh';
+export type TargetSound = 's' | 'sh' | 'z' | 'ch';
 /** The Ling Six sounds, lowest pitch to highest. */
 export type LingSound = 'm' | 'oo' | 'ah' | 'ee' | 'sh' | 's';
 /** Audiogram test frequencies in Hz. */
@@ -60,6 +60,8 @@ export interface FrameFeatures {
   hissLevel: number; // loudness of the part above 2 kHz, 0 to 1
   hissRatio: number; // share of the frame's energy that is above 2 kHz, 0 to 1
   centroidHz: number | null; // "center of pitch" of the hiss band, null when there is no hiss
+  /** Voicing, 0 to 1: energy under 500 Hz next to the hiss energy. About 0 for a plain hiss, higher with the voice on. Older saved frames lack it. */
+  voicing?: number;
 }
 /** The shape of the hiss over one try, boiled down to a few numbers. Never audio. */
 export interface TraceSummary {
@@ -87,7 +89,7 @@ export type Verdict = 'hit' | 'close' | 'miss';
 export interface AttemptScore {
   target: TargetSound;
   verdict: Verdict;
-  heard: TargetSound | null; // which hiss was found, if any
+  heard: TargetSound | null; // which sound was found, if any (a plain hiss reads as 's' or 'sh')
   meterPosition: number | null; // average meter position of the hiss, 0 ("sh") to 1 ("s")
   hissMs: number; // how long the hiss lasted
   confidence: number; // 0 to 1

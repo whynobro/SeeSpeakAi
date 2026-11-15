@@ -9,7 +9,7 @@ import type { AssessmentReport, PracticePlan } from '@/lib/types';
 
 type AgeGroup = AssessmentReport['ageGroup'];
 
-const SCORED_CHOICES = ['s', 'sh'] as const;
+const SCORED_CHOICES = ['s', 'sh', 'z', 'ch'] as const;
 
 const AGE_GROUPS: { value: AgeGroup; label: string }[] = [
   { value: 'child', label: 'Child' },

@@ -1,5 +1,6 @@
 import { WORD_BANK } from '@/content/words';
 import { toPracticeWord } from '@/lib/ai/wordCheck';
+import { isTargetSound } from '@/lib/scoring/constants';
 import type { CoachFeedback, PlanStep, PracticePlan, PracticeWord, TraceSummary } from '@/lib/types';
 
 // Built from a char code so this file never contains the character itself.
@@ -48,7 +49,7 @@ function pickWords(ids: unknown, step: PlanStep): PracticeWord[] | null {
  * Returns the bank words unchanged when nothing passes.
  */
 function withThemedWords(newWords: unknown, step: PlanStep, bankWords: PracticeWord[]): PracticeWord[] {
-  if (!Array.isArray(newWords) || (step.sound !== 's' && step.sound !== 'sh')) return bankWords;
+  if (!Array.isArray(newWords) || !isTargetSound(step.sound)) return bankWords;
   const target = step.sound;
   const themed: PracticeWord[] = [];
   for (const raw of newWords.slice(0, MAX_SUGGESTIONS)) {

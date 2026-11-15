@@ -13,7 +13,10 @@ import {
   shareLabAttempt,
   type Said,
 } from '@/lib/testlog';
-import type { FrameFeatures, PracticeWord } from '@/lib/types';
+import type { FrameFeatures, PracticeWord, TargetSound } from '@/lib/types';
+
+/** What a tester most likely said instead of the target: the other hiss. "z" slips to "s", "ch" to "sh". */
+const SAID_INSTEAD: Record<TargetSound, string> = { s: 'sh', sh: 's', z: 's', ch: 'sh' };
 
 const CHOICES: { said: Said; text: (sound: string, other: string) => string }[] = [
   { said: 'with-sound', text: (sound) => `I said the "${sound}"` },
@@ -106,7 +109,7 @@ export function ShareTests({
     setStatus(stored ? 'answered' : 'failed');
   }
 
-  const other = word.target === 's' ? 'sh' : 's';
+  const other = SAID_INSTEAD[word.target];
 
   return (
     <section className="flex flex-col gap-3 rounded-xl border-2 border-current p-3">
