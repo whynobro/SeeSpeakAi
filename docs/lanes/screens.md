@@ -85,6 +85,26 @@ The demo flow is in [docs/DEMO.md](../DEMO.md). The practice is the game: points
 - **Age look.** The age group from the report picks the default look (#36); a setting switches it. Points and shop exist in both looks.
 - **Accessibility.** Every reward shows a word and an icon, never color or sound alone. Respect `prefers-reduced-motion`. Buttons at least 48 px. A purchase can be undone.
 
+## Landing page animation: "the voice that comes back different" (Mason, from the Nov 14 call)
+
+The idea (Michael and Mason): a sound wave leaves the person's mouth, loops around, and goes back into their own
+ear, and it **changes on the way back**. The point: a hard-of-hearing person hears their own voice differently
+from how it really sounds, so they cannot tell their own "s" is missing.
+
+- Out of the mouth: the full wave, with the high, fast "s" part drawn clearly.
+- On the way back to the ear: the high part fades or flattens, so what arrives is "cat", not "cats". This
+  matches the science: hearing loss usually takes high pitches first (see `docs/pitch/presentation-plan.md`,
+  "What the hiss means").
+- Words on screen too (for example "What you say: cats. What you hear: cat"), so the animation never relies on
+  sound or motion alone.
+- Mason found a JavaScript library with a 3D character that turns to follow the cursor. **Mason: add its name
+  and link here.** A simpler fallback: a flat SVG head with an animated SVG path for the wave.
+- Rules: respect `prefers-reduced-motion` (show a still picture), works at 375 px wide, does not slow the first
+  load. A new library goes in `package.json` (hot file, tell the team) and in the disclosure list in
+  `docs/HACKATHON.md`.
+- Priority: after the demo path and the restyle work. Cut it if it is not solid by the Sunday 9 AM cut. It also
+  works as the opening shot of the demo video.
+
 ## How your AI agent should work with you
 
 Before designing any screen, open `docs/design/README.md` and look at every picture in `docs/design/references/`. Use the brand files and colors listed there. Ask Mason which references matter most for this screen.
