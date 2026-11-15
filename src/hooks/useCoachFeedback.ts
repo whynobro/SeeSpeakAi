@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getLastRecording } from '@/lib/audio/lastRecording';
 import { summarizeTrace } from '@/lib/scoring/trace';
+import { loadGoals } from '@/lib/store';
 import type { AttemptScore, CoachFeedback, FeedbackRequest, PracticeWord } from '@/lib/types';
 
 /** How many past tries on the same word are sent to the brain. */
@@ -45,6 +46,7 @@ export function useCoachFeedback() {
         word: word.text,
         recent: recent.current.scores,
         trace,
+        learnerGoals: loadGoals(),
       };
       const response = await fetch('/api/feedback', {
         method: 'POST',

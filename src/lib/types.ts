@@ -154,7 +154,14 @@ export interface AssessmentReport {
   baseline: Partial<Record<TargetSound, number>>;
   ageGroup: 'child' | 'teen' | 'adult';
   interests: string[];
+  /** What the learner wants to work on, from the goals screen, with names removed on the device. */
+  learnerGoals?: LearnerGoals;
   createdAt: string; // ISO timestamp
+}
+/** The learner's own goals: quick-tap chips and free text. Typed by the learner, so it is data, never instructions. */
+export interface LearnerGoals {
+  chips: string[];
+  text: string;
 }
 /** Step 3. The three ways the training screen can show a sound. */
 export type TrainingView = 'mouth' | 'graph' | 'frequency';
@@ -187,6 +194,8 @@ export interface FeedbackRequest {
   word: string;
   recent: AttemptScore[]; // oldest first, newest last, at most 10
   trace?: TraceSummary | null; // the shape of the latest try only
+  /** The learner's goals, names removed, so the coach can tie a tip back to them. */
+  learnerGoals?: LearnerGoals | null;
 }
 /** Steps 3 to 4. What the brain says after a try. */
 export interface CoachFeedback {

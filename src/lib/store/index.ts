@@ -1,6 +1,13 @@
 import { isTargetSound } from '@/lib/scoring/constants';
 import { sharePracticeAttempt } from '@/lib/testlog';
-import type { Attempt, HearingProfile, LearnerSettings, SoundProgress, TargetSound } from '@/lib/types';
+import type {
+  Attempt,
+  HearingProfile,
+  LearnerGoals,
+  LearnerSettings,
+  SoundProgress,
+  TargetSound,
+} from '@/lib/types';
 
 /** Everything here stays on this device. Every function is safe with no storage, blocked storage or bad JSON. */
 
@@ -8,6 +15,8 @@ const KEYS = {
   profile: 'seespeak.profile',
   settings: 'seespeak.settings',
   attempts: 'seespeak.attempts',
+  goals: 'seespeak.goals',
+  listening: 'seespeak.listening',
 } as const;
 
 const DEFAULT_SETTINGS: LearnerSettings = {
@@ -81,6 +90,46 @@ export function saveAttempt(a: Attempt): void {
   writeJson(KEYS.attempts, [...loadAttempts(), a]);
   // Does nothing unless a tester switched on the shared test log at /lab.
   sharePracticeAttempt(a.wordId, a.target, a.score);
+}
+
+/** The learner's goals from the goals screen, already cleaned of names. */
+export function loadGoals(): LearnerGoals | null {
+  const v = readJson(KEYS.goals);
+  if (!isRecord(v) || typeof v.text !== 'string' || !Array.isArray(v.chips)) return null;
+  return { chips: v.chips.filter((c): c is string => typeof c === 'string'), text: v.text };
+}
+
+export function saveGoals(g: LearnerGoals): void {
+  writeJson(KEYS.goals, g);
+}
+
+/** One listening check result, kept so the next run can be compared with it. Numbers only. */
+export interface ListeningRun {
+  createdAt: string;
+  ageGroup: 'child' | 'teen' | 'adult';
+  level: 'easy' | 'harder' | 'not-sure';
+  contrastCorrect: number;
+  contrastTotal: number;
+  devices: 'on' | 'off' | 'none';
+}
+
+const MAX_LISTENING_RUNS = 20;
+
+export function loadListeningRuns(): ListeningRun[] {
+  const v = readJson(KEYS.listening);
+  if (!Array.isArray(v)) return [];
+  return v.filter(
+    (r): r is ListeningRun =>
+      isRecord(r) &&
+      typeof r.createdAt === 'string' &&
+      (r.level === 'easy' || r.level === 'harder' || r.level === 'not-sure') &&
+      typeof r.contrastCorrect === 'number' &&
+      typeof r.contrastTotal === 'number',
+  );
+}
+
+export function saveListeningRun(run: ListeningRun): void {
+  writeJson(KEYS.listening, [...loadListeningRuns(), run].slice(-MAX_LISTENING_RUNS));
 }
 
 export function clearAll(): void {
