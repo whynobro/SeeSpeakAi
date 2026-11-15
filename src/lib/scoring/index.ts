@@ -29,6 +29,7 @@ import {
   SH_CENTROID_HZ,
   S_CENTROID_HZ,
   SUSTAIN_REL_LEVEL,
+  S_FOCUS_FLATNESS_MAX,
   TOO_QUIET_LEVEL,
   VOICED_RATIO_MAX,
   VOICED_REL_LEVEL,
@@ -101,6 +102,16 @@ export function isLispLike(
 ): boolean {
   if (position === null || position < BOUNDARY || flatness === undefined) return false;
   return vowelLevel > 0 && hissLevel < LISP_HISS_TO_VOWEL_MAX * vowelLevel && flatness >= LISP_FLATNESS_MIN;
+}
+
+/**
+ * The focus rule ("s" only): a hiss whose typical flatness is above S_FOCUS_FLATNESS_MAX is slushy, spread
+ * out instead of a thin line of air, so it is not a clear "s" even when it is loud. Judged on a whole run
+ * (single frames of a clear "s" can read flatter), so the live meter does not use it. Frames saved without
+ * flatness never count.
+ */
+export function isSlushyHiss(flatness: number | undefined): boolean {
+  return flatness !== undefined && flatness > S_FOCUS_FLATNESS_MAX;
 }
 
 /**
@@ -606,11 +617,14 @@ export function scoreAttempt(
   );
 
   // "s" and "z" only: a hiss in place on the "s" side that is weak and flat is a lisp, not a clear "s".
+  // "s" only: a hiss on the "s" side that is slushy (see isSlushyHiss) is treated the same, however loud.
   // It is close, never a hit, and the meter shows it at LISP_METER_POSITION so meter and verdict agree.
+  const flatness = flatnessOf(frames, a, run);
   const lisp =
-    (word.target === 's' || word.target === 'z') &&
-    (!alone || a.haveVowel) &&
-    isLispLike(meterPosition, flatnessOf(frames, a, run), hissToVowelOf(frames, a, run), 1);
+    ((word.target === 's' || word.target === 'z') &&
+      (!alone || a.haveVowel) &&
+      isLispLike(meterPosition, flatness, hissToVowelOf(frames, a, run), 1)) ||
+    (word.target === 's' && heardSound === 's' && isSlushyHiss(flatness));
   if (lisp) {
     return {
       target: word.target,

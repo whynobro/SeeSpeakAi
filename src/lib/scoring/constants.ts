@@ -216,6 +216,20 @@ export const LISP_HISS_TO_VOWEL_MAX = 0.2;
 export const LISP_FLATNESS_MIN = 0.47;
 
 /**
+ * Lisp, focus rule ("s" only): an "s" hiss whose typical flatness is above this is slushy (spread out, not a
+ * thin line of air) and is never a hit, however loud it is. It scores close with lisp: true, like the lisp
+ * rule above, which only catches a hiss that is weak AND near-flat. Measured 2026-11-15, lisp drill on
+ * /lab/guided, one adult tester, Windows laptop, Edge: 10 clear "sip" tries labeled said with the sound had
+ * run flatness 0.068 to 0.158; the 4 tries labeled other sound (drifting toward "sh", or lispy) that still
+ * scored a hit had 0.203 to 0.368. 0.18 sits in the gap; anything from 0.16 to 0.20 split them the same way.
+ * Two held "sss" hits (same laptop, another tester) read 0.02. One voice on one mic: re-check with more
+ * voices and phones. Not used for "z": no logged "z" try carries flatness yet. Frames saved without
+ * flatness never trip it. A run-level number only: single frames of a clear "s" reach 0.28, so the live
+ * meter does not use it.
+ */
+export const S_FOCUS_FLATNESS_MAX = 0.18;
+
+/**
  * Lisp: where a lisp shows on the meter (0 = "sh", 1 = "s"), and the meterPosition a lisp result gets.
  * Just on the "sh" side of the middle, so a lisp never lands in the "s" zone and the meter and verdict agree.
  */
