@@ -6,7 +6,7 @@ import {
   CONFIDENCE_FULL_HISS_MS,
   HISS_RATIO_MIN,
   HISS_REL_LEVEL,
-  LIVE_MIN_LEVEL,
+  MAX_VOWEL_GAP_MS,
   MAX_GAP_FRAMES,
   MIN_HISS_MS,
   MIN_RECORDING_MS,
@@ -46,9 +46,21 @@ export function positionFromCentroid(centroidHz: number | null): number | null {
   return clamp01((centroidHz - SH_CENTROID_HZ) / (S_CENTROID_HZ - SH_CENTROID_HZ));
 }
 
-/** Live meter: is this frame a hiss, and is it nearer "sh" (0) or "s" (1)? */
-export function readFrame(frame: FrameFeatures): SoundReading {
-  const hissing = frame.level >= LIVE_MIN_LEVEL && frame.hissRatio >= HISS_RATIO_MIN;
+/**
+ * The one hiss rule, shared by the live meter and the verdict so they agree: mostly high-pitched energy,
+ * and loud enough next to `peakLevel` (the loudest frame of the recording, or so far while live).
+ */
+export function isHissFrame(frame: FrameFeatures, peakLevel: number): boolean {
+  const floor = Math.max(SILENCE_LEVEL, HISS_REL_LEVEL * peakLevel);
+  return frame.level >= floor && frame.hissRatio >= HISS_RATIO_MIN;
+}
+
+/**
+ * Live meter: is this frame a hiss, and is it nearer "sh" (0) or "s" (1)? Pass the loudest level heard so
+ * far in this try, so a quiet mic is judged the same way the final verdict judges it.
+ */
+export function readFrame(frame: FrameFeatures, peakLevel = frame.level): SoundReading {
+  const hissing = isHissFrame(frame, Math.max(peakLevel, frame.level));
   return { hissing, position: hissing ? positionFromCentroid(frame.centroidHz) : null, level: frame.level };
 }
 
@@ -127,6 +139,8 @@ export interface Analysis {
   haveVowel: boolean;
   vowelStart: number;
   vowelEnd: number;
+  /** Stretches of voiced frames at least MIN_VOICED_MS long. A lone click or thud is not one. */
+  vowels: Run[];
   runs: Run[];
 }
 
@@ -134,12 +148,12 @@ export function analyse(frames: FrameFeatures[]): Analysis {
   const maxLevel = Math.max(...frames.map((f) => f.level));
   const hopMs = hopMsOf(frames);
   // All loudness checks are relative to the loudest frame, so the mic gain does not matter.
-  const hissFloor = Math.max(SILENCE_LEVEL, HISS_REL_LEVEL * maxLevel);
   const voicedFloor = Math.max(SILENCE_LEVEL, VOICED_REL_LEVEL * maxLevel);
-  const isHiss = frames.map((f) => f.level >= hissFloor && f.hissRatio >= HISS_RATIO_MIN);
+  const isHiss = frames.map((f) => isHissFrame(f, maxLevel));
+  const isVoiced = frames.map((f) => f.level >= voicedFloor && f.hissRatio <= VOICED_RATIO_MAX);
   const voicedIdx: number[] = [];
-  frames.forEach((f, i) => {
-    if (f.level >= voicedFloor && f.hissRatio <= VOICED_RATIO_MAX) voicedIdx.push(i);
+  isVoiced.forEach((v, i) => {
+    if (v) voicedIdx.push(i);
   });
   // The vowel: need enough voiced frames to trust it.
   const haveVowel = voicedIdx.length * hopMs >= MIN_VOICED_MS;
@@ -150,6 +164,7 @@ export function analyse(frames: FrameFeatures[]): Analysis {
     haveVowel,
     vowelStart: haveVowel ? voicedIdx[0] : -1,
     vowelEnd: haveVowel ? voicedIdx[voicedIdx.length - 1] : -1,
+    vowels: findRuns(isVoiced).filter((r) => runLengthMs(frames, r, hopMs) >= MIN_VOICED_MS),
     runs: findRuns(isHiss),
   };
 }
@@ -172,11 +187,24 @@ export function sustainedMsOf(frames: FrameFeatures[], r: Run, hopMs: number): n
   return levels.filter((l) => l >= SUSTAIN_REL_LEVEL * peak).length * hopMs;
 }
 
-function placedOk(a: Analysis, r: Run, word: PracticeWord): boolean {
+/**
+ * Is the hiss in the right place in the word? It is judged by the vowel right next to it, not by the
+ * first or last voiced frame of the whole recording: on a laptop the click of the Start or Stop button
+ * reads as a voiced frame, and used to make every start or end hiss look out of place.
+ */
+function placedOk(frames: FrameFeatures[], a: Analysis, r: Run, word: PracticeWord): boolean {
   if (!a.haveVowel) return true; // cannot place it, so accept any (a warning is added by the caller)
-  if (word.position === 'start') return r.end < a.vowelStart;
-  if (word.position === 'end') return r.start > a.vowelEnd;
-  return r.start > a.vowelStart && r.end < a.vowelEnd; // middle: between voiced parts
+  const runStart = frames[r.start].tMs;
+  const runEnd = frames[r.end].tMs + a.hopMs;
+  const vowelAfter = a.vowels.some(
+    (v) => v.start > r.end && frames[v.start].tMs - runEnd <= MAX_VOWEL_GAP_MS,
+  );
+  const vowelBefore = a.vowels.some(
+    (v) => v.end < r.start && runStart - (frames[v.end].tMs + a.hopMs) <= MAX_VOWEL_GAP_MS,
+  );
+  if (word.position === 'start') return vowelAfter;
+  if (word.position === 'end') return vowelBefore;
+  return vowelBefore && vowelAfter; // middle: between voiced parts
 }
 
 function meanOf(values: number[]): number | null {
@@ -214,7 +242,7 @@ export function describeRuns(frames: FrameFeatures[], word?: PracticeWord): RunI
       passed: {
         longEnough: lengthMs >= MIN_HISS_MS,
         held: sustainedMs >= MIN_SUSTAINED_MS,
-        inPlace: word ? placedOk(a, r, word) : null,
+        inPlace: word ? placedOk(frames, a, r, word) : null,
       },
     };
   });
@@ -223,10 +251,10 @@ export function describeRuns(frames: FrameFeatures[], word?: PracticeWord): RunI
 /** The runs that pass each rule in turn: long enough and in place, then also held. */
 function candidateRuns(frames: FrameFeatures[], a: Analysis, word: PracticeWord) {
   const long = a.runs.filter((r) => runLengthMs(frames, r, a.hopMs) >= MIN_HISS_MS);
-  const inPlace = long.filter((r) => placedOk(a, r, word));
+  const inPlace = long.filter((r) => placedOk(frames, a, r, word));
   // A hiss that fades away is the puff after a "t" or "k", not an "s" or "sh": it must hold its level.
   const held = inPlace.filter((r) => sustainedMsOf(frames, r, a.hopMs) >= MIN_SUSTAINED_MS);
-  return { inPlace, held };
+  return { long, inPlace, held };
 }
 
 /** If several runs qualify, the longest one is the most likely to be the real sound. */
@@ -280,7 +308,11 @@ export function scoreAttempt(frames: FrameFeatures[], word: PracticeWord): Attem
     warnings.push('I could not find the vowel, so I could not check where in the word the hiss was.');
   }
 
-  const { inPlace, held } = candidateRuns(frames, a, word);
+  const { long, inPlace, held } = candidateRuns(frames, a, word);
+  if (long.length > 0 && inPlace.length === 0) {
+    const where = word.position === 'middle' ? 'in the middle' : `at the ${word.position}`;
+    warnings.push(`I heard a hiss, but not ${where} of the word.`);
+  }
   if (inPlace.length > 0 && held.length === 0) {
     warnings.push('That sounded like a short burst, not a held hiss. Hold the hiss longer.');
   }
