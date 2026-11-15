@@ -6,7 +6,7 @@ import { GoalsBox } from '@/components/GoalsBox';
 import { ArrowLeftIcon, CheckCircleIcon, ChevronRightIcon, EarIcon, MicIcon } from '@/components/Icons';
 import { showRulesPlanNow } from '@/components/planStore';
 import { SoundMeter } from '@/components/SoundMeter';
-import { Button, Card } from '@/components/ui';
+import { Button, Card, Divider, GroupedList, GroupedRow, SectionLabel } from '@/components/ui';
 import {
   AGE_LABELS,
   CHECK_COPY,
@@ -88,37 +88,48 @@ function RecordButton({
 
 function SpotRows({ summary, start }: { summary: SpotSummary[]; start: SpotSummary | null }) {
   return (
-    <ul className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       {CHECK_SOUNDS.map((sound) => (
-        <Card as="li" key={sound} className="flex flex-col gap-3 motion-safe:animate-rise">
-          <p className="text-xl font-extrabold">The &ldquo;{sound}&rdquo; sound</p>
-          <ul className="flex flex-col gap-2">
+        <section
+          key={sound}
+          aria-labelledby={`spot-${sound}`}
+          className="flex flex-col gap-2 motion-safe:animate-rise"
+        >
+          <SectionLabel as="h2" id={`spot-${sound}`} className="px-1">
+            The &ldquo;{sound}&rdquo; sound
+          </SectionLabel>
+          <GroupedList>
             {CHECK_POSITIONS.map((position) => {
               const spot = summary.find((s) => s.sound === sound && s.position === position)!;
               const style = LEVEL_STYLE[spot.level];
               const isStart = start?.sound === sound && start.position === position;
               return (
-                <li key={position} className="flex min-h-11 items-center gap-3">
-                  <span className="w-20 text-base text-muted capitalize">{position}</span>
-                  <span
-                    aria-hidden="true"
-                    className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-lg font-extrabold ${style.className}`}
-                  >
-                    {style.icon}
-                  </span>
-                  <span className="text-lg font-bold">
-                    {spot.said === 0 ? 'Skipped' : CHECK_COPY.levelLabels[spot.level]}
-                    {isStart && (
-                      <span className="font-normal text-muted">, {CHECK_COPY.startHere.toLowerCase()}</span>
-                    )}
-                  </span>
-                </li>
+                <GroupedRow
+                  key={position}
+                  lead={
+                    <span
+                      aria-hidden="true"
+                      className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-lg font-extrabold ${style.className}`}
+                    >
+                      {style.icon}
+                    </span>
+                  }
+                  title={spot.said === 0 ? 'Skipped' : CHECK_COPY.levelLabels[spot.level]}
+                  detail={<span className="capitalize">{position}</span>}
+                  trail={
+                    isStart && (
+                      <span className="rounded-full bg-accent-soft px-3 py-1 text-[13px] font-bold whitespace-nowrap text-accent-edge">
+                        {CHECK_COPY.startHere}
+                      </span>
+                    )
+                  }
+                />
               );
             })}
-          </ul>
-        </Card>
+          </GroupedList>
+        </section>
       ))}
-    </ul>
+    </div>
   );
 }
 
@@ -293,6 +304,7 @@ export default function SpeechCheckPage() {
           </Card>
         )}
         <p className="text-base text-muted">{CHECK_COPY.resultsNote}</p>
+        <Divider />
         <GoalsBox age={age} goals={goals} onChange={setGoals} />
         <Card tone="accent" className="flex flex-col gap-1">
           <p className="text-base font-bold text-accent-edge">{CHECK_COPY.sendTitle}</p>

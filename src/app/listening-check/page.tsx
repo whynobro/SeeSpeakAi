@@ -2,7 +2,7 @@
 
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { ArrowLeftIcon, CheckCircleIcon, EarIcon } from '@/components/Icons';
-import { Button, Card } from '@/components/ui';
+import { Button, Card, Divider, GroupedList, GroupedRow, SectionLabel, SegmentedControl } from '@/components/ui';
 import { AGE_LABELS, CHECK_COPY, type CheckAge, LISTEN_PAIRS } from '@/content/checks';
 import { canSpeakWords, playCheckSound, speakWord, unlockAudio } from '@/lib/audio/playback';
 import {
@@ -23,6 +23,18 @@ const DEVICE_LABELS: Record<Devices, string> = {
   off: 'Hearing aids or implant off',
   none: 'I do not use them',
 };
+
+// Short labels for the segmented picker; the full ones above are used in sentences.
+const DEVICE_CHOICES: { value: Devices; label: string }[] = [
+  { value: 'on', label: 'On' },
+  { value: 'off', label: 'Off' },
+  { value: 'none', label: 'I do not use them' },
+];
+
+const AGE_CHOICES = (['child', 'teen', 'adult'] as const).map((g) => ({
+  value: g,
+  label: AGE_LABELS[g].title,
+}));
 
 export default function ListeningCheckPage() {
   const [phase, setPhase] = useState<Phase>('intro');
@@ -128,38 +140,55 @@ export default function ListeningCheckPage() {
       <>
         {heading(CHECK_COPY.listenResultTitle)}
         {stoppedEarly && <p className="text-lg">{CHECK_COPY.stoppedEarly}</p>}
-        <Card className="flex flex-col gap-2">
-          <p className="text-base font-bold text-muted">Hearing the sounds on their own</p>
-          <ul className="flex flex-col gap-1 text-lg">
+        <section aria-labelledby="alone-label" className="flex flex-col gap-2">
+          <SectionLabel id="alone-label" className="px-1">
+            Hearing the sounds on their own
+          </SectionLabel>
+          <GroupedList>
             {(['s', 'sh', 'ah'] as const).map((s) =>
               summary.heard[s] === undefined ? null : (
-                <li key={s} className="flex items-center gap-2">
-                  <span aria-hidden="true" className="font-extrabold">
-                    {summary.heard[s] ? '✓' : '·'}
-                  </span>
-                  &ldquo;{s}&rdquo;: {summary.heard[s] ? 'heard' : 'not heard this time'}
-                </li>
+                <GroupedRow
+                  key={s}
+                  lead={
+                    <span
+                      aria-hidden="true"
+                      className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-lg font-extrabold ${
+                        summary.heard[s] ? 'bg-hit text-hit-ink' : 'border-2 border-line text-muted'
+                      }`}
+                    >
+                      {summary.heard[s] ? '✓' : '·'}
+                    </span>
+                  }
+                  title={<>&ldquo;{s}&rdquo;</>}
+                  trail={
+                    <span className="text-[15px] font-semibold text-muted">
+                      {summary.heard[s] ? 'Heard' : 'Not heard this time'}
+                    </span>
+                  }
+                />
               ),
             )}
-          </ul>
-        </Card>
+          </GroupedList>
+        </section>
         {share && (
-          <Card tone="accent" className="flex flex-col gap-1">
-            <p className="text-base font-bold text-accent-edge">
+          <section aria-labelledby="pairs-label" className="flex flex-col gap-2">
+            <SectionLabel id="pairs-label" className="px-1">
               Telling &ldquo;s&rdquo; and &ldquo;sh&rdquo; apart
-            </p>
-            <p className="text-2xl font-extrabold">{CHECK_COPY.listenLevels[summary.level]}</p>
-            <p className="text-lg">
-              {share} word pairs
-              {previous &&
-                `. Last time (${DEVICE_LABELS[devices].toLowerCase()}): ${previous.contrastCorrect} of ${previous.contrastTotal}`}
-            </p>
-            {summary.level === 'harder' && (
-              <p className="text-base">
-                Your practice will lean on the meter and the mouth pictures: eyes first.
+            </SectionLabel>
+            <Card tone="accent" className="flex flex-col gap-1">
+              <p className="text-2xl font-extrabold">{CHECK_COPY.listenLevels[summary.level]}</p>
+              <p className="text-lg">
+                {share} word pairs
+                {previous &&
+                  `. Last time (${DEVICE_LABELS[devices].toLowerCase()}): ${previous.contrastCorrect} of ${previous.contrastTotal}`}
               </p>
-            )}
-          </Card>
+              {summary.level === 'harder' && (
+                <p className="text-base">
+                  Your practice will lean on the meter and the mouth pictures: eyes first.
+                </p>
+              )}
+            </Card>
+          </section>
         )}
         <p className="text-base text-muted">{CHECK_COPY.listenNote}</p>
         <Button href="/speech-check" size="lg">
@@ -275,46 +304,20 @@ export default function ListeningCheckPage() {
         {CHECK_COPY.playSample}
       </Button>
       {!voice && <p className="text-base text-muted">{CHECK_COPY.noVoice}</p>}
-      <fieldset className="flex flex-col gap-2">
-        <legend className="pb-2 text-xl font-bold">Who is listening?</legend>
-        <div className="flex flex-wrap gap-2">
-          {(['child', 'teen', 'adult'] as const).map((g) => (
-            <button
-              key={g}
-              type="button"
-              aria-pressed={age === g}
-              onClick={() => setAge(g)}
-              className={`inline-flex min-h-12 items-center gap-2 rounded-2xl px-4 text-lg font-bold ${
-                age === g
-                  ? 'border-2 border-accent bg-accent-soft text-accent-edge'
-                  : 'border border-line bg-surface'
-              }`}
-            >
-              {age === g && <CheckCircleIcon className="h-5 w-5" />}
-              {AGE_LABELS[g].title}
-            </button>
-          ))}
-        </div>
-      </fieldset>
-      <fieldset className="flex flex-col gap-2">
-        <legend className="pb-2 text-xl font-bold">Hearing devices right now</legend>
-        {(['on', 'off', 'none'] as const).map((d) => (
-          <button
-            key={d}
-            type="button"
-            aria-pressed={devices === d}
-            onClick={() => setDevices(d)}
-            className={`flex min-h-12 items-center gap-2 rounded-2xl px-4 text-left text-lg font-bold ${
-              devices === d
-                ? 'border-2 border-accent bg-accent-soft text-accent-edge'
-                : 'border border-line bg-surface'
-            }`}
-          >
-            {devices === d && <CheckCircleIcon className="h-5 w-5" />}
-            {DEVICE_LABELS[d]}
-          </button>
-        ))}
-      </fieldset>
+      <Divider />
+      <div className="flex flex-col gap-2">
+        <h2 className="text-[20px] font-bold">Who is listening?</h2>
+        <SegmentedControl label="Who is listening?" options={AGE_CHOICES} value={age} onChange={setAge} />
+      </div>
+      <div className="flex flex-col gap-2">
+        <h2 className="text-[20px] font-bold">Hearing aids or implant right now</h2>
+        <SegmentedControl
+          label="Hearing aids or implant right now"
+          options={DEVICE_CHOICES}
+          value={devices}
+          onChange={setDevices}
+        />
+      </div>
       <Button size="lg" onClick={begin}>
         Start the listening check
       </Button>
