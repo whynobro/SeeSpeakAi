@@ -4,6 +4,8 @@
     <meta charset="utf-8" />
     <title>SeeSpeak pitch (Holly's copy)</title>
     <!-- Holly's copy of the pitch deck, built on Michael's 7 slides. Michael's own deck is separate and is not changed.
+     Present: open in Chrome, press F for full screen, arrow keys to move. The demo video plays from
+     media/seespeak-demo.mp4 next to this file (kept out of git) or, failing that, from the demo-video release.
      Print: open in Chrome, Ctrl+P, Save as PDF, Margins none, Background graphics on. Or headless:
      chrome --headless=new --no-pdf-header-footer --print-to-pdf=seespeak-pitch-holly.pdf docs/pitch/deck/deck.html
      Every number is checked against its source (Nov 15). Chart values are the published values, not estimates. -->
@@ -345,511 +347,636 @@
         font-weight: 800;
         font-size: 19px;
       }
+      /* Kingfisher fly-in: the clip fills the bird area; the still shows for print and reduced motion. */
+      .cover .bird video {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 50% 42%;
+      }
+      .cover .bird .bird-still {
+        position: absolute;
+        inset: 0;
+      }
+      @media screen {
+        .presenting .cover .bird .bird-still {
+          opacity: 0;
+          transition: opacity 0.4s;
+        }
+        .presenting .cover .bird.done .bird-still {
+          opacity: 1;
+        }
+      }
+
+      /* The demo video slide: full bleed, the video's own cream background. */
+      .video-slide {
+        padding: 0;
+        background: #f4efe7;
+      }
+      .video-slide video,
+      .video-slide img {
+        width: 1600px;
+        height: 900px;
+        object-fit: contain;
+        display: block;
+        background: #f4efe7;
+      }
+      .video-label {
+        position: absolute;
+        left: 40px;
+        top: 28px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 700;
+      }
+      .print-only {
+        display: none;
+      }
+
+      /* Presenting on screen: one slide at a time, scaled to the window, cross-fade between slides. */
+      @media screen {
+        html.presenting,
+        html.presenting body {
+          height: 100%;
+          overflow: hidden;
+          background: #1c2a24;
+        }
+        .presenting .deck {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 1600px;
+          height: 900px;
+          transform: translate(-50%, -50%) scale(var(--fit, 1));
+        }
+        .presenting .slide {
+          position: absolute;
+          inset: 0;
+          opacity: 0;
+          visibility: hidden;
+          transition:
+            opacity 0.6s ease,
+            visibility 0s linear 0.6s;
+        }
+        .presenting .slide.on {
+          opacity: 1;
+          visibility: visible;
+          transition:
+            opacity 0.6s ease,
+            visibility 0s;
+        }
+        .hint {
+          position: fixed;
+          right: 14px;
+          bottom: 10px;
+          font:
+            600 12px 'Plus Jakarta Sans',
+            sans-serif;
+          color: rgba(255, 255, 255, 0.55);
+          transition: opacity 1s;
+        }
+      }
+      @media print {
+        .screen-only,
+        .hint {
+          display: none !important;
+        }
+        .print-only {
+          display: block;
+        }
+        .video-label {
+          display: block;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .cover .bird video {
+          display: none;
+        }
+        .presenting .cover .bird .bird-still {
+          opacity: 1;
+        }
+      }
     </style>
   </head>
   <body>
-    <!-- 1. COVER: the one slide with color blobs -->
-    <section class="slide cover">
-      <div class="bird">
-        <img src="img/kingfisher.jpg" alt="A kingfisher on a branch, from the app's home screen" />
-      </div>
-      <div class="brand">
-        <img src="../../../public/brand/seespeak-icon.png" alt="" /><span
-          ><span class="see">See</span>Speak</span
-        >
-      </div>
-      <h1>See the sound you can’t hear.</h1>
-      <p class="lede">
-        Speech practice for kids who are hard of hearing, for the days between speech therapy sessions.
-      </p>
-      <p class="team">
-        Michael Fischbach · Holly Steen · Mason Di Leo · CPVC × OCOB × CPE AI Hackathon, Cal Poly, Nov 2026
-      </p>
-    </section>
-
-    <!-- 2. THE GAP -->
-    <section class="slide">
-      <p class="eyebrow">The gap</p>
-      <h1>Practice happens between sessions, with no feedback.</h1>
-      <div style="display: grid; grid-template-columns: 1fr 1fr 330px; gap: 26px; margin-top: 38px">
-        <div class="panel">
-          <p class="chart-title">School speech therapists carry more students than they call manageable</p>
-          <p class="chart-sub">Students per school speech therapist, median</p>
-          <div class="hbar" style="--label: 150px">
-            <div class="gridlines" style="left: 150px">
-              <i class="zero" style="left: 0%"></i><i style="left: 33.3%"></i><i style="left: 66.6%"></i
-              ><i style="left: 100%"></i>
-            </div>
-            <div class="row">
-              <span class="lab">Actual caseload</span>
-              <div class="track">
-                <div class="bar" style="width: 83.3%; background: var(--blue)"></div>
-                <span class="val">50</span>
-              </div>
-            </div>
-            <div class="row">
-              <span class="lab">Manageable, they say</span>
-              <div class="track">
-                <div class="bar" style="width: 66.6%; background: var(--gray-bar)"></div>
-                <span class="val">40</span>
-              </div>
-            </div>
-          </div>
-          <div class="axis" style="--label: 150px">
-            <span></span>
-            <div class="ticks">
-              <span style="left: 0%">0</span><span style="left: 33.3%">20</span
-              ><span style="left: 66.6%">40</span><span style="left: 100%">60</span>
-            </div>
-          </div>
-          <div class="kpi" style="margin-top: 34px; border-top: 1px solid var(--line); padding-top: 22px">
-            <div class="big">1.7<small>sessions a week</small></div>
-            <p class="chart-sub" style="font-size: 17px; margin-top: 10px">
-              of about 31 minutes each, for hard-of-hearing kids who get school speech therapy
-            </p>
-          </div>
+    <div class="deck">
+      <!-- 1. COVER: the one slide with color blobs -->
+      <section class="slide cover">
+        <div class="bird">
+          <img
+            class="bird-still"
+            src="img/kingfisher.jpg"
+            alt="A kingfisher on a branch, from the app's home screen"
+          />
+          <video id="kingfisher" class="screen-only" muted playsinline preload="auto" aria-hidden="true">
+            <source src="../../../public/home/kingfisher.mp4" type="video/mp4" />
+            <source src="media/kingfisher.mp4" type="video/mp4" />
+          </video>
         </div>
-        <div class="panel">
-          <p class="chart-title">Almost 1 in 3 hard-of-hearing kids got no services at all</p>
-          <p class="chart-sub">Speech or deaf-education services, as their parents reported (155 children)</p>
-          <div class="stack">
-            <div style="width: 70%; background: var(--blue)">70%</div>
-            <div style="width: 30%; background: var(--orange); color: var(--ink)">30%</div>
-          </div>
-          <div class="legend">
-            <span><b style="background: var(--blue)"></b>Getting services</span>
-            <span><b style="background: var(--orange)"></b>No services (46 of 155)</span>
-          </div>
-          <div style="margin-top: 40px; border-top: 1px solid var(--line); padding-top: 22px">
-            <p class="chart-title" style="font-size: 19px">A week of school speech therapy</p>
-            <p class="chart-sub">Average for kids who get it: 1.7 × 31 minutes</p>
-            <div class="hbar" style="--label: 150px; margin-top: 14px">
+        <div class="brand">
+          <img src="../../../public/brand/seespeak-icon.png" alt="" /><span
+            ><span class="see">See</span>Speak</span
+          >
+        </div>
+        <h1>See the sound you can’t hear.</h1>
+        <p class="lede">
+          Speech practice for kids who are hard of hearing, for the days between speech therapy sessions.
+        </p>
+        <p class="team">
+          Michael Fischbach · Holly Steen · Mason Di Leo · CPVC × OCOB × CPE AI Hackathon, Cal Poly, Nov 2026
+        </p>
+      </section>
+
+      <!-- 2. THE GAP -->
+      <section class="slide">
+        <p class="eyebrow">The gap</p>
+        <h1>Practice happens between sessions, with no feedback.</h1>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 330px; gap: 26px; margin-top: 38px">
+          <div class="panel">
+            <p class="chart-title">School speech therapists carry more students than they call manageable</p>
+            <p class="chart-sub">Students per school speech therapist, median</p>
+            <div class="hbar" style="--label: 150px">
               <div class="gridlines" style="left: 150px">
-                <i class="zero" style="left: 0%"></i><i style="left: 50%"></i><i style="left: 100%"></i>
+                <i class="zero" style="left: 0%"></i><i style="left: 33.3%"></i><i style="left: 66.6%"></i
+                ><i style="left: 100%"></i>
               </div>
               <div class="row">
-                <span class="lab">Minutes a week</span>
+                <span class="lab">Actual caseload</span>
                 <div class="track">
-                  <div class="bar" style="width: 43.5%; background: var(--blue)"></div>
-                  <span class="val">about 52</span>
+                  <div class="bar" style="width: 83.3%; background: var(--blue)"></div>
+                  <span class="val">50</span>
+                </div>
+              </div>
+              <div class="row">
+                <span class="lab">Manageable, they say</span>
+                <div class="track">
+                  <div class="bar" style="width: 66.6%; background: var(--gray-bar)"></div>
+                  <span class="val">40</span>
                 </div>
               </div>
             </div>
             <div class="axis" style="--label: 150px">
               <span></span>
               <div class="ticks">
-                <span style="left: 0%">0</span><span style="left: 50%">60</span
-                ><span style="left: 100%">120 min</span>
+                <span style="left: 0%">0</span><span style="left: 33.3%">20</span
+                ><span style="left: 66.6%">40</span><span style="left: 100%">60</span>
+              </div>
+            </div>
+            <div class="kpi" style="margin-top: 34px; border-top: 1px solid var(--line); padding-top: 22px">
+              <div class="big">1.7<small>sessions a week</small></div>
+              <p class="chart-sub" style="font-size: 17px; margin-top: 10px">
+                of about 31 minutes each, for hard-of-hearing kids who get school speech therapy
+              </p>
+            </div>
+          </div>
+          <div class="panel">
+            <p class="chart-title">Almost 1 in 3 hard-of-hearing kids got no services at all</p>
+            <p class="chart-sub">
+              Speech or deaf-education services, as their parents reported (155 children)
+            </p>
+            <div class="stack">
+              <div style="width: 70%; background: var(--blue)">70%</div>
+              <div style="width: 30%; background: var(--orange); color: var(--ink)">30%</div>
+            </div>
+            <div class="legend">
+              <span><b style="background: var(--blue)"></b>Getting services</span>
+              <span><b style="background: var(--orange)"></b>No services (46 of 155)</span>
+            </div>
+            <div style="margin-top: 40px; border-top: 1px solid var(--line); padding-top: 22px">
+              <p class="chart-title" style="font-size: 19px">A week of school speech therapy</p>
+              <p class="chart-sub">Average for kids who get it: 1.7 × 31 minutes</p>
+              <div class="hbar" style="--label: 150px; margin-top: 14px">
+                <div class="gridlines" style="left: 150px">
+                  <i class="zero" style="left: 0%"></i><i style="left: 50%"></i><i style="left: 100%"></i>
+                </div>
+                <div class="row">
+                  <span class="lab">Minutes a week</span>
+                  <div class="track">
+                    <div class="bar" style="width: 43.5%; background: var(--blue)"></div>
+                    <span class="val">about 52</span>
+                  </div>
+                </div>
+              </div>
+              <div class="axis" style="--label: 150px">
+                <span></span>
+                <div class="ticks">
+                  <span style="left: 0%">0</span><span style="left: 50%">60</span
+                  ><span style="left: 100%">120 min</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div style="position: relative">
-          <div class="photo" style="inset: 0 0 22px 0">
-            <img
-              src="../../../public/photos/photo-4.jpg"
-              alt="Children in a classroom sign with a teacher, one of them in a wheelchair."
-              style="object-position: 50% 40%"
-            />
-          </div>
-          <p class="credit" style="right: 0; bottom: 0">Photo: Pinterest</p>
-        </div>
-      </div>
-      <p class="src">
-        Sources: ASHA 2026 Schools Survey, caseload (median actual 50, median manageable 40). Page et al.
-        2018, 155 hard-of-hearing school-age children: 1.7 sessions a week of 30.7 minutes for those seen by a
-        school speech therapist; parents of 30% (46 of 155) reported no services. 52 minutes is 1.7 × 30.7,
-        our arithmetic.
-      </p>
-    </section>
-
-    <!-- 3. SIP AND SHIP -->
-    <section class="slide">
-      <p class="eyebrow">The problem</p>
-      <div style="display: flex; align-items: baseline; gap: 56px; margin-top: 46px">
-        <div class="word"><span style="color: var(--blue)">s</span>ip</div>
-        <div style="font-size: 80px; color: var(--faint)">→</div>
-        <div class="word"><span style="color: #d99a00">sh</span>ip</div>
-      </div>
-      <p style="font-size: 36px; font-weight: 700; margin-top: 22px">
-        When high sounds fade, “sip” can drift toward “ship”.
-      </p>
-      <div class="panel" style="margin-top: 36px; padding: 24px 30px 20px">
-        <p class="chart-title">Where the hiss sits on the pitch scale</p>
-        <p class="chart-sub">Rough frequency range of each hiss, in kilohertz (log scale)</p>
-        <div style="position: relative; height: 112px; margin-top: 16px">
-          <!-- log scale 0.5 to 10 kHz across 100%: x = (log10(f) - log10(0.5)) / (log10(10) - log10(0.5)) -->
-          <div
-            style="
-              position: absolute;
-              left: 69.4%;
-              right: 0;
-              top: 0;
-              bottom: 26px;
-              background: repeating-linear-gradient(135deg, #f1f4f2 0 10px, #fff 10px 20px);
-              border-left: 1px dashed #9aa7ae;
-            "
-          >
-            <span
-              style="
-                position: absolute;
-                right: 10px;
-                top: 6px;
-                font-size: 14px;
-                font-weight: 700;
-                color: var(--muted);
-              "
-              >High pitches: often the first to fade</span
-            >
-          </div>
-          <div
-            style="position: absolute; left: 0; right: 0; bottom: 26px; height: 1px; background: #9aa7ae"
-          ></div>
-          <div
-            style="
-              position: absolute;
-              left: 46.3%;
-              width: 23.1%;
-              top: 34px;
-              height: 34px;
-              background: var(--orange);
-              border-radius: 2px;
-              color: var(--ink);
-              font-weight: 800;
-              display: flex;
-              align-items: center;
-              padding-left: 12px;
-            "
-          >
-            “sh”
-          </div>
-          <div
-            style="
-              position: absolute;
-              left: 69.4%;
-              width: 23.1%;
-              top: 34px;
-              height: 34px;
-              background: var(--blue);
-              border-radius: 2px;
-              color: #fff;
-              font-weight: 800;
-              display: flex;
-              align-items: center;
-              padding-left: 12px;
-            "
-          >
-            “s”
-          </div>
-          <div class="ticks" style="position: absolute; left: 0; right: 0; bottom: 0">
-            <span style="left: 0%">0.5</span><span style="left: 23.1%">1</span
-            ><span style="left: 46.3%">2</span><span style="left: 69.4%">4</span
-            ><span style="left: 92.5%">8 kHz</span>
+          <div style="position: relative">
+            <div class="photo" style="inset: 0 0 22px 0">
+              <img
+                src="../../../public/photos/photo-4.jpg"
+                alt="Children in a classroom sign with a teacher, one of them in a wheelchair."
+                style="object-position: 50% 40%"
+              />
+            </div>
+            <p class="credit" style="right: 0; bottom: 0">Photo: Pinterest</p>
           </div>
         </div>
-      </div>
-      <p class="src">
-        “s” is a high hiss (about 4 to 8 kHz), “sh” a lower one (about 2 to 4 kHz). When high pitches are hard
-        to hear, a speaker’s “s” can drift toward “sh”: measured in children with implants (Todd 2011) and
-        children and teens with hearing aids (Pittman 2018).
-      </p>
-    </section>
-
-    <!-- 4. HOW THE AI WORKS -->
-    <section class="slide">
-      <p class="eyebrow">How the AI works</p>
-      <h1>The phone measures. Claude explains.</h1>
-      <div
-        style="
-          display: grid;
-          grid-template-columns: 1fr 44px 1fr 44px 1fr;
-          align-items: stretch;
-          margin-top: 34px;
-        "
-      >
-        <div class="panel">
-          <p class="eyebrow" style="font-size: 14px">1 · On the phone</p>
-          <p style="font-size: 20px; line-height: 1.4; margin-top: 10px">
-            Measures the hiss about 50 times a second and shows the result at once. The optional lip camera
-            turns lip shape into numbers.
-          </p>
-        </div>
-        <div style="display: grid; place-items: center; color: var(--faint); font-size: 30px">→</div>
-        <div class="panel" style="background: var(--blue-soft); border-color: #bfe0da">
-          <p class="eyebrow" style="font-size: 14px">2 · Numbers only</p>
-          <p style="font-size: 20px; line-height: 1.4; margin-top: 10px">
-            Never your voice. Never your video. Names removed from reports.
-          </p>
-        </div>
-        <div style="display: grid; place-items: center; color: var(--faint); font-size: 30px">→</div>
-        <div class="panel">
-          <p class="eyebrow" style="font-size: 14px">3 · Claude</p>
-          <p style="font-size: 20px; line-height: 1.4; margin-top: 10px">
-            Turns a hearing check or a therapist’s goals into a practice plan, and writes one tip after every
-            try.
-          </p>
-        </div>
-      </div>
-      <div class="panel" style="margin-top: 26px">
-        <p class="chart-title">Why not speech recognition? It gets far more words wrong for deaf speakers</p>
-        <p class="chart-sub">
-          Share of words transcribed wrong, average of four speech recognition systems. It can also fill in an
-          “s” that was never said.
+        <p class="src">
+          Sources: ASHA 2026 Schools Survey, caseload (median actual 50, median manageable 40). Page et al.
+          2018, 155 hard-of-hearing school-age children: 1.7 sessions a week of 30.7 minutes for those seen by
+          a school speech therapist; parents of 30% (46 of 155) reported no services. 52 minutes is 1.7 ×
+          30.7, our arithmetic.
         </p>
-        <div class="hbar" style="--label: 380px">
-          <div class="gridlines" style="left: 380px">
-            <i class="zero" style="left: 0%"></i><i style="left: 25%"></i><i style="left: 50%"></i
-            ><i style="left: 75%"></i><i style="left: 100%"></i>
-          </div>
-          <div class="row" style="height: 40px">
-            <span class="lab">Deaf and hard-of-hearing adults, all</span>
-            <div class="track">
-              <div class="bar" style="width: 65.75%; background: var(--orange)"></div>
-              <span class="val">52.6%</span>
-            </div>
-          </div>
-          <div class="row" style="height: 40px">
-            <span class="lab" style="font-weight: 500; color: var(--muted)">… who use speech only</span>
-            <div class="track">
-              <div class="bar" style="width: 24.6%; background: #f5d77f"></div>
-              <span class="val">19.7%</span>
-            </div>
-          </div>
-          <div class="row" style="height: 40px">
-            <span class="lab">Hearing adults</span>
-            <div class="track">
-              <div class="bar" style="width: 6.25%; background: var(--gray-bar)"></div>
-              <span class="val">5.0%</span>
-            </div>
-          </div>
-        </div>
-        <div class="axis" style="--label: 380px">
-          <span></span>
-          <div class="ticks">
-            <span style="left: 0%">0%</span><span style="left: 25%">20%</span
-            ><span style="left: 50%">40%</span><span style="left: 75%">60%</span
-            ><span style="left: 100%">80%</span>
-          </div>
-        </div>
-      </div>
-      <p class="src">
-        Source: Zhao et al., Laryngoscope 2025 (online 2024): 24 deaf and hard-of-hearing adults, 9 hearing
-        adults. Claude never hears audio and never decides the verdict.
-      </p>
-    </section>
+      </section>
 
-    <!-- 5. MARKET -->
-    <section class="slide">
-      <p class="eyebrow">Market</p>
-      <h1>Start where it hurts most. Grow with the same meter.</h1>
-      <div style="display: grid; grid-template-columns: 1fr 1fr 300px; gap: 26px; margin-top: 38px">
-        <div class="panel kpi">
-          <p class="eyebrow" style="font-size: 14px">Start</p>
-          <div class="big" style="margin-top: 14px">70,000</div>
-          <p style="font-size: 20px; line-height: 1.4; margin-top: 14px">
-            US students, ages 3 to 21, served under special education law for hearing loss (2022-23). They
-            can’t hear their own “s”, and almost no tool is built for them.
-          </p>
+      <!-- 3. DEMO VIDEO (replaces sip and ship: the video opens with that same example) -->
+      <section class="slide video-slide" data-video="demo">
+        <video id="demo" class="screen-only" preload="auto" playsinline poster="img/demo-poster.jpg">
+          <source src="media/seespeak-demo.mp4" type="video/mp4" />
+          <source
+            src="https://github.com/whynobro/SeeSpeakAi/releases/download/demo-video/seespeak-demo.mp4"
+            type="video/mp4"
+          />
+        </video>
+        <img
+          class="print-only"
+          src="img/demo-poster.jpg"
+          alt="A frame from the demo video: a clear sip on the practice screen"
+        />
+        <p class="print-only video-label">
+          Demo video, 1:59 · github.com/whynobro/SeeSpeakAi/releases/tag/demo-video
+        </p>
+      </section>
+
+      <!-- 4. HOW THE AI WORKS -->
+      <section class="slide">
+        <p class="eyebrow">How the AI works</p>
+        <h1>The phone measures. Claude explains.</h1>
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 1fr 44px 1fr 44px 1fr;
+            align-items: stretch;
+            margin-top: 34px;
+          "
+        >
+          <div class="panel">
+            <p class="eyebrow" style="font-size: 14px">1 · On the phone</p>
+            <p style="font-size: 20px; line-height: 1.4; margin-top: 10px">
+              Measures the hiss about 50 times a second and shows the result at once. The optional lip camera
+              turns lip shape into numbers.
+            </p>
+          </div>
+          <div style="display: grid; place-items: center; color: var(--faint); font-size: 30px">→</div>
+          <div class="panel" style="background: var(--blue-soft); border-color: #bfe0da">
+            <p class="eyebrow" style="font-size: 14px">2 · Numbers only</p>
+            <p style="font-size: 20px; line-height: 1.4; margin-top: 10px">
+              Never your voice. Never your video. Names removed from reports.
+            </p>
+          </div>
+          <div style="display: grid; place-items: center; color: var(--faint); font-size: 30px">→</div>
+          <div class="panel">
+            <p class="eyebrow" style="font-size: 14px">3 · Claude</p>
+            <p style="font-size: 20px; line-height: 1.4; margin-top: 10px">
+              Turns a hearing check or a therapist’s goals into a practice plan, and writes one tip after
+              every try.
+            </p>
+          </div>
         </div>
-        <div class="panel">
-          <p class="eyebrow" style="font-size: 14px">Grow</p>
-          <p class="chart-title" style="margin-top: 10px">
-            9 in 10 school speech therapists serve students with speech sound disorders
+        <div class="panel" style="margin-top: 26px">
+          <p class="chart-title">
+            Why not speech recognition? It gets far more words wrong for deaf speakers
           </p>
-          <p class="chart-sub">Share of school speech therapists, by survey year</p>
-          <div
-            style="
-              position: relative;
-              height: 210px;
-              margin-top: 16px;
-              display: grid;
-              grid-template-columns: 40px 1fr;
-            "
-          >
-            <div class="ticks" style="height: 186px; position: relative">
-              <span style="top: 0; left: 0; transform: translateY(-50%)">100%</span>
-              <span style="top: 50%; left: 6px; transform: translateY(-50%)">50%</span>
-              <span style="top: 100%; left: 18px; transform: translateY(-50%)">0</span>
+          <p class="chart-sub">
+            Share of words transcribed wrong, average of four speech recognition systems. It can also fill in
+            an “s” that was never said.
+          </p>
+          <div class="hbar" style="--label: 380px">
+            <div class="gridlines" style="left: 380px">
+              <i class="zero" style="left: 0%"></i><i style="left: 25%"></i><i style="left: 50%"></i
+              ><i style="left: 75%"></i><i style="left: 100%"></i>
             </div>
-            <div style="position: relative; height: 186px; border-bottom: 1px solid #9aa7ae">
-              <i
-                style="position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--grid)"
-              ></i>
-              <i
-                style="position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--grid)"
-              ></i>
+            <div class="row" style="height: 40px">
+              <span class="lab">Deaf and hard-of-hearing adults, all</span>
+              <div class="track">
+                <div class="bar" style="width: 65.75%; background: var(--orange)"></div>
+                <span class="val">52.6%</span>
+              </div>
+            </div>
+            <div class="row" style="height: 40px">
+              <span class="lab" style="font-weight: 500; color: var(--muted)">… who use speech only</span>
+              <div class="track">
+                <div class="bar" style="width: 24.6%; background: #f5d77f"></div>
+                <span class="val">19.7%</span>
+              </div>
+            </div>
+            <div class="row" style="height: 40px">
+              <span class="lab">Hearing adults</span>
+              <div class="track">
+                <div class="bar" style="width: 6.25%; background: var(--gray-bar)"></div>
+                <span class="val">5.0%</span>
+              </div>
+            </div>
+          </div>
+          <div class="axis" style="--label: 380px">
+            <span></span>
+            <div class="ticks">
+              <span style="left: 0%">0%</span><span style="left: 25%">20%</span
+              ><span style="left: 50%">40%</span><span style="left: 75%">60%</span
+              ><span style="left: 100%">80%</span>
+            </div>
+          </div>
+        </div>
+        <p class="src">
+          Source: Zhao et al., Laryngoscope 2025 (online 2024): 24 deaf and hard-of-hearing adults, 9 hearing
+          adults. Claude never hears audio and never decides the verdict.
+        </p>
+      </section>
+
+      <!-- 5. MARKET -->
+      <section class="slide">
+        <p class="eyebrow">Market</p>
+        <h1>Start where it hurts most. Grow with the same meter.</h1>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 300px; gap: 26px; margin-top: 38px">
+          <div class="panel kpi">
+            <p class="eyebrow" style="font-size: 14px">Start</p>
+            <div class="big" style="margin-top: 14px">70,000</div>
+            <p style="font-size: 20px; line-height: 1.4; margin-top: 14px">
+              US students, ages 3 to 21, served under special education law for hearing loss (2022-23). They
+              can’t hear their own “s”, and almost no tool is built for them.
+            </p>
+          </div>
+          <div class="panel">
+            <p class="eyebrow" style="font-size: 14px">Grow</p>
+            <p class="chart-title" style="margin-top: 10px">
+              9 in 10 school speech therapists serve students with speech sound disorders
+            </p>
+            <p class="chart-sub">Share of school speech therapists, by survey year</p>
+            <div
+              style="
+                position: relative;
+                height: 210px;
+                margin-top: 16px;
+                display: grid;
+                grid-template-columns: 40px 1fr;
+              "
+            >
+              <div class="ticks" style="height: 186px; position: relative">
+                <span style="top: 0; left: 0; transform: translateY(-50%)">100%</span>
+                <span style="top: 50%; left: 6px; transform: translateY(-50%)">50%</span>
+                <span style="top: 100%; left: 18px; transform: translateY(-50%)">0</span>
+              </div>
+              <div style="position: relative; height: 186px; border-bottom: 1px solid #9aa7ae">
+                <i
+                  style="position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--grid)"
+                ></i>
+                <i
+                  style="
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    top: 50%;
+                    height: 1px;
+                    background: var(--grid);
+                  "
+                ></i>
+                <div
+                  style="
+                    position: absolute;
+                    inset: 0;
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 34px;
+                    padding: 0 22px;
+                    align-items: end;
+                  "
+                >
+                  <div style="height: 92%; background: var(--gray-bar); position: relative">
+                    <span
+                      class="val"
+                      style="
+                        position: absolute;
+                        top: -26px;
+                        left: 0;
+                        right: 0;
+                        text-align: center;
+                        font-weight: 800;
+                      "
+                      >92%</span
+                    >
+                  </div>
+                  <div style="height: 89%; background: var(--gray-bar); position: relative">
+                    <span
+                      style="
+                        position: absolute;
+                        top: -26px;
+                        left: 0;
+                        right: 0;
+                        text-align: center;
+                        font-weight: 800;
+                      "
+                      >89%</span
+                    >
+                  </div>
+                  <div style="height: 90%; background: var(--blue); position: relative">
+                    <span
+                      style="
+                        position: absolute;
+                        top: -26px;
+                        left: 0;
+                        right: 0;
+                        text-align: center;
+                        font-weight: 800;
+                        color: var(--blue);
+                      "
+                      >90%</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <span></span>
               <div
                 style="
-                  position: absolute;
-                  inset: 0;
                   display: grid;
                   grid-template-columns: repeat(3, 1fr);
                   gap: 34px;
-                  padding: 0 22px;
-                  align-items: end;
+                  padding: 6px 22px 0;
+                  font-size: 14px;
+                  color: var(--muted);
+                  text-align: center;
+                  font-weight: 600;
                 "
               >
-                <div style="height: 92%; background: var(--gray-bar); position: relative">
-                  <span
-                    class="val"
-                    style="
-                      position: absolute;
-                      top: -26px;
-                      left: 0;
-                      right: 0;
-                      text-align: center;
-                      font-weight: 800;
-                    "
-                    >92%</span
-                  >
-                </div>
-                <div style="height: 89%; background: var(--gray-bar); position: relative">
-                  <span
-                    style="
-                      position: absolute;
-                      top: -26px;
-                      left: 0;
-                      right: 0;
-                      text-align: center;
-                      font-weight: 800;
-                    "
-                    >89%</span
-                  >
-                </div>
-                <div style="height: 90%; background: var(--blue); position: relative">
-                  <span
-                    style="
-                      position: absolute;
-                      top: -26px;
-                      left: 0;
-                      right: 0;
-                      text-align: center;
-                      font-weight: 800;
-                      color: var(--blue);
-                    "
-                    >90%</span
-                  >
-                </div>
+                <span>2022</span><span>2024</span><span>2026</span>
               </div>
             </div>
-            <span></span>
-            <div
-              style="
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 34px;
-                padding: 6px 22px 0;
-                font-size: 14px;
-                color: var(--muted);
-                text-align: center;
-                font-weight: 600;
-              "
-            >
-              <span>2022</span><span>2024</span><span>2026</span>
+            <p class="chart-note">
+              The same meter already scores s, sh, z and ch and flags a lisp. Not yet tested on hearing kids
+              with lisps.
+            </p>
+          </div>
+          <div style="position: relative">
+            <div class="photo" style="inset: 0 0 22px 0">
+              <img
+                src="../../../public/photos/photo-5.jpg"
+                alt="A girl with a hearing device behind her ear listens in a classroom."
+                style="object-position: 72% 50%"
+              />
             </div>
+            <p class="credit" style="right: 0; bottom: 0">Photo: Pinterest</p>
           </div>
-          <p class="chart-note">
-            The same meter already scores s, sh, z and ch and flags a lisp. Not yet tested on hearing kids
-            with lisps.
-          </p>
         </div>
-        <div style="position: relative">
-          <div class="photo" style="inset: 0 0 22px 0">
-            <img
-              src="../../../public/photos/photo-5.jpg"
-              alt="A girl with a hearing device behind her ear listens in a classroom."
-              style="object-position: 72% 50%"
-            />
-          </div>
-          <p class="credit" style="right: 0; bottom: 0">Photo: Pinterest</p>
-        </div>
-      </div>
-      <p class="src">
-        Sources: NCES Digest table 204.30, 2022-23 (ages 3 to 21 served under IDEA for hearing impairment,
-        about 70 thousand). ASHA Schools Surveys 2022, 2024, 2026 (share of school speech therapists serving
-        speech sound disorders, as reported in the 2026 trends report).
-      </p>
-    </section>
+        <p class="src">
+          Sources: NCES Digest table 204.30, 2022-23 (ages 3 to 21 served under IDEA for hearing impairment,
+          about 70 thousand). ASHA Schools Surveys 2022, 2024, 2026 (share of school speech therapists serving
+          speech sound disorders, as reported in the 2026 trends report).
+        </p>
+      </section>
 
-    <!-- 6. BUILT AND NEXT -->
-    <section class="slide">
-      <p class="eyebrow">What’s built, what’s next</p>
-      <h1>Built since Friday. 3 next steps.</h1>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-top: 38px">
-        <div class="panel" style="padding: 28px 34px">
-          <p class="eyebrow" style="font-size: 14px">Built this weekend</p>
-          <ul class="list" style="margin-top: 10px">
-            <li>
-              <span class="badge" style="background: var(--blue-soft); color: var(--blue)">✓</span
-              ><span>Live meter for s, sh, z and ch, with an instant result</span>
-            </li>
-            <li>
-              <span class="badge" style="background: var(--blue-soft); color: var(--blue)">✓</span
-              ><span>Claude’s practice plan and one tip after every try</span>
-            </li>
-            <li>
-              <span class="badge" style="background: var(--blue-soft); color: var(--blue)">✓</span
-              ><span>Optional lip camera: numbers only, never a picture</span>
-            </li>
-            <li>
-              <span class="badge" style="background: var(--blue-soft); color: var(--blue)">✓</span
-              ><span>Therapist practice links and progress summaries</span>
-            </li>
-          </ul>
+      <!-- 6. QUESTIONS -->
+      <section class="slide">
+        <div class="brand">
+          <img src="../../../public/brand/seespeak-icon.png" alt="" /><span
+            ><span class="see">See</span>Speak</span
+          >
         </div>
-        <div class="panel" style="padding: 28px 34px">
-          <p class="eyebrow" style="font-size: 14px; color: #8a6700">3 next steps</p>
-          <ul class="list" style="margin-top: 10px">
-            <li>
-              <span class="badge" style="background: var(--orange-soft); color: #7a5a00">1</span
-              ><span>A caseload dashboard where Claude summarizes every student</span>
-            </li>
-            <li>
-              <span class="badge" style="background: var(--orange-soft); color: #7a5a00">2</span
-              ><span>“r” and “th”: show how first, scoring once it’s tested</span>
-            </li>
-            <li>
-              <span class="badge" style="background: var(--orange-soft); color: #7a5a00">3</span
-              ><span>Tune on deaf speakers’ voices, with permission (Yuka offered introductions)</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- 7. QUESTIONS -->
-    <section class="slide">
-      <div class="brand">
-        <img src="../../../public/brand/seespeak-icon.png" alt="" /><span
-          ><span class="see">See</span>Speak</span
+        <h1 style="font-size: 140px; margin-top: 50px">Questions?</h1>
+        <p style="font-size: 32px; font-weight: 700; margin-top: 22px">Try it on your phone right now.</p>
+        <p style="font-size: 36px; font-weight: 800; margin-top: 16px; color: var(--blue)">
+          seespeak.vercel.app
+        </p>
+        <div
+          class="panel"
+          style="
+            position: absolute;
+            right: 104px;
+            top: 150px;
+            width: 500px;
+            padding: 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+          "
         >
-      </div>
-      <h1 style="font-size: 140px; margin-top: 50px">Questions?</h1>
-      <p style="font-size: 32px; font-weight: 700; margin-top: 22px">Try it on your phone right now.</p>
-      <p style="font-size: 36px; font-weight: 800; margin-top: 16px; color: var(--blue)">
-        seespeak.vercel.app
-      </p>
-      <div
-        class="panel"
-        style="
-          position: absolute;
-          right: 104px;
-          top: 150px;
-          width: 500px;
-          padding: 36px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 18px;
-        "
-      >
-        <img src="img/qr.svg" alt="QR code for seespeak.vercel.app" style="width: 420px; height: 420px" />
-        <p style="font-size: 22px; font-weight: 800">Scan to try it</p>
-      </div>
-      <p class="team" style="color: var(--muted)">
-        Michael Fischbach · Holly Steen · Mason Di Leo · Built this weekend with Claude Code and the Claude
-        API
-      </p>
-    </section>
+          <img src="img/qr.svg" alt="QR code for seespeak.vercel.app" style="width: 420px; height: 420px" />
+          <p style="font-size: 22px; font-weight: 800">Scan to try it</p>
+        </div>
+        <p class="team" style="color: var(--muted)">
+          Michael Fischbach · Holly Steen · Mason Di Leo · Built this weekend with Claude Code and the Claude
+          API
+        </p>
+      </section>
+      <!-- BACKUP: BUILT AND NEXT (after Questions, so the main talk fits in 4 minutes) -->
+      <section class="slide">
+        <p class="eyebrow">Backup · What’s built, what’s next</p>
+        <h1>Built since Friday. 3 next steps.</h1>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-top: 38px">
+          <div class="panel" style="padding: 28px 34px">
+            <p class="eyebrow" style="font-size: 14px">Built this weekend</p>
+            <ul class="list" style="margin-top: 10px">
+              <li>
+                <span class="badge" style="background: var(--blue-soft); color: var(--blue)">✓</span
+                ><span>Live meter for s, sh, z and ch, with an instant result</span>
+              </li>
+              <li>
+                <span class="badge" style="background: var(--blue-soft); color: var(--blue)">✓</span
+                ><span>Claude’s practice plan and one tip after every try</span>
+              </li>
+              <li>
+                <span class="badge" style="background: var(--blue-soft); color: var(--blue)">✓</span
+                ><span>Optional lip camera: numbers only, never a picture</span>
+              </li>
+              <li>
+                <span class="badge" style="background: var(--blue-soft); color: var(--blue)">✓</span
+                ><span>Therapist practice links and progress summaries</span>
+              </li>
+            </ul>
+          </div>
+          <div class="panel" style="padding: 28px 34px">
+            <p class="eyebrow" style="font-size: 14px; color: #8a6700">3 next steps</p>
+            <ul class="list" style="margin-top: 10px">
+              <li>
+                <span class="badge" style="background: var(--orange-soft); color: #7a5a00">1</span
+                ><span>A caseload dashboard where Claude summarizes every student</span>
+              </li>
+              <li>
+                <span class="badge" style="background: var(--orange-soft); color: #7a5a00">2</span
+                ><span>“r” and “th”: show how first, scoring once it’s tested</span>
+              </li>
+              <li>
+                <span class="badge" style="background: var(--orange-soft); color: #7a5a00">3</span
+                ><span>Tune on deaf speakers’ voices, with permission (Yuka offered introductions)</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+    <p class="hint" id="hint">→ or Space: next · ←: back · F: full screen</p>
+    <script>
+      /* Presenter: arrow keys, Space, Page keys and clicks move between slides; F toggles full screen.
+         The cover's kingfisher flies in each time the cover shows. The demo video plays when its slide shows
+         (with sound) and pauses when you leave it; it holds its last frame when it ends. Click it to pause. */
+      (() => {
+        document.documentElement.classList.add('presenting');
+        const deck = document.querySelector('.deck');
+        const slides = [...document.querySelectorAll('.slide')];
+        const fit = () =>
+          deck.style.setProperty('--fit', Math.min(innerWidth / 1600, innerHeight / 900).toString());
+        addEventListener('resize', fit);
+        fit();
+        const bird = document.getElementById('kingfisher');
+        const birdBox = bird && bird.parentElement;
+        const demo = document.getElementById('demo');
+        const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (bird) {
+          bird.addEventListener('ended', () => birdBox.classList.add('done'));
+          bird.addEventListener('error', () => birdBox.classList.add('done'), true);
+        }
+        let i = 0;
+        const go = (n) => {
+          n = Math.max(0, Math.min(slides.length - 1, n));
+          slides[i].classList.remove('on');
+          if (demo && slides[i].contains(demo)) demo.pause();
+          i = n;
+          const el = slides[i];
+          el.classList.add('on');
+          if (bird && el.contains(bird) && !reduce) {
+            birdBox.classList.remove('done');
+            bird.currentTime = 0;
+            bird.play().catch(() => birdBox.classList.add('done'));
+          }
+          if (demo && el.contains(demo)) {
+            setTimeout(() => demo.play().catch(() => {}), 450);
+          }
+          history.replaceState(null, '', '#' + (i + 1));
+        };
+        addEventListener('keydown', (e) => {
+          if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) {
+            e.preventDefault();
+            go(i + 1);
+          } else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) {
+            e.preventDefault();
+            go(i - 1);
+          } else if (e.key === 'Home') go(0);
+          else if (e.key === 'End') go(slides.length - 1);
+          else if (e.key === 'f' || e.key === 'F') {
+            if (document.fullscreenElement) document.exitFullscreen();
+            else document.documentElement.requestFullscreen().catch(() => {});
+          }
+        });
+        deck.addEventListener('click', (e) => {
+          if (demo && e.target === demo) {
+            demo.paused ? demo.play() : demo.pause();
+            return;
+          }
+          go(i + 1);
+        });
+        setTimeout(() => (document.getElementById('hint').style.opacity = '0'), 4000);
+        const start = parseInt(location.hash.slice(1), 10);
+        go(Number.isFinite(start) ? start - 1 : 0);
+      })();
+    </script>
   </body>
 </html>
