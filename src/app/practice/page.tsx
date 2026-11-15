@@ -7,11 +7,13 @@ import { HomeIcon, LightbulbIcon, MicIcon } from '@/components/Icons';
 import { MouthPictures } from '@/components/MouthPictures';
 import { SoundMeter } from '@/components/SoundMeter';
 import { Button, Card, IconTile, buttonClass } from '@/components/ui';
+import { CoachCard } from '@/components/CoachCard';
 import { VerdictBadge } from '@/components/VerdictBadge';
 import { WordCard } from '@/components/WordCard';
 import { COPY } from '@/content/copy';
 import { CUES } from '@/content/cues';
 import { wordsFor } from '@/content/words';
+import { useCoachFeedback } from '@/hooks/useCoachFeedback';
 import { useSoundMeter } from '@/hooks/useSoundMeter';
 import { buzz } from '@/lib/feedback';
 import { LIMITATIONS, scoreAttempt } from '@/lib/scoring';
@@ -60,6 +62,8 @@ function PracticeLoop() {
   const target: TargetSound = isTargetSound(wanted) ? wanted : 's';
 
   const meter = useSoundMeter();
+  const coach = useCoachFeedback();
+  const clearCoach = coach.clear;
   const [settings, setSettings] = useState<LearnerSettings | null>(null);
   const [profile, setProfile] = useState<HearingProfile | null>(null);
   const [words, setWords] = useState<PracticeWord[]>([]);
@@ -91,11 +95,20 @@ function PracticeLoop() {
 
   const cue = CUES[target];
   const word = words[index] ?? null;
+
+  // A new word starts with no coach sentence.
+  useEffect(() => {
+    clearCoach();
+  }, [index, words, clearCoach]);
+
+  // The coach's next step is only a suggestion: it picks which button is the main one. Nothing moves on by itself.
+  const suggestRetry = coach.feedback?.nextAction === 'repeat' || coach.feedback?.nextAction === 'easier';
   const listening = meter.status === 'listening';
   const busy = meter.status === 'starting';
 
   async function onStart() {
     setScore(null);
+    coach.clear();
     await meter.start();
   }
 
@@ -116,6 +129,8 @@ function PracticeLoop() {
       score: result,
       channels: settings.channels,
     });
+    // The verdict is already on screen. The coach's sentence (numbers only go out, never audio) arrives after.
+    void coach.ask(word, result);
   }
 
   function onNext() {
@@ -276,11 +291,12 @@ function PracticeLoop() {
               ))}
             </ul>
           )}
+          <CoachCard feedback={coach.feedback} loading={coach.loading} />
           <div className="grid grid-cols-2 gap-3">
-            <Button variant="secondary" size="lg" onClick={onStart}>
+            <Button variant={suggestRetry ? 'primary' : 'secondary'} size="lg" onClick={onStart}>
               Try again
             </Button>
-            <Button size="lg" onClick={onNext}>
+            <Button variant={suggestRetry ? 'secondary' : 'primary'} size="lg" onClick={onNext}>
               {index + 1 >= words.length ? 'Finish' : 'Next word'}
             </Button>
           </div>
