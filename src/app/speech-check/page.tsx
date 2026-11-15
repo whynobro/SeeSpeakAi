@@ -167,15 +167,18 @@ export default function SpeechCheckPage() {
     if (!word) return;
     const score = scoreAttempt(meter.stop(), word);
     record(score.verdict);
-    saveAttempt({
-      id: crypto.randomUUID(),
-      wordId: word.id,
-      target: word.target,
-      stage: 'find',
-      createdAt: new Date().toISOString(),
-      score,
-      channels: loadSettings().channels,
-    });
+    saveAttempt(
+      {
+        id: crypto.randomUUID(),
+        wordId: word.id,
+        target: word.target,
+        stage: 'find',
+        createdAt: new Date().toISOString(),
+        score,
+        channels: loadSettings().channels,
+      },
+      word.position,
+    );
     // No hit or miss during the check: every word gets the same "Got it", so it does not feel like a test.
     setGotIt(true);
   }

@@ -22,6 +22,7 @@ const CHOICES: { said: Said; text: (sound: string, other: string) => string }[] 
   { said: 'with-sound', text: (sound) => `I said the "${sound}"` },
   { said: 'without-sound', text: (sound) => `I left the "${sound}" out` },
   { said: 'other-sound', text: (_sound, other) => `I said "${other}" instead` },
+  { said: 'lisp', text: () => 'Said it with a lisp' },
   { said: 'unsure', text: () => 'Not sure' },
 ];
 

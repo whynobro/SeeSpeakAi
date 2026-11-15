@@ -6,3 +6,11 @@ export const COPY: { tagline: string; notTherapy: string; privacy: string; optIn
     'Your voice is checked on this device. It is never uploaded or saved. Your hearing profile and practice history stay on this device too.',
   optIn: 'For people who choose to work on spoken English. Sign language is welcome here.',
 };
+
+/** Words for a lisped "s" or "z" (score.lisp). The badge shows title + detail; the coach says `message`. */
+export const LISP_COPY = {
+  title: 'Close: that sounded like a lisp',
+  detail: 'Keep your tongue behind your teeth.',
+  message: 'Close: that sounded like a lisp. Keep your tongue behind your teeth.',
+  meter: 'sounds like a lisp',
+} as const;

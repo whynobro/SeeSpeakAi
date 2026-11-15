@@ -189,3 +189,34 @@ export const CH_MIN_HISS_MS = 40;
 
 /** "ch" only: a body longer than this (ms) is a long "sh", not the short hiss of a "ch". About 150 ms. */
 export const CH_MAX_HISS_MS = 150;
+
+// ---------- Lisp ("s" or "z" said with the tongue between the teeth, or with air over the sides) ----------
+// STARTING VALUES from synthetic sounds and a few real voices (Michael on a Windows laptop, one iPhone tester,
+// shared test log, 2026-11-14). The logged tries carry no flatness yet, so the flatness bar is set from
+// synthetic noise only and kept strict on purpose. Re-tune with the lisp steps in /lab/guided.
+// Why these two numbers: a clear "s" is loud next to the vowel and has one strong peak (about 4 to 9 kHz).
+// A lisp ("th"-like or lateral) is much weaker next to the vowel and its noise is spread out evenly
+// (Behrens and Blumstein 1988; Jongman, Wayland and Wong 2000: "s" and "sh" are far louder than "f" and
+// "th" next to the vowel, and "f" and "th" have flat, diffuse spectra). Both must be true to call a lisp.
+
+/**
+ * Lisp, part 1: the hiss is "weak" when its typical loudness is under this share of the vowel's typical
+ * loudness (the trace's hissToVowel). Every "s" try in the test log that scores a hit today sits at 0.27 or
+ * more (11 tries, Windows laptop and one iPhone), so 0.2 (about -14 dB) leaves a margin. The live meter uses
+ * the same number against the loudest frame heard so far.
+ */
+export const LISP_HISS_TO_VOWEL_MAX = 0.2;
+
+/**
+ * Lisp, part 2: the hiss is "flat" when the typical spectral flatness of its frames (2 to 10 kHz, see
+ * features.ts) is at least this. Measured on synthetic sounds: flat noise reads about 0.56, a noise with a
+ * 15 dB peak (a soft, real-ish "s") about 0.42 to 0.44, a 25 dB peak about 0.33, the synthetic "s" near 0.
+ * 0.47 only calls a lisp on near-flat noise. Strict on purpose until real lisp tries are logged.
+ */
+export const LISP_FLATNESS_MIN = 0.47;
+
+/**
+ * Lisp: where a lisp shows on the meter (0 = "sh", 1 = "s"), and the meterPosition a lisp result gets.
+ * Just on the "sh" side of the middle, so a lisp never lands in the "s" zone and the meter and verdict agree.
+ */
+export const LISP_METER_POSITION = 0.45;
