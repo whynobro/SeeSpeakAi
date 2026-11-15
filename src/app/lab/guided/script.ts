@@ -60,7 +60,7 @@ export function wordOf(step: GuidedStep): PracticeWord {
  */
 export function instructionFor(step: GuidedStep): string {
   if (step.say === 'with-sound') return wordOf(step).text;
-  if (step.say === 'lisp') return `${wordOf(step).text} (with a lisp)`;
+  if (step.say === 'lisp') return `${wordOf(step).text} (with a lisp or a raspy, slushy "s")`;
   return step.as ?? wordOf(step).text;
 }
 
@@ -88,7 +88,18 @@ export const SIP_DRILL: GuidedStep[] = [
   ...Array.from({ length: 10 }, (): GuidedStep => ({ wordId: 'sip', say: 'with-sound' })),
 ];
 
+/**
+ * The lisp drill (`/lab/guided?set=lisp`): 10 tries of "sip" said with a lisp or a raspy, slushy "s", then 10
+ * clear "sip". It gathers labeled tries for tuning the lisp rule, which should call a lispy "s" close, never a hit.
+ */
+export const LISP_DRILL: GuidedStep[] = [
+  ...Array.from({ length: 10 }, (): GuidedStep => ({ wordId: 'sip', say: 'lisp' })),
+  ...Array.from({ length: 10 }, (): GuidedStep => ({ wordId: 'sip', say: 'with-sound' })),
+];
+
 /** Scripts by the `set` value in the address. Anything unknown gets the full guided test. */
 export function scriptFor(set: string | null): GuidedStep[] {
-  return set === 'sip' ? SIP_DRILL : GUIDED_SCRIPT;
+  if (set === 'sip') return SIP_DRILL;
+  if (set === 'lisp') return LISP_DRILL;
+  return GUIDED_SCRIPT;
 }
