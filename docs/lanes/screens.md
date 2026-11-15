@@ -139,6 +139,31 @@ Rules:
   Every photo gets a small "Photo: Pinterest" caption, and none goes next to user quotes, test numbers or
   "people who tried it". Use `next/image` with real alt text.
 
+## Example word: "sip" and "ship", not "cats" (Nov 14)
+
+Research (see `docs/pitch/judge-answers.md`): with hearing loss, a learner's "s" drifts toward "sh". Dropping
+the "s" ("cats" to "cat") reads like a grammar slip. So every example now uses **"sip" drifting toward "ship"**.
+It is the example, not the home page title.
+
+- **Voice loop picture** (`src/components/VoiceLoop.tsx`, wording in `src/content/voiceLoop.ts`): the bird sings
+  "sip"; on the way back to its ear the "s" turns into "sh", so what it may hear is "ship". Labels: "What you
+  say: sip" and "What you may hear: ship". Caption: "With high-pitch hearing loss, your "s" can drift toward
+  "sh"." Today the component strikes out an ending; it needs a swap ("s" becomes "sh") instead.
+- Never call it a "lisp": no source backs that word.
+
+## Kingfisher hero (#104): advice
+
+Animations score little; the demo path and the AI matter more. Give it 20 minutes, then cut it.
+
+- The clip is 1280x720 at about 1.4 Mbit/s, 8 s, loaded from thinkingods.com. Stretching it wider, or zooming
+  it to make the branch reach the page edges, is what makes it blurry. Do not stretch the video.
+- **Better:** keep the video at or below its own size and let its edges melt into the page: a CSS
+  `mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent)` on the video, with the
+  page background set to the sampled band color. If the branch must reach the edges, draw that part as a simple
+  SVG branch in the same color, which stays sharp at any width.
+- **Live demo risk:** the video loads from someone else's server. If that site is slow or down during judging,
+  the hero fails. The fallback already reveals the page, so it will not break, but test it on the venue Wi-Fi.
+
 ## How your AI agent should work with you
 
 Before designing any screen, open `docs/design/README.md` and look at every picture in `docs/design/references/`. Use the brand files and colors listed there. Ask Mason which references matter most for this screen.
