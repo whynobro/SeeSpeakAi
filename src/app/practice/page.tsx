@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { HomeIcon, LightbulbIcon, MicIcon } from '@/components/Icons';
 import { LipCamera } from '@/components/LipCamera';
-import { MouthPictures } from '@/components/MouthPictures';
+import { SoundVideo } from '@/components/SoundVideo';
 import { SoundMeter } from '@/components/SoundMeter';
 import { Button, Card, IconTile, buttonClass } from '@/components/ui';
 import { CoachCard } from '@/components/CoachCard';
@@ -374,7 +374,8 @@ function PracticeLoop() {
           </span>
         </summary>
         <div className="flex flex-col gap-3 pt-2 pb-3">
-          <MouthPictures sound={target} />
+          <SoundVideo sound={target} />
+          <h3 className="pt-1 text-base font-bold">Step by step</h3>
           <ol className="flex list-decimal flex-col gap-1 pl-6 text-base marker:font-bold">
             {cue.steps.map((step) => (
               <li key={step}>{step}</li>
