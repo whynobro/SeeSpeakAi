@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { ArrowLeftIcon, CheckCircleIcon } from '@/components/Icons';
-import { PlanView } from '@/components/PlanView';
 import { type AudiogramDraft, AudiogramFields, readAudiogram } from '@/components/AudiogramFields';
+import { savePlan } from '@/components/planStore';
 import { type LocalFile, ReportFiles, useFreeOnLeave } from '@/components/ReportFiles';
 import { SendSummary } from '@/components/SendSummary';
 import { Button } from '@/components/ui';
@@ -28,7 +29,7 @@ function splitList(text: string, max: number): string[] {
     .slice(0, max);
 }
 
-type Status = 'editing' | 'sending' | 'done' | 'error';
+type Status = 'editing' | 'sending' | 'error';
 
 /** A big tappable toggle. Selected state uses a check icon and a thick border, not only color. */
 function Toggle({ label, on, onChange }: { label: string; on: boolean; onChange: (on: boolean) => void }) {
@@ -61,19 +62,9 @@ export default function ReportPage() {
   const [audiogram, setAudiogram] = useState<AudiogramDraft>({});
   const [problem, setProblem] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>('editing');
-  const [plan, setPlan] = useState<PracticePlan | null>(null);
   const [files, setFiles] = useState<LocalFile[]>([]);
   useFreeOnLeave(files);
-  const resultRef = useRef<HTMLHeadingElement>(null);
-
-  // When the plan arrives, start at the top and move focus to its heading so screen reader users hear it.
-  useEffect(() => {
-    if (status !== 'done') return;
-    // scrollIntoView also works inside the laptop "phone" preview frame, which scrolls on its own.
-    resultRef.current?.closest('main')?.scrollIntoView({ block: 'start' });
-    window.scrollTo(0, 0);
-    resultRef.current?.focus({ preventScroll: true });
-  }, [status]);
+  const router = useRouter();
 
   const toggleSound = (sound: string, on: boolean) =>
     setSounds((prev) => (on ? [...prev, sound] : prev.filter((s) => s !== sound)));
@@ -118,26 +109,12 @@ export default function ReportPage() {
         body: JSON.stringify({ report }),
       });
       if (!res.ok) throw new Error(`Plan request failed: ${res.status}`);
-      setPlan((await res.json()) as PracticePlan);
-      setStatus('done');
+      // Keep the plan on this device and open it on its own page, so a reload keeps it.
+      savePlan((await res.json()) as PracticePlan);
+      router.push('/plan');
     } catch {
       setStatus('error');
     }
-  }
-
-  if (status === 'done' && plan) {
-    return (
-      <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6 pb-10">
-        <Button variant="ghost" block={false} className="self-start" onClick={() => setStatus('editing')}>
-          <ArrowLeftIcon className="h-5 w-5" />
-          Change the report
-        </Button>
-        <h1 ref={resultRef} tabIndex={-1} className="text-3xl font-extrabold tracking-tight outline-none">
-          Your practice plan
-        </h1>
-        <PlanView plan={plan} />
-      </main>
-    );
   }
 
   const sending = status === 'sending';
