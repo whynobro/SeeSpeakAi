@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { LaptopIcon, PhoneIcon } from './Icons';
 import { StartOver } from './StartOver';
 
@@ -12,9 +12,26 @@ const STORAGE_KEY = 'seespeak:view-mode';
  * Lets a laptop show the app two ways: inside a phone-sized frame (how a learner sees it on a phone) or full width.
  * The switch and the frame only appear on wide screens. On a real phone the app always fills the screen.
  * The choice is a display preference only, kept in this browser.
+ * The switch hides once the page is scrolled down, so it never covers the app during a demo, and comes back at the top.
  */
+
+/** Scrolled this far down (px), the Phone / Laptop switch hides. */
+const HIDE_AFTER_PX = 40;
 export function ViewModeFrame({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState<ViewMode>('phone');
+  const [scrolled, setScrolled] = useState(false);
+  const frameRef = useRef<HTMLDivElement>(null);
+
+  // In the phone frame the frame itself scrolls; full width, the window does. Scroll events do not bubble,
+  // so one listener in the capture phase hears both.
+  useEffect(() => {
+    const check = () => {
+      const top = Math.max(window.scrollY, frameRef.current?.scrollTop ?? 0);
+      setScrolled(top > HIDE_AFTER_PX);
+    };
+    document.addEventListener('scroll', check, { capture: true, passive: true });
+    return () => document.removeEventListener('scroll', check, { capture: true });
+  }, []);
 
   // Read the saved choice after the page is on screen, so the server and browser render the same first frame.
   useEffect(() => {
@@ -45,7 +62,9 @@ export function ViewModeFrame({ children }: { children: ReactNode }) {
       <div
         role="group"
         aria-label="Preview size"
-        className="fixed top-4 right-4 z-50 hidden gap-1 rounded-2xl border border-line bg-surface p-1 md:flex"
+        className={`fixed top-4 right-4 z-50 hidden gap-1 rounded-2xl border border-line bg-surface p-1 transition-opacity duration-200 md:flex ${
+          scrolled ? 'pointer-events-none opacity-0' : 'opacity-100'
+        }`}
       >
         {(
           [
@@ -69,15 +88,25 @@ export function ViewModeFrame({ children }: { children: ReactNode }) {
           </button>
         ))}
       </div>
+      {/*
+       * Phone frame: the outer box does not scroll and holds the transform, so the fixed tab bar and the bird
+       * pin to it and stay put. The inner box scrolls. (Before, the box that scrolled was also the one the
+       * tab bar pinned to, so the tab bar scrolled away with the page.)
+       */}
       <div
         className={
           phone
-            ? 'flex flex-1 flex-col md:h-[844px] md:max-h-[calc(100vh-5rem)] md:w-[390px] md:flex-none md:overflow-y-auto md:rounded-[48px] md:border-[12px] md:border-foreground md:bg-background md:[transform:translateZ(0)]'
-            : 'flex flex-1 flex-col md:[&_main]:max-w-3xl md:[&_main]:px-8 md:[&_main]:pt-20'
+            ? 'flex flex-1 flex-col md:h-[844px] md:max-h-[calc(100vh-5rem)] md:w-[390px] md:flex-none md:overflow-hidden md:rounded-[48px] md:border-[12px] md:border-foreground md:bg-background md:[transform:translateZ(0)]'
+            : 'flex flex-1 flex-col md:[&_main]:max-w-6xl md:[&_main]:px-12 md:[&_main]:pt-20'
         }
       >
-        <StartOver />
-        {children}
+        <div
+          ref={frameRef}
+          className={phone ? 'flex flex-1 flex-col md:min-h-0 md:overflow-y-auto' : 'contents'}
+        >
+          <StartOver />
+          {children}
+        </div>
       </div>
     </div>
   );
