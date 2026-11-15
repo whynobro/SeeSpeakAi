@@ -1,4 +1,5 @@
 import { COPY } from '@/content/copy';
+import { AssignedCard } from '@/components/AssignedCard';
 import { HomeStart } from '@/components/HomeStart';
 import { SavedPlanLink } from '@/components/SavedPlanLink';
 import Image from 'next/image';
@@ -46,6 +47,7 @@ export default function Home() {
       </header>
       <p className="text-[28px] leading-tight font-extrabold tracking-tight text-balance">{COPY.tagline}</p>
       {/* Theme v2: home opens on the next task. What SeeSpeak is, privacy details and questions live in More. */}
+      <AssignedCard />
       <SavedPlanLink />
       <HomeStart />
     </main>
