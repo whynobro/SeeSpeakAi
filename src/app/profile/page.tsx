@@ -36,7 +36,7 @@ function ProgressDots({ current }: { current: number }) {
             i < current
               ? 'h-4 w-4 rounded-full bg-accent-edge'
               : i === current
-                ? 'h-4 w-10 rounded-full bg-accent shadow-[0_3px_0_var(--accent-edge)]'
+                ? 'h-4 w-10 rounded-full bg-accent'
                 : 'h-4 w-4 rounded-full border-2 border-muted bg-surface';
           return <li key={sound} className={shape} />;
         })}
@@ -183,8 +183,8 @@ export default function ProfilePage() {
                 type="button"
                 aria-pressed={chosen}
                 onClick={() => answer(step, heard)}
-                className={`flex min-h-20 w-full items-center gap-4 rounded-3xl bg-surface px-4 py-3 text-left text-xl font-bold text-foreground transition-[transform,box-shadow] duration-75 active:translate-y-1 active:shadow-none ${
-                  chosen ? 'border-4 border-accent shadow-edge-accent' : 'border-2 border-line shadow-clay'
+                className={`flex min-h-20 w-full items-center gap-4 rounded-2xl bg-surface px-4 py-3 text-left text-xl font-bold text-foreground transition-[transform,background-color] duration-75 active:scale-[0.98] ${
+                  chosen ? 'border-2 border-accent' : 'border border-line'
                 }`}
               >
                 <IconTile tone={heard ? 'accent' : 'violet-soft'}>

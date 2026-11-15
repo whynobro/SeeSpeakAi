@@ -116,9 +116,9 @@ export function VerdictBadge({
   // white with a dashed border (miss). The icon and the words always say the same thing as the color.
   const look =
     verdict === 'hit'
-      ? 'bg-hit-soft text-hit-strong border-4 border-hit shadow-edge-hit'
+      ? 'bg-hit-soft text-hit-strong border-4 border-hit'
       : verdict === 'close'
-        ? 'bg-close text-close-ink border-4 border-close-edge shadow-edge-close'
+        ? 'bg-close text-close-ink border-4 border-close-edge'
         : 'bg-surface text-foreground border-4 border-dashed border-miss';
   const tile =
     verdict === 'hit'
@@ -130,7 +130,7 @@ export function VerdictBadge({
   return (
     <div
       role="status"
-      className={`flex w-full items-center gap-4 rounded-3xl p-4 motion-safe:animate-result-pulse ${look}`}
+      className={`flex w-full items-center gap-4 rounded-2xl p-4 motion-safe:animate-result-pulse ${look}`}
     >
       <span className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${tile}`}>
         <Icon verdict={verdict} target={target} />
