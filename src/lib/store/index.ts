@@ -148,6 +148,14 @@ function hitShare(list: Attempt[]): number | null {
   return list.filter((a) => a.score.verdict === 'hit').length / list.length;
 }
 
+/** Fewest tries before before-and-after numbers are shown (the first half against the second half). */
+export const MIN_TRIES_FOR_CHANGE = 6;
+
+/** How many tries each of "before" and "after" covers: half the tries, at most 10, so they never overlap. */
+export function progressWindow(tries: number): number {
+  return Math.min(10, Math.floor(tries / 2));
+}
+
 /** Before and after numbers for one sound. Pure: no storage. */
 export function progressFor(attempts: Attempt[], sound: TargetSound): SoundProgress {
   const mine = attempts
@@ -156,7 +164,7 @@ export function progressFor(attempts: Attempt[], sound: TargetSound): SoundProgr
   return {
     sound,
     attempts: mine.length,
-    firstAccuracy: hitShare(mine.slice(0, 10)),
-    latestAccuracy: hitShare(mine.slice(-10)),
+    firstAccuracy: hitShare(mine.slice(0, Math.max(1, progressWindow(mine.length)))),
+    latestAccuracy: hitShare(mine.slice(-Math.max(1, progressWindow(mine.length)))),
   };
 }
