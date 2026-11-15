@@ -74,3 +74,21 @@ export function matchedExpectation(step: GuidedStep, score: AttemptScore): boole
   if (step.say === 'without-sound') return score.verdict === 'miss';
   return score.verdict !== 'hit';
 }
+
+/**
+ * The "sip" drill (`/lab/guided?set=sip`): 10 tries of "sip" with the "s" drifting toward "sh", then 10 clear
+ * "sip". It gathers labeled tries of the demo word on the demo device, to check the "s" versus "sh" line.
+ */
+export const SIP_DRILL: GuidedStep[] = [
+  ...Array.from({ length: 10 }, (): GuidedStep => ({
+    wordId: 'sip',
+    say: 'other-sound',
+    as: 'sip, letting the "s" slide toward "sh"',
+  })),
+  ...Array.from({ length: 10 }, (): GuidedStep => ({ wordId: 'sip', say: 'with-sound' })),
+];
+
+/** Scripts by the `set` value in the address. Anything unknown gets the full guided test. */
+export function scriptFor(set: string | null): GuidedStep[] {
+  return set === 'sip' ? SIP_DRILL : GUIDED_SCRIPT;
+}

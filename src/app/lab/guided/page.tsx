@@ -10,7 +10,14 @@ import { scoreAttempt } from '@/lib/scoring';
 import { TARGET_SOUNDS } from '@/lib/scoring/constants';
 import { getLabel, isLabSharing, newAttemptId, setLabel, shareLabAttempt } from '@/lib/testlog';
 import type { AttemptScore, TargetSound } from '@/lib/types';
-import { GUIDED_SCRIPT, instructionFor, matchedExpectation, wordOf } from './script';
+import {
+  GUIDED_SCRIPT,
+  instructionFor,
+  matchedExpectation,
+  scriptFor,
+  wordOf,
+  type GuidedStep,
+} from './script';
 
 /** How long the result stays on screen before the next step starts listening (ms). */
 const ADVANCE_MS = 2000;
@@ -42,6 +49,9 @@ export default function GuidedLabPage() {
   const [failedSaves, setFailedSaves] = useState(0);
   const [label, setLabelState] = useState('');
   const [savingOff, setSavingOff] = useState(false);
+  // Which script: the full guided test, or a drill picked with ?set= (for example ?set=sip).
+  const [script, setScript] = useState<GuidedStep[]>(GUIDED_SCRIPT);
+  const scriptRef = useRef<GuidedStep[]>(GUIDED_SCRIPT);
 
   // Live values for timers and callbacks, so they never read stale state.
   const live = useRef({ phase, index, sampleRate });
@@ -59,6 +69,9 @@ export default function GuidedLabPage() {
     const t = setTimeout(() => {
       setLabelState(getLabel());
       setSavingOff(!isLabSharing());
+      const picked = scriptFor(new URLSearchParams(window.location.search).get('set'));
+      scriptRef.current = picked;
+      setScript(picked);
     }, 0);
     return () => clearTimeout(t);
   }, []);
@@ -88,7 +101,7 @@ export default function GuidedLabPage() {
 
   const advance = useCallback(() => {
     const next = live.current.index + 1;
-    if (next >= GUIDED_SCRIPT.length) {
+    if (next >= scriptRef.current.length) {
       setPhase('done');
       return;
     }
@@ -115,7 +128,7 @@ export default function GuidedLabPage() {
         return;
       }
       const at = live.current.index;
-      const step = GUIDED_SCRIPT[at];
+      const step = scriptRef.current[at];
       const word = wordOf(step);
       const score = scoreAttempt(frames, word);
       const result = { score, matched: matchedExpectation(step, score) };
@@ -193,7 +206,7 @@ export default function GuidedLabPage() {
     setPhase('intro');
   }
 
-  const step = GUIDED_SCRIPT[index];
+  const step = script[index];
   const word = wordOf(step);
   const waiting = meter.status === 'starting';
   const heardLive = phase === 'running' && !current && status === 'listening';
@@ -202,7 +215,7 @@ export default function GuidedLabPage() {
   const done = Object.entries(results);
   const right = done.filter(([, r]) => r.matched).length;
   const perSound = TARGET_SOUNDS.map((sound: TargetSound) => {
-    const mine = done.filter(([i]) => wordOf(GUIDED_SCRIPT[Number(i)]).target === sound);
+    const mine = done.filter(([i]) => wordOf(script[Number(i)]).target === sound);
     return { sound, right: mine.filter(([, r]) => r.matched).length, total: mine.length };
   });
 
@@ -236,8 +249,8 @@ export default function GuidedLabPage() {
       {phase === 'intro' && (
         <section className="flex flex-col gap-4">
           <p className="text-xl font-bold">
-            {GUIDED_SCRIPT.length} short steps. Press Start, then say each word when it appears. The page
-            listens, stops by itself when you finish, and moves on. Use a quiet spot.
+            {script.length} short steps. Press Start, then say each word when it appears. The page listens,
+            stops by itself when you finish, and moves on. Use a quiet spot.
           </p>
           <button type="button" onClick={onStart} className={`${bigButton} bg-blue-700 text-white`}>
             Start
@@ -249,7 +262,7 @@ export default function GuidedLabPage() {
         <section className="flex flex-col gap-4">
           <p className="text-3xl leading-tight font-extrabold" aria-live="polite">
             <span className="block text-lg font-bold text-current/70">
-              {index + 1} of {GUIDED_SCRIPT.length}. Say:
+              {index + 1} of {script.length}. Say:
             </span>
             <span className="block text-6xl">{instructionFor(step)}</span>
           </p>
