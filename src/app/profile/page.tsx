@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeftIcon, EarIcon, HomeIcon, StarIcon } from '@/components/Icons';
+import { ArrowLeftIcon, EarIcon, StarIcon } from '@/components/Icons';
 import { Button, Card, IconTile } from '@/components/ui';
 import { COPY } from '@/content/copy';
 import { HEARING_CHECK } from '@/content/hearingCheck';
@@ -141,9 +141,9 @@ export default function ProfilePage() {
   );
 
   const homeLink = (
-    <Button href="/" variant="ghost" block={false} className="self-start">
-      <HomeIcon className="h-5 w-5" />
-      Home
+    <Button href="/checks" variant="ghost" block={false} className="self-start">
+      <ArrowLeftIcon className="h-5 w-5" />
+      Checks
     </Button>
   );
 
@@ -211,7 +211,11 @@ export default function ProfilePage() {
       <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-4 pb-10">
         {homeLink}
         <header className="flex flex-col gap-2">
-          <h1 ref={headingRef} tabIndex={-1} className="text-4xl font-extrabold tracking-tight outline-none">
+          <h1
+            ref={headingRef}
+            tabIndex={-1}
+            className="text-[28px] leading-tight font-extrabold tracking-tight outline-none"
+          >
             Your sounds
           </h1>
           <p className="text-base text-muted">
@@ -265,7 +269,11 @@ export default function ProfilePage() {
         <IconTile size="lg">
           <EarIcon className="h-9 w-9" />
         </IconTile>
-        <h1 ref={headingRef} tabIndex={-1} className="text-4xl font-extrabold tracking-tight outline-none">
+        <h1
+          ref={headingRef}
+          tabIndex={-1}
+          className="text-[28px] leading-tight font-extrabold tracking-tight outline-none"
+        >
           {HEARING_CHECK.title}
         </h1>
         <p className="text-lg">{HEARING_CHECK.intro}</p>

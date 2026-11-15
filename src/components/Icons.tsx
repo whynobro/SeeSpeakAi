@@ -114,6 +114,30 @@ export function ChevronRightIcon(props: IconProps) {
   );
 }
 
+export function ListCheckIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 6.5l1.5 1.5L8 5.5M4 12.5l1.5 1.5L8 11.5M4 18.5l1.5 1.5L8 17.5M11 7h9M11 13h9M11 19h9" />
+    </Svg>
+  );
+}
+
+export function ChartIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 20h16M7 16v-5M12 16V6M17 16v-8" />
+    </Svg>
+  );
+}
+
+export function DotsIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M5 12h.01M12 12h.01M19 12h.01" strokeWidth={3} />
+    </Svg>
+  );
+}
+
 export function PhoneIcon(props: IconProps) {
   return (
     <Svg {...props}>

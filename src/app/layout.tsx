@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist_Mono, Plus_Jakarta_Sans } from 'next/font/google';
+import { TabBar } from '@/components/TabBar';
 import { ViewModeFrame } from '@/components/ViewModeFrame';
 import './globals.css';
 
@@ -22,7 +23,11 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" className={`${jakarta.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <ViewModeFrame>{children}</ViewModeFrame>
+        <ViewModeFrame>
+          {/* Room at the bottom so the fixed tab bar never covers the end of a page. */}
+          <div className="flex flex-1 flex-col pb-24">{children}</div>
+          <TabBar />
+        </ViewModeFrame>
       </body>
     </html>
   );
