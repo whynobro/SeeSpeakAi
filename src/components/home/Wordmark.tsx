@@ -31,7 +31,8 @@ function rgb(h: number, s: number, l: number): [number, number, number] {
   return [f(0), f(8), f(4)];
 }
 
-export function Wordmark({ className = '' }: { className?: string }) {
+/** The logo. Screen readers hear `label` ("SeeSpeak", the product name used in all screen text). */
+export function Wordmark({ className = '', label = 'See Speak AI' }: { className?: string; label?: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const [ready, setReady] = useState(false);
 
@@ -91,11 +92,11 @@ export function Wordmark({ className = '' }: { className?: string }) {
   }, []);
 
   return (
-    <span className={`relative block aspect-[1000/246] ${className}`}>
+    <span role="img" aria-label={label} className={`relative block aspect-[1000/246] ${className}`}>
       {/* eslint-disable-next-line @next/next/no-img-element -- the plain picture is only the fallback under the canvas */}
       <img
         src={SRC}
-        alt=""
+        alt={label}
         aria-hidden="true"
         className={`absolute inset-0 h-full w-full object-cover mix-blend-multiply ${ready ? 'invisible' : ''}`}
         style={{ objectPosition: '50% 45%' }}
