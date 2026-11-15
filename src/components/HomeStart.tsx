@@ -62,13 +62,19 @@ function TryItNow() {
     const step = plan.steps.findIndex((st) => st.scored && st.sound === 's');
     router.push(`/practice?sound=s&plan=${encodeURIComponent(plan.id)}&step=${step}`);
   }
+  // The two sounds are the picture here, straight on the page with no box. A hairline closes the block.
   return (
-    <section aria-label={TRY_IT.button} className="flex flex-col gap-2">
-      <Button size="xl" onClick={go}>
-        <MicIcon className="h-7 w-7" />
+    <section aria-label={TRY_IT.button} className="flex flex-col gap-4 border-b border-line pb-6">
+      <p aria-hidden="true" className="flex items-baseline gap-4 text-[56px] leading-none font-extrabold">
+        <span className="text-accent-edge">s</span>
+        <span className="h-9 w-px self-center bg-line" />
+        <span className="text-accent-edge">sh</span>
+      </p>
+      <p className="text-[17px] leading-snug font-semibold">{TRY_IT.detail}</p>
+      <Button size="lg" onClick={go}>
+        <MicIcon className="h-6 w-6" />
         {TRY_IT.button}
       </Button>
-      <p className="text-base text-muted">{TRY_IT.detail}</p>
     </section>
   );
 }
