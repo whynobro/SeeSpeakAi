@@ -10,6 +10,7 @@ import { SoundVideo } from '@/components/SoundVideo';
 import { SoundMeter } from '@/components/SoundMeter';
 import { Button, Card, IconTile, buttonClass } from '@/components/ui';
 import { CoachCard } from '@/components/CoachCard';
+import { StuckHelp } from '@/components/StuckHelp';
 import { Confetti } from '@/components/Confetti';
 import { playHitDing } from '@/components/hitDing';
 import { VerdictBadge } from '@/components/VerdictBadge';
@@ -39,6 +40,7 @@ import { loadPlan } from '@/components/planStore';
 import { useCoachFeedback } from '@/hooks/useCoachFeedback';
 import { useLipCamera } from '@/hooks/useLipCamera';
 import { useSoundMeter } from '@/hooks/useSoundMeter';
+import { useStuckHelp } from '@/hooks/useStuckHelp';
 import {
   AUTO_STOP_QUIET_MS,
   AUTO_STOP_QUIET_MS_WORD,
@@ -104,6 +106,8 @@ function PracticeLoop() {
   const meter = useSoundMeter();
   const coach = useCoachFeedback();
   const clearCoach = coach.clear;
+  const stuck = useStuckHelp();
+  const resetStuck = stuck.reset;
   const { begin: beginLips, collect: collectLips, ...lipCam } = useLipCamera();
   const [lastLips, setLastLips] = useState<LipSummary | null>(null);
   const [settings, setSettings] = useState<LearnerSettings | null>(null);
@@ -184,11 +188,21 @@ function PracticeLoop() {
 
   const cue = CUES[target];
   const word = words[index] ?? null;
+  const stuckProps = {
+    canAsk: stuck.canAsk,
+    loading: stuck.loading,
+    help: stuck.help,
+    failed: stuck.failed,
+    onAsk: () => {
+      if (word) void stuck.ask(word);
+    },
+  };
 
   // A new word starts with no coach sentence.
   useEffect(() => {
     clearCoach();
-  }, [index, words, clearCoach]);
+    resetStuck();
+  }, [index, words, clearCoach, resetStuck]);
 
   // The coach's next step is only a suggestion: it picks which button is the main one. Nothing moves on by itself.
   const suggestRetry = coach.feedback?.nextAction === 'repeat' || coach.feedback?.nextAction === 'easier';
@@ -221,6 +235,8 @@ function PracticeLoop() {
     setScore(result);
     setAdultRight(false);
     setTries((n) => n + 1);
+    // Three tries in a row that did not count on this word offer "Stuck? Ask Claude" (numbers only).
+    stuck.record(word, result, level ? countsFor(tier, result) : result.verdict === 'hit', lips);
     if (result.verdict === 'hit') {
       playHitDing(); // the mic has stopped (meter.stop() above). Extra only: the badge carries the verdict.
       setHits((n) => n + 1);
@@ -297,6 +313,7 @@ function PracticeLoop() {
       at: new Date().toISOString(),
     });
     setAdultRight(true);
+    stuck.reset(); // an adult heard it right, so this word is not a stuck streak
     if (level) {
       setMissStreak(0);
       setCountedByItem((prev) => {
@@ -609,6 +626,9 @@ function PracticeLoop() {
         </button>
       )}
 
+      {/* After the next try starts, a closer look already received stays on screen (the button waits for the result). */}
+      {!score && word && <StuckHelp {...stuckProps} canAsk={false} />}
+
       {score && word && (
         <div className="flex flex-col gap-3">
           <VerdictBadge verdict={score.verdict} target={word.target} heard={score.heard} />
@@ -627,6 +647,7 @@ function PracticeLoop() {
             </ul>
           )}
           <CoachCard feedback={coach.feedback} loading={coach.loading} />
+          <StuckHelp {...stuckProps} />
           {!adultRight && score.verdict !== 'hit' && !(level && countsFor(tier, score)) && (
             <Button variant="secondary" size="md" onClick={() => setAdultOpen(true)}>
               An adult heard it right
