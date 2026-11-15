@@ -37,12 +37,16 @@ import {
   Z_VOICED_CENTROID_MIN_HZ,
   Z_VOICED_HISS_RATIO_MIN,
   Z_VOICED_SHARE_MIN,
+  SHAPE_MISS_CONFIDENCE,
 } from '@/lib/scoring/constants';
+import { SHAPE_WARNING, shapeProblem } from '@/lib/scoring/shape';
+
+export { SHAPE_WARNING } from '@/lib/scoring/shape';
 
 /** Things the scoring cannot do. The practice screen must show these honestly. */
 export const LIMITATIONS: string[] = [
   'Only the "s", "sh", "z" and "ch" sounds are scored. Other sounds are ignored.',
-  'It checks that a hiss is there, where it is in the word, and which hiss it is. It does not check that the whole word was right.',
+  'It checks that a hiss is there, where it is in the word, and which hiss it is. It only checks the rough shape of the word (a vowel, not too many beats). It does not recognise words.',
   'The limits were set on synthetic test sounds and a few voices, not on a clinical data set. Children and some voices may be scored wrongly. Lisp detection is new and may miss a lisp.',
   'Background noise and different phone microphones change the result. A quiet room and holding the phone close work best.',
   'The "z" and "ch" limits were set on synthetic sounds only and still need real voices. A "z" that is partly unvoiced, as at the end of "dogs", may read as "s".',
@@ -559,6 +563,9 @@ export function scoreAttempt(
 
   const a = analyse(frames, word.target);
   const { hopMs, isHiss } = a;
+  // Word shape: a hiss with no vowel, or far more voice than the word holds, is not the whole word.
+  const shapeReason = shapeProblem(frames, a, word, alone);
+  if (shapeReason) return missScore(word, [SHAPE_WARNING, shapeReason, ...warnings], SHAPE_MISS_CONFIDENCE);
   if (!a.haveVowel && !alone) {
     warnings.push('I could not find the vowel, so I could not check where in the word the hiss was.');
   }

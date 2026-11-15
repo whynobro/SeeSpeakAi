@@ -220,3 +220,52 @@ export const LISP_FLATNESS_MIN = 0.47;
  * Just on the "sh" side of the middle, so a lisp never lands in the "s" zone and the meter and verdict agree.
  */
 export const LISP_METER_POSITION = 0.45;
+
+// ---------- Word shape (was the whole target word said?) ----------
+// No speech recognition: only the number of vowel stretches and how long the voice was on are compared
+// with the spelling (see shape.ts). Only clear cases fail, so a correct try is never failed.
+
+/**
+ * Shape: two voiced stretches closer than this (ms) count as one beat. A stop inside a word ("zebra") is a
+ * shorter gap than this; a pause between two words said one after the other is usually longer.
+ */
+export const SHAPE_SEGMENT_GAP_MS = 150;
+
+/**
+ * Shape: a beat shorter than this (ms) is ignored. The click of the Start or Stop button on a laptop reads as
+ * 40 ms of voice in the test log; the shortest real vowel in a logged hit was about 55 ms (which only makes the
+ * count lower, never fails a try).
+ */
+export const SHAPE_MIN_SEGMENT_MS = 60;
+
+/**
+ * Shape: a try fails for "no vowel" only when not even a quiet vowel is found: low-pitched frames at this share
+ * of the loudest frame for SHAPE_MIN_SEGMENT_MS. Lower than VOICED_REL_LEVEL because a hiss said close to the
+ * mic can be ten times louder than the vowel: a logged "dogs" said with the sound and a "cash" had their vowel
+ * at 5 to 15 percent of the loudest frame (test log, 2026-11-14). A held "s" or "sh" alone in the lab had no
+ * such stretch.
+ */
+export const SHAPE_LOOSE_VOWEL_REL_LEVEL = 0.05;
+
+/**
+ * Shape: a single word may have this many more beats than its syllables before the try fails. Test log
+ * (2026-11-14, 152 tries): every one-syllable word labeled "said with the sound" had 1 or 2 beats. Tries with
+ * 3 to 8 beats were the word said several times in one recording.
+ */
+export const SHAPE_EXTRA_SEGMENTS_WORD = 1;
+
+/** Shape: a phrase may have this many more beats than its syllables. Wider: no phrase tries are logged yet. */
+export const SHAPE_EXTRA_SEGMENTS_PHRASE = 2;
+
+/**
+ * Shape: the voice may be on for up to this many ms per syllable, plus SHAPE_VOICED_MARGIN_MS. Generous on
+ * purpose: a drawn-out vowel said with the sound reached 800 ms for "chip" in the test log. One syllable allows
+ * 1300 ms.
+ */
+export const SHAPE_MAX_VOICED_MS_PER_SYLLABLE = 700;
+
+/** Shape: extra voiced ms allowed on top of SHAPE_MAX_VOICED_MS_PER_SYLLABLE times the syllables. */
+export const SHAPE_VOICED_MARGIN_MS = 600;
+
+/** Confidence for a try whose shape does not fit the word. Low: the check is rough. */
+export const SHAPE_MISS_CONFIDENCE = 0.3;
