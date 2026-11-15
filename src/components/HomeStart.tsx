@@ -9,6 +9,7 @@ import { CheckList } from './CheckList';
 import { CheckCircleIcon, EyeIcon, MicIcon, SpeakIcon } from './Icons';
 import { LessonCard } from './LessonCard';
 import { Button, IconTile } from './ui';
+import { VoiceLoop } from './VoiceLoop';
 import { loadPlan, savePlan } from './planStore';
 import { TRY_IT } from '@/content/tryIt';
 import { planFromRules } from '@/lib/ai/rulesPlan';
@@ -76,6 +77,7 @@ function TryItNow() {
 function FirstVisit() {
   return (
     <>
+      <VoiceLoop />
       <TryItNow />
       <section aria-labelledby="start-heading" className="flex flex-col gap-3">
         <h2 id="start-heading" className="text-[20px] font-bold">

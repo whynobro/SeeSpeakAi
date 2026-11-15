@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { HowItWorks } from '@/components/HomeStart';
 import { LandingSections } from '@/components/LandingSections';
+import { VoiceLoop } from '@/components/VoiceLoop';
 import { COPY } from '@/content/copy';
 
 export const metadata: Metadata = { title: 'More · SeeSpeak' };
@@ -24,6 +25,7 @@ export default function MorePage() {
         />
         <p className="text-[20px] leading-snug font-bold">{COPY.tagline}</p>
       </header>
+      <VoiceLoop />
       <HowItWorks />
       <LandingSections />
       <footer className="flex flex-col gap-2 border-t border-line pt-6 text-[15px] leading-relaxed text-muted">
