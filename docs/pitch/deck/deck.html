@@ -408,6 +408,55 @@
       .print-only {
         display: none;
       }
+      .comp {
+        width: 100%;
+        margin-top: 34px;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        overflow: hidden;
+        font-size: 21px;
+      }
+      .comp th {
+        text-align: left;
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding: 16px 22px;
+        border-bottom: 1px solid var(--line);
+      }
+      .comp td {
+        padding: 15px 22px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: middle;
+      }
+      .comp tr:last-child td {
+        border-bottom: 0;
+      }
+      .comp td:first-child {
+        font-weight: 800;
+      }
+      .comp .price {
+        font-weight: 800;
+        white-space: nowrap;
+      }
+      .comp .no {
+        color: var(--faint);
+      }
+      .comp .yes {
+        color: var(--blue);
+        font-weight: 800;
+      }
+      .comp tr.us td {
+        background: var(--blue-soft);
+      }
+      .comp tr.us td:first-child {
+        color: var(--blue);
+      }
       .metrics {
         display: grid;
         grid-template-columns: auto auto 1fr;
@@ -943,6 +992,54 @@
         <p class="src">
           Source: Zhao et al., Laryngoscope 2025 (online 2024): 24 deaf and hard-of-hearing adults, 9 hearing
           adults. Claude never hears audio and never decides the verdict.
+        </p>
+      </section>
+      <!-- BACKUP: COMPETITORS (for questions) -->
+      <section class="slide">
+        <p class="eyebrow">Backup · Competitors</p>
+        <h1>Other tools make an adult listen. SeeSpeak shows the sound.</h1>
+        <table class="comp">
+          <tr>
+            <th>Tool</th>
+            <th>Price</th>
+            <th>Who judges the “s”</th>
+            <th>Kid practices alone with feedback</th>
+          </tr>
+          <tr>
+            <td>Sona-Match (PENTAX Medical)</td>
+            <td class="price">Clinic software, price by quote</td>
+            <td>Shows the spectrum, run by a therapist</td>
+            <td class="no">No, in the clinic</td>
+          </tr>
+          <tr>
+            <td>SLP Toolkit</td>
+            <td class="price">$235 a seat a year</td>
+            <td>The therapist, typed in by hand</td>
+            <td class="no">No, paperwork tool</td>
+          </tr>
+          <tr>
+            <td>Little Bee Speech</td>
+            <td class="price">$119.99 a year</td>
+            <td>An adult listens and taps right or wrong</td>
+            <td class="no">No</td>
+          </tr>
+          <tr>
+            <td>Speech Blubs</td>
+            <td class="price">$59.99 a year</td>
+            <td>Nobody: watch a video and copy it</td>
+            <td class="no">No feedback on the sound</td>
+          </tr>
+          <tr class="us">
+            <td>SeeSpeak</td>
+            <td class="price">Free for families · $120 a therapist seat</td>
+            <td>The measurement, live, 50 times a second</td>
+            <td class="yes">Yes, built for kids who can’t hear their “s”</td>
+          </tr>
+        </table>
+        <p class="src">
+          Prices from each company’s price page (Little Bee: therapist plan; SLP Toolkit: district seat; Speech Blubs:
+          yearly). Sona-Match has no public price. A 2025-27 Montclair State trial (NCT07041723) is testing it for “s”
+          with 6 children.
         </p>
       </section>
     </div>
