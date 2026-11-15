@@ -1,7 +1,7 @@
-import { wordsFor } from '@/content/words';
+import { WORD_BANK, wordsFor } from '@/content/words';
 import { pickTargets } from '@/lib/profile';
 import { TARGET_SOUNDS } from '@/lib/scoring/constants';
-import type { AssessmentReport, PlanStep, PracticePlan, TargetSound } from '@/lib/types';
+import type { AssessmentReport, PlanStep, PracticePlan, PracticeWord, TargetSound } from '@/lib/types';
 
 /** Client safe: no AI client and no server code is imported here, so screens can build the built-in plan at once. */
 const SCORED: readonly TargetSound[] = TARGET_SOUNDS;
@@ -14,6 +14,21 @@ function asScored(sound: string): TargetSound | null {
   return SCORED.find((s) => s === clean) ?? null;
 }
 
+/**
+ * The first word of each built-in step. "sip" and "ship" lead because they are the pitch's example: with
+ * hearing loss the "s" can drift toward "sh" (see docs/pitch/judge-answers.md), and the meter shows exactly that.
+ */
+const LEAD_WORD: Partial<Record<TargetSound, string>> = { s: 'sip', sh: 'ship' };
+
+/** Bank words for one sound with its lead word moved to the front. The rest keep their order. */
+export function stepWords(sound: TargetSound, count: number): PracticeWord[] {
+  const words = wordsFor(sound, count);
+  const lead = LEAD_WORD[sound];
+  const known = lead ? WORD_BANK.find((w) => w.id === lead && w.target === sound) : undefined;
+  if (!known) return words;
+  return [known, ...words.filter((w) => w.id !== known.id)].slice(0, count);
+}
+
 function scoredStep(sound: TargetSound, why: string): PlanStep {
   return {
     sound,
@@ -21,7 +36,7 @@ function scoredStep(sound: TargetSound, why: string): PlanStep {
     why,
     stages: ['show', 'find', 'lock', 'use'],
     views: ['mouth', 'graph', 'frequency'],
-    words: wordsFor(sound, 8),
+    words: stepWords(sound, 8),
     goal: `Say the "${sound}" sound in 8 of 10 words.`,
   };
 }
