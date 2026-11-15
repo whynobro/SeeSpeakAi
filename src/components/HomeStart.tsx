@@ -98,12 +98,20 @@ function FirstVisit() {
           order={1}
           tone="accent"
           title="Speech check"
-          detail="Say 6 words, about 1 minute"
+          detail="Say 18 words, about 2 to 3 minutes"
           icon={<MicIcon className="h-7 w-7" />}
         />
         <StartChoice
-          href="/report"
+          href="/listening-check"
           order={2}
+          tone="accent"
+          title="Listening check"
+          detail="Tell sounds and words apart, about 2 minutes"
+          icon={<EarIcon className="h-7 w-7" />}
+        />
+        <StartChoice
+          href="/report"
+          order={3}
           tone="violet"
           title="Upload a previous report"
           detail="From a speech therapist or audiologist"
