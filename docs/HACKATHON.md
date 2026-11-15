@@ -65,6 +65,7 @@ A chatbot added for show scores about 3 of 15 on the AI row. See "What the AI do
 - Next.js, React, Tailwind CSS, Vitest, Vercel (hosting and Blob storage).
 - MediaPipe Face Landmarker (Google, Apache 2.0): on-device lip tracking
 - CMU Pronouncing Dictionary (Carnegie Mellon, BSD-style licence, via the npm package `cmu-pronouncing-dictionary`, ISC): checks every AI-suggested practice word by its sounds
+- ChatGPT image generation (OpenAI): the SeeSpeak logo and bird mascot (`public/brand/`). Earlier drafts were also tried in Google Gemini.
 - Add anything else you use here on the day you add it.
 
 ## What this means for our work
