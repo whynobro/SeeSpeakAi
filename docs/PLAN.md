@@ -17,7 +17,7 @@ test in the app          and steps                      |        ^
 1. **Report.** The learner starts one of two ways:
    - **Speech therapist report:** type in (or later, photograph) what the therapist wants practiced: the sounds and the goals.
    - **Test in the app:** the hearing check plus a few starting words. The app makes the report itself.
-2. **Curated plan.** The report goes to the brain: Claude (`claude-sonnet-5-5`), called from our server with our API key. It returns a plan: which sounds, in what order, which words, what the goal is for each.
+2. **Curated plan.** The report goes to the brain: Claude (`claude-sonnet-5-5`), called from our server with our API key. It returns a plan: which sounds, in what order, which words, what the goal is for each. Claude also suggests words that fit the learner's interests, and a pronunciation dictionary checks every one before it is used.
 3. **Training.** The learner works through the plan on the training screen. Three views of the same sound:
    - **Mouth:** pictures of where the tongue and lips go.
    - **Graph:** their sound drawn live next to the target.

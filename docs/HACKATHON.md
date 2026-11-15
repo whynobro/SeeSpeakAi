@@ -64,6 +64,7 @@ A chatbot added for show scores about 3 of 15 on the AI row. See "What the AI do
 - Claude API (Anthropic): the plan and the coach feedback in the app.
 - Next.js, React, Tailwind CSS, Vitest, Vercel (hosting and Blob storage).
 - MediaPipe Face Landmarker (Google, Apache 2.0): on-device lip tracking
+- CMU Pronouncing Dictionary (Carnegie Mellon, BSD-style licence, via the npm package `cmu-pronouncing-dictionary`, ISC): checks every AI-suggested practice word by its sounds
 - Add anything else you use here on the day you add it.
 
 ## What this means for our work
