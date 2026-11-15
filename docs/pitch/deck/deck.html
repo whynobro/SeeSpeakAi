@@ -396,6 +396,27 @@
       .print-only {
         display: none;
       }
+      .metrics {
+        display: grid;
+        grid-template-columns: auto auto 1fr;
+        gap: 12px 20px;
+        margin-top: 22px;
+        align-items: baseline;
+        font-size: 22px;
+      }
+      .metrics span {
+        font-weight: 700;
+      }
+      .metrics b {
+        font-weight: 800;
+        color: var(--blue);
+        text-align: right;
+      }
+      .metrics em {
+        font-style: normal;
+        color: var(--muted);
+        font-size: 17px;
+      }
 
       /* Presenting on screen: one slide at a time, scaled to the window, cross-fade between slides. */
       @media screen {
@@ -623,8 +644,7 @@
           <div class="panel">
             <p class="eyebrow" style="font-size: 14px">1 · On the phone</p>
             <p style="font-size: 20px; line-height: 1.4; margin-top: 10px">
-              Measures the hiss about 50 times a second and shows the result at once. The optional lip camera
-              turns lip shape into numbers.
+              Measures the hiss 50 times a second. Result at once.
             </p>
           </div>
           <div style="display: grid; place-items: center; color: var(--faint); font-size: 30px">→</div>
@@ -638,8 +658,7 @@
           <div class="panel">
             <p class="eyebrow" style="font-size: 14px">3 · Claude</p>
             <p style="font-size: 20px; line-height: 1.4; margin-top: 10px">
-              Turns a hearing check or a therapist’s goals into a practice plan, and writes one tip after
-              every try.
+              Builds the practice plan. Writes one tip after every try.
             </p>
           </div>
         </div>
@@ -648,8 +667,7 @@
             Why not speech recognition? It gets far more words wrong for deaf speakers
           </p>
           <p class="chart-sub">
-            Share of words transcribed wrong, average of four speech recognition systems. It can also fill in
-            an “s” that was never said.
+            Share of words transcribed wrong, average of four systems.
           </p>
           <div class="hbar" style="--label: 380px">
             <div class="gridlines" style="left: 380px">
@@ -697,19 +715,18 @@
       <section class="slide">
         <p class="eyebrow">Market</p>
         <h1>Start where it hurts most. Grow with the same meter.</h1>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 300px; gap: 26px; margin-top: 38px">
+        <div style="display: grid; grid-template-columns: 330px 1fr 620px; gap: 26px; margin-top: 38px">
           <div class="panel kpi">
             <p class="eyebrow" style="font-size: 14px">Start</p>
-            <div class="big" style="margin-top: 14px">70,000</div>
+            <div class="big" style="margin-top: 14px; font-size: 76px">70,000</div>
             <p style="font-size: 20px; line-height: 1.4; margin-top: 14px">
-              US students, ages 3 to 21, served under special education law for hearing loss (2022-23). They
-              can’t hear their own “s”, and almost no tool is built for them.
+              US students served in school for hearing loss. They can’t hear their own “s”.
             </p>
           </div>
           <div class="panel">
             <p class="eyebrow" style="font-size: 14px">Grow</p>
             <p class="chart-title" style="margin-top: 10px">
-              9 in 10 school speech therapists serve students with speech sound disorders
+              9 in 10 school speech therapists treat speech sound disorders
             </p>
             <p class="chart-sub">Share of school speech therapists, by survey year</p>
             <div
@@ -811,19 +828,23 @@
               </div>
             </div>
             <p class="chart-note">
-              The same meter already scores s, sh, z and ch and flags a lisp. Not yet tested on hearing kids
-              with lisps.
+              Same meter scores s, sh, z and ch.
             </p>
           </div>
-          <div style="position: relative">
-            <div class="photo" style="inset: 0 0 22px 0">
-              <img
-                src="../../../public/photos/photo-5.jpg"
-                alt="A girl with a hearing device behind her ear listens in a classroom."
-                style="object-position: 72% 50%"
-              />
+          <div class="panel">
+            <p class="eyebrow" style="font-size: 14px">The meter, live</p>
+            <p class="chart-title" style="margin-top: 10px">What the phone measures, 50 times a second</p>
+            <img
+              src="img/meter-live.png"
+              alt="The live meter: dots near the s end, and the loudness bars"
+              style="width: 100%; margin-top: 14px; border-radius: 8px; border: 1px solid var(--line)"
+            />
+            <div class="metrics">
+              <span>Hiss pitch</span><b>3,365 Hz</b><em>sh ≈ 3,400 · s ≈ 7,400</em>
+              <span>Hiss share</span><b>0.03</b><em>how much of the sound is hiss</em>
+              <span>Voicing</span><b>0.94</b><em>voice on (vowel) or off (hiss)</em>
+              <span>Flatness</span><b>0.41</b><em>noisy hiss or clean tone</em>
             </div>
-            <p class="credit" style="right: 0; bottom: 0">Photo: Pinterest</p>
           </div>
         </div>
         <p class="src">
