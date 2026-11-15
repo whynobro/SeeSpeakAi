@@ -107,7 +107,7 @@ export function TherapistForm() {
         <h2 id="sounds-heading" className="text-[20px] font-bold">
           {THERAPIST.soundsTitle}
         </h2>
-        <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+        <div className="overflow-hidden rounded-xl border border-line bg-surface">
           <div role="group" aria-label={THERAPIST.scoredLabel} className="flex flex-col gap-2 px-4 py-4">
             <p className="text-[15px] font-bold">{THERAPIST.scoredLabel}</p>
             <div className="flex flex-wrap gap-2">
@@ -134,7 +134,7 @@ export function TherapistForm() {
 
       <fieldset className="flex flex-col gap-3">
         <legend className="mb-3 text-[20px] font-bold">{THERAPIST.levelTitle}</legend>
-        <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+        <div className="overflow-hidden rounded-xl border border-line bg-surface">
           {LEVELS.map((l) => (
             <label
               key={l.id}

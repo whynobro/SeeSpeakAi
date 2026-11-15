@@ -5,8 +5,8 @@ import { VOICE_LOOP } from '@/content/voiceLoop';
 
 /*
  * "The voice that comes back different" (docs/lanes/screens.md).
- * A bird sings "cats". The wave leaves the beak, loops around and comes back to the bird's own ear.
- * On the way back the high, fast "s" flattens and fades, so only "cat" arrives.
+ * A bird sings "sip". The wave leaves the beak, loops around and comes back to the bird's own ear.
+ * On the way back the high, fast "s" hiss flattens and a lower, slower "sh" hiss takes its place, so "ship" arrives.
  *
  * How it is built: the finished picture (both waves, both labels) is the plain markup. The animation only
  * hides parts of it and brings them back in order, so with reduced motion, or with no CSS animation at all,
@@ -19,7 +19,7 @@ import { VOICE_LOOP } from '@/content/voiceLoop';
 const TIMING = {
   /** Length of one whole loop, pause included. The story ends at fadeOut[0]. */
   total: 7.2,
-  /** The big, slow "cat" wave draws out of the beak. */
+  /** The big, slow wave for the rest of the word ("ip") draws out of the beak. */
   sayCat: [0.3, 1.5],
   /** The tight "s" hiss draws right after it. */
   sayS: [1.5, 2.1],
@@ -27,7 +27,7 @@ const TIMING = {
   bend: [2.1, 3.0],
   /** The returning wave slides in toward the ear. */
   back: [3.0, 4.5],
-  /** The "s" on the returning wave flattens and fades. Keep inside `back`. */
+  /** The "s" on the returning wave flattens and the "sh" grows in its place. Keep inside `back`. */
   sFade: [3.5, 4.5],
   /** The last stretch of line draws down into the ear. */
   arrive: [4.5, 5.1],
@@ -51,13 +51,15 @@ const BIRD = { x: 6, y: 70 };
 /** Height of the lane the wave leaves on (level with the beak) and the lane it comes back on. */
 const OUT_Y = BIRD.y + 26;
 const BACK_Y = 38;
-/** Left to right, both lanes: line starts, "cat" wave, small gap, "s" hiss, line ends. */
+/** Left to right, both lanes: line starts, word wave, small gap, "s" hiss (the first sound, so the farthest out), line ends. */
 const X = { start: 97, catFrom: 102, catTo: 222, sFrom: 229, sTo: 285 };
 
-/** The "cat" wave: big, slow, low. Height and length of one wiggle, going out and coming back. */
+/** The word wave: big, slow, low. Height and length of one wiggle, going out and coming back. */
 const CAT_WAVE = { outHeight: 14, backHeight: 12, wiggle: 30 };
 /** The "s" hiss: small, fast, tight. */
 const S_WAVE = { height: 5, wiggle: 5.5 };
+/** The "sh" it turns into: lower pitch, so wider wiggles, a little taller. */
+const SH_WAVE = { height: 6.5, wiggle: 11 };
 
 /** The turn on the right. Lopsided on purpose so it reads as drawn by hand. */
 const BEND_PATH = `M ${X.sTo} ${OUT_Y} C 316 ${OUT_Y + 3}, 348 ${OUT_Y - 5}, 345 66 C 343 45, 321 ${BACK_Y - 4}, ${X.sTo} ${BACK_Y}`;
@@ -100,6 +102,7 @@ const catWave = (y: number, height: number) =>
 /** The hiss is drawn around height 0 and moved into place, so it can flatten onto its own middle line. */
 const HISS_LENGTH = X.sTo - X.sFrom;
 const HISS = `M 0 0 L ${wave(3, HISS_LENGTH - 3, 0, S_WAVE.height, S_WAVE.wiggle, hissShape, 0.7)} L ${HISS_LENGTH} 0`;
+const SH_HISS = `M 0 0 L ${wave(3, HISS_LENGTH - 3, 0, SH_WAVE.height, SH_WAVE.wiggle, hissShape, 0.7)} L ${HISS_LENGTH} 0`;
 
 const OUT_CAT_PATH = `M ${X.start} ${OUT_Y} L ${catWave(OUT_Y, CAT_WAVE.outHeight)} L ${X.sFrom} ${OUT_Y}`;
 const BACK_CAT_PATH = `M ${X.start + 3} ${BACK_Y} L ${catWave(BACK_Y, CAT_WAVE.backHeight)} L ${X.sFrom} ${BACK_Y}`;
@@ -160,8 +163,8 @@ const CSS = `
     ${pct(TIMING.sFade[1])}, 100% { opacity: 0; transform: scaleY(${S_FLAT_SCALE}); }
   }
   @keyframes vl-s-flat {
-    0%, ${pct((TIMING.sFade[0] + TIMING.sFade[1]) / 2)} { opacity: 0; }
-    ${pct(TIMING.sFade[1])}, 100% { opacity: 0.75; }
+    0%, ${pct((TIMING.sFade[0] + TIMING.sFade[1]) / 2)} { opacity: 0; transform: scaleY(0.2); }
+    ${pct(TIMING.sFade[1])}, 100% { opacity: 1; transform: scaleY(1); }
   }
   @keyframes vl-ear-ring {
     0%, ${pct(TIMING.earPulse[0])} { opacity: 0; transform: scale(0.8); }
@@ -174,7 +177,7 @@ const CSS = `
 /* ---------- The bird ---------- */
 
 /**
- * The singer: a flat teal bird seen from the side, facing right, in the style of the logo.
+ * The singer: a flat blue bird seen from the side, facing right, in the style of the logo.
  * Kept on its own so the full mascot can replace it. Whatever replaces it needs its mouth near
  * (91, 26) and its ear at (44, 22) in this drawing's own units, or BIRD, OUT_Y and EAR above need to move.
  */
@@ -238,7 +241,7 @@ export function VoiceLoop() {
       >
         <SingerBird x={BIRD.x} y={BIRD.y} />
 
-        {/* Going out: the full word. "cat" is the big slow wave, "s" is the thin tight hiss. */}
+        {/* Going out: the full word. "ip" is the big slow wave, "s" is the thin tight hiss. */}
         <path
           className="vl-anim vl-draw vl-say-cat stroke-accent"
           strokeWidth={3.75}
@@ -259,7 +262,7 @@ export function VoiceLoop() {
         <g transform={`translate(${sMiddle} ${OUT_Y + 19})`}>
           <circle className="fill-violet" r={8.5} />
           <text className="fill-violet-ink" textAnchor="middle" dy="0.32em" fontSize={12.5} fontWeight={800}>
-            {VOICE_LOOP.ending}
+            {VOICE_LOOP.sound}
           </text>
         </g>
 
@@ -273,34 +276,20 @@ export function VoiceLoop() {
         />
         <path className="vl-anim vl-bend-arrow stroke-accent" strokeWidth={2.5} d={BEND_ARROW} {...line} />
 
-        {/* Coming back: "cat" is still there. Where the "s" was, only a faint flat dashed line. */}
+        {/* Coming back: "ip" is still there. Where the "s" was, a lower, wider "sh" hiss. */}
         <g className="vl-anim vl-back">
           <path className="stroke-accent" strokeWidth={3.75} d={BACK_CAT_PATH} {...line} />
           <g transform={`translate(${X.sFrom} ${BACK_Y})`}>
             <path className="vl-anim vl-s-back stroke-foreground" strokeWidth={1.9} d={HISS} {...line} />
-            <path
-              className="vl-anim vl-s-flat stroke-muted"
-              strokeWidth={1.9}
-              strokeDasharray="1.5 5"
-              opacity={0.75}
-              d={`M 0 0 L ${HISS_LENGTH} 0`}
-              {...line}
-            />
+            <path className="vl-anim vl-s-flat stroke-foreground" strokeWidth={2.2} d={SH_HISS} {...line} />
           </g>
         </g>
-        <g transform={`translate(${sMiddle} ${BACK_Y + 18})`}>
-          <circle className="stroke-muted" fill="none" strokeWidth={1.5} strokeDasharray="2.5 3" r={8.5} />
-          <text
-            className="fill-muted"
-            opacity={0.7}
-            textAnchor="middle"
-            dy="0.32em"
-            fontSize={12.5}
-            fontWeight={800}
-          >
-            {VOICE_LOOP.ending}
+        {/* A tag under it: the same sound, now "sh". A word, never color alone. */}
+        <g transform={`translate(${sMiddle} ${BACK_Y + 20})`}>
+          <circle className="fill-surface stroke-accent-edge" strokeWidth={1.5} r={10} />
+          <text className="fill-foreground" textAnchor="middle" dy="0.32em" fontSize={11.5} fontWeight={800}>
+            {VOICE_LOOP.heardSound}
           </text>
-          <path className="stroke-muted" strokeWidth={1.5} d="M -5.5 4.5 L 5.5 -4.5" {...line} />
         </g>
 
         {/* Into the ear. The pale line under it keeps it readable where it crosses the bird's head. */}
@@ -330,18 +319,20 @@ export function VoiceLoop() {
         {/* The words, on screen the whole time. */}
         <text className="fill-muted" x={X.start + 3} y={15} fontSize={17} fontWeight={600}>
           {VOICE_LOOP.hearLabel}{' '}
-          <tspan className="fill-foreground" fontWeight={800}>
-            {VOICE_LOOP.word}
+          <tspan className="fill-foreground underline" fontWeight={800}>
+            {VOICE_LOOP.heardSound}
           </tspan>
-          <tspan className="fill-muted line-through" fontWeight={800} opacity={0.55}>
-            {VOICE_LOOP.ending}
+          <tspan className="fill-foreground" fontWeight={800}>
+            {VOICE_LOOP.rest}
           </tspan>
         </text>
         <text className="fill-muted" x={X.start + 3} y={VIEW_H - 5} fontSize={17} fontWeight={600}>
           {VOICE_LOOP.sayLabel}{' '}
+          <tspan className="fill-foreground underline" fontWeight={800}>
+            {VOICE_LOOP.sound}
+          </tspan>
           <tspan className="fill-foreground" fontWeight={800}>
-            {VOICE_LOOP.word}
-            {VOICE_LOOP.ending}
+            {VOICE_LOOP.rest}
           </tspan>
         </text>
       </svg>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { AdultOverrideDialog } from '@/components/AdultOverrideDialog';
 import { HomeIcon, LightbulbIcon, MicIcon, StarIcon } from '@/components/Icons';
 import { LipCamera } from '@/components/LipCamera';
@@ -10,6 +10,7 @@ import { SoundVideo } from '@/components/SoundVideo';
 import { SoundMeter } from '@/components/SoundMeter';
 import { Button, Card, IconTile, buttonClass } from '@/components/ui';
 import { CoachCard } from '@/components/CoachCard';
+import { StuckHelp } from '@/components/StuckHelp';
 import { Confetti } from '@/components/Confetti';
 import { playHitDing } from '@/components/hitDing';
 import { VerdictBadge } from '@/components/VerdictBadge';
@@ -39,6 +40,13 @@ import { loadPlan } from '@/components/planStore';
 import { useCoachFeedback } from '@/hooks/useCoachFeedback';
 import { useLipCamera } from '@/hooks/useLipCamera';
 import { useSoundMeter } from '@/hooks/useSoundMeter';
+import { useStuckHelp } from '@/hooks/useStuckHelp';
+import {
+  AUTO_STOP_QUIET_MS,
+  AUTO_STOP_QUIET_MS_WORD,
+  autoGradeStep,
+  type LevelPoint,
+} from '@/lib/audio/autoStop';
 import { buzz } from '@/lib/feedback';
 import type { LipSummary } from '@/lib/lips/types';
 import { saveOverride } from '@/lib/override';
@@ -98,6 +106,8 @@ function PracticeLoop() {
   const meter = useSoundMeter();
   const coach = useCoachFeedback();
   const clearCoach = coach.clear;
+  const stuck = useStuckHelp();
+  const resetStuck = stuck.reset;
   const { begin: beginLips, collect: collectLips, ...lipCam } = useLipCamera();
   const [lastLips, setLastLips] = useState<LipSummary | null>(null);
   const [settings, setSettings] = useState<LearnerSettings | null>(null);
@@ -120,6 +130,13 @@ function PracticeLoop() {
   /** An adult marked this try right. The measured verdict is not changed. */
   const [adultRight, setAdultRight] = useState(false);
   const [adultOpen, setAdultOpen] = useState(false);
+  /** The last try ended with no voice in it: nothing was scored or saved. */
+  const [heardNone, setHeardNone] = useState(false);
+  // Hands-free grading: loudness points for this try, whether a try is open, and the latest onDone.
+  const points = useRef<LevelPoint[]>([]);
+  const armed = useRef(false);
+  const stopping = useRef(false);
+  const onDoneRef = useRef<() => void>(() => {});
 
   /** The plan step's words, in the plan's order, when this page was opened from that plan. Else the word bank. */
   function pickWords(t: Tier = tier, r: number = round): { list: PracticeWord[]; planned: boolean } {
@@ -171,11 +188,21 @@ function PracticeLoop() {
 
   const cue = CUES[target];
   const word = words[index] ?? null;
+  const stuckProps = {
+    canAsk: stuck.canAsk,
+    loading: stuck.loading,
+    help: stuck.help,
+    failed: stuck.failed,
+    onAsk: () => {
+      if (word) void stuck.ask(word);
+    },
+  };
 
   // A new word starts with no coach sentence.
   useEffect(() => {
     clearCoach();
-  }, [index, words, clearCoach]);
+    resetStuck();
+  }, [index, words, clearCoach, resetStuck]);
 
   // The coach's next step is only a suggestion: it picks which button is the main one. Nothing moves on by itself.
   const suggestRetry = coach.feedback?.nextAction === 'repeat' || coach.feedback?.nextAction === 'easier';
@@ -186,6 +213,10 @@ function PracticeLoop() {
   const birdLevel = listening ? (meter.reading?.level ?? 0) : 0;
 
   async function onStart() {
+    points.current = [];
+    armed.current = true;
+    stopping.current = false;
+    setHeardNone(false);
     setScore(null);
     setAdultRight(false);
     setLastLips(null);
@@ -195,7 +226,8 @@ function PracticeLoop() {
   }
 
   function onDone() {
-    if (!word || !settings) return;
+    if (!word || !settings || !armed.current) return;
+    armed.current = false; // One grade per try, whether Done or the auto-stop got here first.
     const frames = meter.stop();
     const lips = collectLips(); // numbers only, null when the camera is off
     setLastLips(lips);
@@ -203,6 +235,8 @@ function PracticeLoop() {
     setScore(result);
     setAdultRight(false);
     setTries((n) => n + 1);
+    // Three tries in a row that did not count on this word offer "Stuck? Ask Claude" (numbers only).
+    stuck.record(word, result, level ? countsFor(tier, result) : result.verdict === 'hit', lips);
     if (result.verdict === 'hit') {
       playHitDing(); // the mic has stopped (meter.stop() above). Extra only: the badge carries the verdict.
       setHits((n) => n + 1);
@@ -238,6 +272,35 @@ function PracticeLoop() {
     void coach.ask(word, result, lips);
   }
 
+  /** Nothing was said before time ran out: stop the mic, score nothing, save nothing. */
+  function onNoVoice() {
+    if (!armed.current) return;
+    armed.current = false;
+    meter.stop();
+    collectLips(); // drop this try's lip numbers
+    setHeardNone(true);
+  }
+
+  // Keep the newest onDone/onNoVoice for the auto-stop below, so it never runs with stale state.
+  const onNoVoiceRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    onDoneRef.current = onDone;
+    onNoVoiceRef.current = onNoVoice;
+  });
+
+  // Watch the loudness. When the learner has spoken and gone quiet (or time is up), grade by itself.
+  const latest = meter.latest;
+  const phrase = level?.id === 'phrase';
+  useEffect(() => {
+    if (!armed.current || meter.status !== 'listening' || !latest) return;
+    points.current.push({ tMs: latest.tMs, level: latest.level });
+    if (stopping.current) return;
+    const step = autoGradeStep(points.current, phrase ? AUTO_STOP_QUIET_MS : AUTO_STOP_QUIET_MS_WORD);
+    if (step === 'listen') return;
+    stopping.current = true; // One stop per try, even if more frames arrive first.
+    setTimeout(() => (step === 'grade' ? onDoneRef.current() : onNoVoiceRef.current()), 0);
+  }, [latest, meter.status, phrase]);
+
   /** The right adult code was entered: remember it, and in level mode count this item for the tier. */
   function onAdultRight() {
     setAdultOpen(false);
@@ -250,6 +313,7 @@ function PracticeLoop() {
       at: new Date().toISOString(),
     });
     setAdultRight(true);
+    stuck.reset(); // an adult heard it right, so this word is not a stuck streak
     if (level) {
       setMissStreak(0);
       setCountedByItem((prev) => {
@@ -517,12 +581,22 @@ function PracticeLoop() {
         </div>
       )}
 
+      {heardNone && !score && !listening && meter.status !== 'error' && (
+        <p role="status" className="rounded-2xl border-2 border-line bg-surface p-4 text-lg font-bold">
+          I did not hear anything. Tap Start and say the word.
+        </p>
+      )}
+
       {!score && meter.status !== 'error' && (
         <button
           type="button"
           onClick={listening ? onDone : onStart}
           disabled={!word || busy}
-          aria-label={listening ? 'Done: stop listening and check the word' : undefined}
+          aria-label={
+            listening
+              ? 'Listening, it stops by itself when you finish. Tap to check the word now.'
+              : undefined
+          }
           className={
             listening
               ? 'flex min-h-[72px] w-full items-center justify-center gap-3 rounded-2xl border-2 border-accent bg-surface px-6 text-2xl font-bold text-foreground transition-[transform,background-color] duration-75 active:scale-[0.98]'
@@ -536,7 +610,9 @@ function PracticeLoop() {
                 <span className="relative inline-flex h-4 w-4 rounded-full bg-accent" />
               </span>
               <span className="flex flex-col items-start leading-tight">
-                <span className="text-sm font-bold text-muted">Listening</span>
+                <span className="text-left text-sm leading-snug font-bold text-muted">
+                  Listening... it stops by itself when you finish
+                </span>
                 <span>Done</span>
               </span>
               <StopIcon />
@@ -549,6 +625,9 @@ function PracticeLoop() {
           )}
         </button>
       )}
+
+      {/* After the next try starts, a closer look already received stays on screen (the button waits for the result). */}
+      {!score && word && <StuckHelp {...stuckProps} canAsk={false} />}
 
       {score && word && (
         <div className="flex flex-col gap-3">
@@ -568,6 +647,7 @@ function PracticeLoop() {
             </ul>
           )}
           <CoachCard feedback={coach.feedback} loading={coach.loading} />
+          <StuckHelp {...stuckProps} />
           {!adultRight && score.verdict !== 'hit' && !(level && countsFor(tier, score)) && (
             <Button variant="secondary" size="md" onClick={() => setAdultOpen(true)}>
               An adult heard it right

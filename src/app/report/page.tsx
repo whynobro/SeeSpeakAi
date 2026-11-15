@@ -2,7 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { ArrowLeftIcon, CheckCircleIcon } from '@/components/Icons';
+import { CheckCircleIcon } from '@/components/Icons';
+import { PageHeader, Screen } from '@/components/PageHeader';
 import { type AudiogramDraft, AudiogramFields, readAudiogram } from '@/components/AudiogramFields';
 import { showRulesPlanNow } from '@/components/planStore';
 import { type LocalFile, ReportFiles, useFreeOnLeave } from '@/components/ReportFiles';
@@ -37,7 +38,7 @@ function Toggle({ label, on, onChange }: { label: string; on: boolean; onChange:
       type="button"
       aria-pressed={on}
       onClick={() => onChange(!on)}
-      className={`inline-flex min-h-14 items-center gap-2 rounded-2xl px-5 text-xl font-bold transition-[transform,background-color] duration-75 active:scale-[0.98] ${
+      className={`inline-flex min-h-14 items-center gap-2 rounded-xl px-5 text-xl font-bold transition-[transform,background-color] duration-75 active:scale-[0.98] ${
         on ? 'border-2 border-accent bg-accent-soft text-accent-edge' : 'border border-line bg-surface'
       }`}
     >
@@ -48,7 +49,7 @@ function Toggle({ label, on, onChange }: { label: string; on: boolean; onChange:
 }
 
 const FIELD =
-  'w-full rounded-2xl border border-line bg-surface px-4 py-3 text-lg placeholder:text-muted/70 focus:border-accent';
+  'w-full rounded-xl border border-line bg-surface px-4 py-3 text-lg placeholder:text-muted/70 focus:border-accent';
 
 export default function ReportPage() {
   const [sounds, setSounds] = useState<string[]>([]);
@@ -122,18 +123,12 @@ export default function ReportPage() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6 pb-10">
-      <Button href="/checks" variant="ghost" block={false} className="self-start">
-        <ArrowLeftIcon className="h-5 w-5" />
-        Checks
-      </Button>
-      <header className="flex flex-col gap-2">
-        <h1 className="text-[28px] leading-tight font-extrabold tracking-tight">Your previous report</h1>
-        <p className="text-lg text-muted">
-          From a speech therapist or audiologist. Add the file, then copy what it asks you to practice.
-          SeeSpeak turns it into a step by step plan.
-        </p>
-      </header>
+    <Screen>
+      <PageHeader
+        back={{ href: '/checks', label: 'Checks' }}
+        title="Your previous report"
+        lede="From a speech therapist or audiologist. Add the file, then copy what it asks you to practice. See Speak AI turns it into a step by step plan."
+      />
 
       <ReportFiles files={files} onChange={setFiles} />
 
@@ -235,7 +230,7 @@ export default function ReportPage() {
         />
 
         {problem && (
-          <p role="alert" className="rounded-2xl bg-miss-soft p-4 text-lg font-bold text-miss-ink">
+          <p role="alert" className="rounded-xl bg-miss-soft p-4 text-lg font-bold text-miss-ink">
             {problem}
           </p>
         )}
@@ -244,6 +239,6 @@ export default function ReportPage() {
           Make my plan
         </Button>
       </form>
-    </main>
+    </Screen>
   );
 }

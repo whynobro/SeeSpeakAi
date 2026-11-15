@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { SECTION_TITLE } from '@/components/PageHeader';
 import { Button, Card } from '@/components/ui';
 import { SOUND_MAP } from '@/content/soundMap';
 import {
@@ -161,7 +162,7 @@ export function SoundMap({ results }: { results: LevelResults }) {
   return (
     <Card as="section" aria-labelledby="sound-map-heading" className="flex flex-col gap-3 overflow-hidden">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 id="sound-map-heading" className="text-xl font-bold">
+        <h2 id="sound-map-heading" className={SECTION_TITLE}>
           {SOUND_MAP.title}
         </h2>
         <p className="text-[15px] font-bold text-muted">{SOUND_MAP.passedCount(done, all)}</p>

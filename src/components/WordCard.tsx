@@ -47,7 +47,7 @@ export function WordCard({ word, showSign }: { word: PracticeWord; showSign: boo
   const sign = showSign ? word.sign : null;
 
   return (
-    <div className="rounded-2xl border border-line bg-surface px-4 py-5 text-center">
+    <div className="rounded-xl border border-line bg-surface px-4 py-5 text-center">
       <p className="text-6xl leading-tight font-bold tracking-wide break-words">
         {before}
         {mark && (

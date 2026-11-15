@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'SeeSpeak',
+  title: 'See Speak AI',
   description: 'Practice the speech sounds your ears miss',
 };
 

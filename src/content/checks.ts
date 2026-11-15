@@ -163,7 +163,7 @@ export const CHECK_COPY = {
   goalsNoNames: 'Please leave out names. Any that look like names are taken out before sending.',
   sendTitle: 'Before you send',
   sendBody:
-    'Tapping the button sends this once to the SeeSpeak server and its AI to make your plan: the text below, your check numbers, your hearing check answers and your age group. Never your voice. Nothing is saved there.',
+    'Tapping the button sends this once to the See Speak AI server and its AI to make your plan: the text below, your check numbers, your hearing check answers and your age group. Never your voice. Nothing is saved there.',
   makePlan: 'Send once and make my plan',
   listeningNext: 'Next: listening check',
 

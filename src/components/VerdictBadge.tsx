@@ -140,9 +140,9 @@ export function VerdictBadge({
   return (
     <div
       role="status"
-      className={`flex w-full items-center gap-4 rounded-2xl p-4 motion-safe:animate-result-pulse ${look}`}
+      className={`flex w-full items-center gap-4 rounded-xl p-4 motion-safe:animate-result-pulse ${look}`}
     >
-      <span className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${tile}`}>
+      <span className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-xl ${tile}`}>
         <Icon verdict={verdict} target={target} />
       </span>
       <div className="flex flex-col gap-1">

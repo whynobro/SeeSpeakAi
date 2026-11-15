@@ -43,7 +43,7 @@ describe('guided script', () => {
     expect(instructionFor({ wordId: 'cats', say: 'with-sound' })).toBe('cats');
     expect(instructionFor({ wordId: 'sip', say: 'other-sound', as: 'ship' })).toBe('ship');
     expect(instructionFor({ wordId: 'hats', say: 'without-sound', as: 'hat' })).toBe('hat');
-    expect(instructionFor({ wordId: 'cats', say: 'lisp' })).toBe('cats (with a lisp)');
+    expect(instructionFor({ wordId: 'cats', say: 'lisp' })).toBe('cats (with a lisp or a raspy, slushy "s")');
   });
 
   it('judges a match against what was asked', () => {
@@ -66,5 +66,16 @@ describe('sip drill', () => {
     expect(SIP_DRILL.slice(10).every((s) => s.wordId === 'sip' && s.say === 'with-sound')).toBe(true);
     expect(scriptFor('sip')).toBe(SIP_DRILL);
     expect(scriptFor(null)).not.toBe(SIP_DRILL);
+  });
+});
+
+import { LISP_DRILL } from './script';
+
+describe('lisp drill', () => {
+  it('is 10 lispy then 10 clear "sip" tries, and ?set=lisp picks it', () => {
+    expect(LISP_DRILL).toHaveLength(20);
+    expect(LISP_DRILL.slice(0, 10).every((s) => s.wordId === 'sip' && s.say === 'lisp')).toBe(true);
+    expect(LISP_DRILL.slice(10).every((s) => s.say === 'with-sound')).toBe(true);
+    expect(scriptFor('lisp')).toBe(LISP_DRILL);
   });
 });

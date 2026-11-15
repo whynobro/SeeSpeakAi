@@ -1,32 +1,34 @@
 @import 'tailwindcss';
 
 /*
- * The SeeSpeak look: the brand teal bird with sunny yellow accents and navy ink on a warm off-white page
- * (see docs/design/README.md). The "violet" token names now hold the yellow accent; the names stay so no screen breaks.
+ * The SeeSpeak look: kingfisher colors, to match the home screen's kingfisher and wordmark. Kingfisher blue is the one
+ * accent, kingfisher orange is a small warm accent, navy ink on a pale sage page (see docs/design/README.md).
+ * The "violet" token names now hold the orange accent; the names stay so no screen breaks.
  * Colors and type are picked once, here. Screens use the Tailwind names (bg-surface, text-muted, bg-accent ...),
  * never raw hex values. Light only, so contrast stays predictable in bright light.
  *
  * Contrast rules (WCAG AA, checked):
  * - "-ink" and "-strong" colors are for text. They pass 4.5:1 on their partner fill.
- * - accent-ink (white) on accent (teal) passes 4.8:1, so teal buttons can use text at any size.
- * - yellow (violet) is too light for text on the page: use violet-edge for yellow-family words.
+ * - accent-ink (white) on accent (blue) passes 6.6:1, so blue buttons can use text at any size.
+ * - orange (violet) is too light for small text on the page: use violet-edge for orange-family words.
  * - accent, violet, hit and miss fills are for icons, edges and large text, not small text.
+ * - Verdicts never use the orange: hit, close and miss keep their own colors, each with an icon and a word.
  */
 :root {
   color-scheme: light;
-  --background: #fbf8f2; /* warm off-white page */
-  --foreground: #1e2a3a; /* brand navy ink, 13.7:1 on the page */
+  --background: #eef2e8; /* pale sage page, a light version of the home screen's green */
+  --foreground: #1e2a3a; /* brand navy ink, 12.8:1 on the page */
   --surface: #ffffff; /* cards */
-  --muted: #5b6472; /* small print, 5.6:1 on the page */
-  --line: #e9e2d4; /* warm borders and the card's bottom edge */
-  --accent: #1f7f74; /* teal: main buttons and the meter marker. A shade deeper than the brand teal #2a9d8f so white text reads (4.8:1) */
-  --accent-ink: #ffffff; /* white text on teal, 4.8:1 */
-  --accent-edge: #155c54; /* pressed edge under teal, and teal text (7.8:1 on white) */
-  --accent-soft: #e2f3f0; /* light teal tint */
-  --violet: #ffd166; /* sunny yellow from the bird's beak and notes: small accents only, never main buttons */
-  --violet-ink: #1e2a3a; /* navy text on yellow, 10:1 */
-  --violet-edge: #6b4e00; /* edge under yellow, and yellow-family text (7:1 on violet-soft) */
-  --violet-soft: #fff3d1;
+  --muted: #5b6472; /* small print, 5.3:1 on the page, 5.1:1 on accent-soft */
+  --line: #d8e0cd; /* sage borders and dividers */
+  --accent: #1b628f; /* kingfisher blue: main buttons and the meter marker. White text 6.6:1, 5.8:1 on the page */
+  --accent-ink: #ffffff; /* white text on blue, 6.6:1 */
+  --accent-edge: #134a70; /* pressed fill, and blue text (9.4:1 on white, 8.3:1 on the page, 8:1 on accent-soft) */
+  --accent-soft: #e3eef6; /* light blue tint */
+  --violet: #f08a3c; /* kingfisher orange (the bird's chest, the wordmark's notes): small accents, never main in-app buttons */
+  --violet-ink: #1e2a3a; /* navy text on orange, 5.8:1 */
+  --violet-edge: #8a3d0c; /* orange-family text (6.5:1 on violet-soft, 6.7:1 on the page) */
+  --violet-soft: #fde9d9;
   --hit: #1e8e57; /* result: the sound was there. Icons, borders, fills. */
   --hit-ink: #ffffff; /* text or icon on a hit fill: large only */
   --hit-strong: #166534; /* hit text on hit-soft, 6.3:1 */

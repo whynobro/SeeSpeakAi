@@ -101,8 +101,16 @@ export function setSharing(on: boolean): void {
 export function getLabel(): string {
   return read(KEY_LABEL) ?? '';
 }
+/**
+ * The log is public, so a label is a nickname only: the first word, at most 20 characters. "Pat Smith" is saved
+ * as "Pat". Never a full name.
+ */
+export function nicknameOnly(label: unknown): string {
+  if (typeof label !== 'string') return '';
+  return (label.trim().split(/\s+/)[0] ?? '').slice(0, 20);
+}
 export function setLabel(label: string): void {
-  write(KEY_LABEL, label.slice(0, 20));
+  write(KEY_LABEL, nicknameOnly(label));
 }
 function testerId(): string {
   let id = read(KEY_TESTER);

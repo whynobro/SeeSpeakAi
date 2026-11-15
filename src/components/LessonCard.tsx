@@ -27,7 +27,7 @@ export function LessonCard({
   return (
     <Link
       href={`/practice?sound=${pick.sound}`}
-      className={`flex items-center gap-4 rounded-2xl bg-surface p-4 transition-[transform,background-color] duration-75 active:scale-[0.98] ${look}`}
+      className={`flex items-center gap-4 rounded-xl bg-surface p-4 transition-[transform,background-color] duration-75 active:scale-[0.98] ${look}`}
     >
       <IconTile tone={primary ? 'accent' : 'soft'} size="lg" className="text-3xl font-extrabold">
         {pick.sound}
