@@ -33,6 +33,18 @@ const FEET = { x: 0.5, y: 0.63 };
 /** Wider than this (in px), the words sit beside the bird; narrower, under it. */
 const WIDE = 1000;
 const SEEN_KEY = 'seespeak:home-flyin-seen';
+/**
+ * The clip's own green reads a little yellow, so a pale aqua wash sits over it (not over the bird), and the page
+ * takes the same mix. WASH and WASH_ALPHA are used for both, so the video's edges still melt into the page.
+ */
+const WASH = { r: 168, g: 212, b: 224 };
+const WASH_ALPHA = 0.6;
+/** How far above the home screen's top the wash starts, in px (the clip runs off the top a little). */
+const WASH_TOP = 120;
+function washed(r: number, g: number, b: number): string {
+  const mix = (v: number, w: number) => Math.round(v * (1 - WASH_ALPHA) + w * WASH_ALPHA);
+  return `rgb(${mix(r, WASH.r)}, ${mix(g, WASH.g)}, ${mix(b, WASH.b)})`;
+}
 
 function seen(): boolean {
   try {
@@ -69,7 +81,7 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
       bg: root.style.getPropertyValue('--background'),
       muted: root.style.getPropertyValue('--muted'),
     };
-    root.style.setProperty('--background', 'rgb(180, 196, 170)'); // measured on the clip; refined below
+    root.style.setProperty('--background', washed(180, 196, 170)); // measured on the clip; refined below
     root.style.setProperty('--muted', '#3f4b49'); // darker gray, so small text reads on the green
     return () => {
       root.style.setProperty('--background', before.bg);
@@ -89,7 +101,7 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
       const vw = hero.clientWidth;
       const isWide = vw > WIDE;
       setWide(isWide);
-      const W = (isWide ? 1.1 : 1.9) * vw,
+      const W = (isWide ? 1.1 : 1.7) * vw,
         H = (W * 9) / 16;
       const bx = (isWide ? 0.54 : 0.5) * vw;
       let top: number;
@@ -100,6 +112,11 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
         top = 64 - 0.24 * H; // under the logo row; the plain sky above the bird runs off the top
         hero.style.setProperty('--stage-h', `${Math.round(top + 0.84 * H)}px`);
       }
+      // Where the bird is, for the hole in the color wash.
+      rootRef.current?.style.setProperty('--bird-x', `${Math.round(bx + 0.02 * W)}px`);
+      rootRef.current?.style.setProperty('--bird-y', `${Math.round(top + 0.55 * H)}px`);
+      rootRef.current?.style.setProperty('--bird-rx', `${Math.round(0.27 * W)}px`);
+      rootRef.current?.style.setProperty('--bird-ry', `${Math.round(0.4 * H)}px`);
       Object.assign(v.style, {
         width: `${W}px`,
         height: `${H}px`,
@@ -142,10 +159,7 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
           b += d[i + 2];
         }
         const n = d.length / 4;
-        document.documentElement.style.setProperty(
-          '--background',
-          `rgb(${Math.round(r / n)}, ${Math.round(g / n)}, ${Math.round(b / n)})`,
-        );
+        document.documentElement.style.setProperty('--background', washed(r / n, g / n, b / n));
       } catch {
         // Keep the measured color.
       }
@@ -195,9 +209,20 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
 
   return (
     <div ref={rootRef} className="@container relative isolate flex flex-col [overflow-x:clip]">
+      {/* The aqua wash over the clip's green, across the whole home screen, with a soft hole where the bird sits,
+          plus three soft color blobs. It starts above the top so the part of the clip that runs off is covered too. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[2]"
+        style={{
+          top: -WASH_TOP,
+          background: `radial-gradient(circle 300px at 100% ${WASH_TOP + 250}px, rgb(110 165 255 / 0.42), transparent 100%), radial-gradient(circle 320px at 0% ${WASH_TOP + 640}px, rgb(190 165 255 / 0.4), transparent 100%), radial-gradient(circle 340px at 100% ${WASH_TOP + 1250}px, rgb(120 215 200 / 0.4), transparent 100%), rgb(${WASH.r} ${WASH.g} ${WASH.b} / ${WASH_ALPHA})`,
+          maskImage: `radial-gradient(ellipse var(--bird-rx, 46cqw) var(--bird-ry, 38cqw) at var(--bird-x, 53cqw) calc(var(--bird-y, calc(64px + 29.6cqw)) + ${WASH_TOP}px), transparent 0, transparent 50%, #000 100%)`,
+        }}
+      />
       <header
         ref={heroRef}
-        className={`relative ${wide ? 'h-[100svh] min-h-[620px]' : 'px-4 pb-6 pt-[var(--stage-h,calc(64px+64.1cqw))]'}`}
+        className={`relative ${wide ? 'h-[100svh] min-h-[620px]' : 'px-4 pb-6 pt-[var(--stage-h,calc(64px+57.4cqw))]'}`}
       >
         {/* The video, exactly as generated. Its top and bottom edges are plain sky, faded into the page.
             The classes place it for a phone before JavaScript runs (same numbers as the layout effect above). */}
@@ -208,14 +233,20 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
           playsInline
           preload="auto"
           aria-label={HOME_HERO.birdAlt}
-          className="pointer-events-none absolute top-[calc(64px-25.65cqw)] left-[-45cqw] z-[1] h-[106.875cqw] w-[190cqw] max-w-none [mask-image:linear-gradient(180deg,transparent_0,#000_9%,#000_84%,transparent_100%)]"
+          className="pointer-events-none absolute top-[calc(64px-22.95cqw)] left-[-35cqw] z-[1] h-[95.625cqw] w-[170cqw] max-w-none [mask-image:linear-gradient(180deg,transparent_0,#000_9%,#000_84%,transparent_100%)]"
         />
 
         <div
           className={`absolute inset-x-0 top-0 z-[3] flex items-center justify-between gap-3 ${wide ? 'px-8 pt-5' : 'px-4 pt-3'}`}
         >
-          <h1 className={wide ? 'w-[250px]' : 'w-[170px]'}>
-            <Wordmark />
+          <h1 className="flex items-center gap-1.5" aria-label="See Speak AI">
+            <Wordmark birdOnly className={wide ? 'w-[58px]' : 'w-[44px]'} />
+            <span
+              aria-hidden="true"
+              className={`font-extrabold tracking-tight whitespace-nowrap ${wide ? 'text-[30px]' : 'text-[22px]'}`}
+            >
+              <span className="text-accent">See</span> Speak AI
+            </span>
           </h1>
           <p className="flex max-w-[160px] items-center gap-1.5 text-right text-[13px] leading-tight font-bold text-accent-edge @3xl:max-w-none">
             <LockIcon className="h-4 w-4 shrink-0" />
@@ -234,17 +265,17 @@ export function KingfisherHome({ children }: { children: ReactNode }) {
             {HOME_HERO.lede}
           </p>
           <div className={`mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 ${rise()}`} style={delay(2)}>
-            {/* Flat like every other button, in the kingfisher orange token. A tap shrinks it, plus a short buzz on Android. */}
+            {/* Kingfisher blue, the bird's own color, as a soft raised pill. A tap shrinks it, plus a short buzz on Android. */}
             <button
               type="button"
               onPointerDown={buzz}
               onClick={goTry}
-              className="inline-flex min-h-14 items-center gap-3 rounded-full bg-violet py-2.5 pr-2.5 pl-6 text-[18px] font-extrabold text-violet-ink transition-[transform,filter] duration-75 select-none hover:brightness-95 active:scale-[0.98] active:brightness-90"
+              className="inline-flex min-h-14 items-center gap-3 rounded-full bg-accent py-2.5 pr-2.5 pl-6 text-[18px] font-extrabold text-accent-ink shadow-[0_10px_24px_-10px_rgb(19_74_112/0.75),inset_0_1px_0_rgb(255_255_255/0.25)] transition-[transform,background-color] duration-75 select-none hover:bg-accent-edge active:scale-[0.98] active:bg-accent-edge"
             >
               {TRY_IT.button}
               <span
                 aria-hidden="true"
-                className="grid h-9 w-9 place-items-center rounded-full bg-foreground text-white"
+                className="grid h-9 w-9 place-items-center rounded-full bg-surface text-accent-edge"
               >
                 &rarr;
               </span>
