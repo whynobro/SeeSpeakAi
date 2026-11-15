@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { AdultOverrideDialog } from '@/components/AdultOverrideDialog';
 import { LightbulbIcon, MicIcon, StarIcon } from '@/components/Icons';
+import { ResultAction } from '@/components/ResultAction';
 import { LipCamera } from '@/components/LipCamera';
 import { SoundVideo } from '@/components/SoundVideo';
 import { SoundMeter } from '@/components/SoundMeter';
@@ -230,8 +231,9 @@ function PracticeLoop() {
     resetStuck();
   }, [index, words, clearCoach, resetStuck]);
 
-  // The coach's next step is only a suggestion: it picks which button is the main one. Nothing moves on by itself.
-  const suggestRetry = coach.feedback?.nextAction === 'repeat' || coach.feedback?.nextAction === 'easier';
+  // The try counts when it is a hit, counts for the tier (level mode), or an adult marked it right.
+  const counted =
+    score !== null && (adultRight || score.verdict === 'hit' || (level !== null && countsFor(tier, score)));
   const listening = meter.status === 'listening';
   const busy = meter.status === 'starting';
 
@@ -626,6 +628,17 @@ function PracticeLoop() {
         </button>
       )}
 
+      {/* After a try is scored, one action takes the Start button's place. */}
+      {score && word && meter.status !== 'error' && (
+        <ResultAction
+          counted={counted}
+          last={index + 1 >= words.length}
+          onAgain={onStart}
+          onNext={onNext}
+          onAdult={counted ? undefined : () => setAdultOpen(true)}
+        />
+      )}
+
       {/* After the next try starts, a closer look already received stays on screen (the button waits for the result). */}
       {!score && word && <StuckHelp {...stuckProps} />}
 
@@ -648,19 +661,6 @@ function PracticeLoop() {
           )}
           <CoachCard feedback={coach.feedback} loading={coach.loading} />
           <StuckHelp {...stuckProps} />
-          {!adultRight && score.verdict !== 'hit' && !(level && countsFor(tier, score)) && (
-            <Button variant="secondary" size="md" onClick={() => setAdultOpen(true)}>
-              An adult heard it right
-            </Button>
-          )}
-          <div className="grid grid-cols-2 gap-3">
-            <Button variant={suggestRetry ? 'primary' : 'secondary'} size="lg" onClick={onStart}>
-              Try again
-            </Button>
-            <Button variant={suggestRetry ? 'secondary' : 'primary'} size="lg" onClick={onNext}>
-              {index + 1 >= words.length ? 'Finish' : 'Next word'}
-            </Button>
-          </div>
         </div>
       )}
 
