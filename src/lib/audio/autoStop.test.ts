@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { AUTO_STOP_MAX_MS, autoStopReason, heardNothing, type LevelPoint } from './autoStop';
+import {
+  AUTO_STOP_MAX_MS,
+  AUTO_STOP_QUIET_MS,
+  AUTO_STOP_QUIET_MS_WORD,
+  autoGradeStep,
+  autoStopReason,
+  heardNothing,
+  type LevelPoint,
+} from './autoStop';
 
 /** Readings every 50 ms from a list of levels. */
 const series = (levels: number[]): LevelPoint[] => levels.map((level, i) => ({ tMs: i * 50, level }));
@@ -44,5 +52,35 @@ describe('heardNothing', () => {
   it('is true for mic noise only, false when there was sound', () => {
     expect(heardNothing(series(repeat(0.001, 10)))).toBe(true);
     expect(heardNothing(series([0.001, 0.2, 0.001]))).toBe(false);
+  });
+});
+
+describe('autoStopReason with a shorter quiet window', () => {
+  // 850 ms of quiet after the sound: enough for the word window, not for the lab window.
+  const pts = series([...repeat(0.2, 10), ...repeat(0.005, 17)]);
+  it('stops sooner with the word window and not with the default', () => {
+    expect(AUTO_STOP_QUIET_MS_WORD).toBeLessThan(AUTO_STOP_QUIET_MS);
+    expect(autoStopReason(pts, AUTO_STOP_QUIET_MS_WORD)).toBe('quiet');
+    expect(autoStopReason(pts)).toBeNull();
+  });
+});
+
+describe('autoGradeStep', () => {
+  it('listens on an empty list and while talking', () => {
+    expect(autoGradeStep([])).toBe('listen');
+    expect(autoGradeStep(series(repeat(0.2, 20)))).toBe('listen');
+  });
+
+  it('grades after sound then quiet', () => {
+    expect(autoGradeStep(series([...repeat(0.2, 10), ...repeat(0.005, 21)]))).toBe('grade');
+  });
+
+  it('grades at max time when there was sound', () => {
+    expect(autoGradeStep(series(repeat(0.2, AUTO_STOP_MAX_MS / 50 + 1)))).toBe('grade');
+  });
+
+  it('says no-voice at max time when nothing rose above mic noise', () => {
+    expect(autoGradeStep(series(repeat(0.0005, 40)))).toBe('listen');
+    expect(autoGradeStep(series(repeat(0.0005, AUTO_STOP_MAX_MS / 50 + 1)))).toBe('no-voice');
   });
 });
