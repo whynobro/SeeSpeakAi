@@ -1,4 +1,5 @@
 import { put } from '@vercel/blob';
+import { isTargetSound } from '@/lib/scoring/constants';
 
 const MAX_BYTES = 120_000;
 
@@ -24,7 +25,7 @@ export async function POST(request: Request) {
   }
   const okShape =
     entry.v === 1 &&
-    (entry.target === 's' || entry.target === 'sh') &&
+    isTargetSound(entry.target) &&
     (entry.page === 'practice' || entry.page === 'lab') &&
     typeof entry.wordId === 'string' &&
     typeof entry.score === 'object' &&

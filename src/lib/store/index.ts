@@ -1,3 +1,4 @@
+import { isTargetSound } from '@/lib/scoring/constants';
 import { sharePracticeAttempt } from '@/lib/testlog';
 import type { Attempt, HearingProfile, LearnerSettings, SoundProgress, TargetSound } from '@/lib/types';
 
@@ -72,8 +73,7 @@ export function loadAttempts(): Attempt[] {
   const v = readJson(KEYS.attempts);
   if (!Array.isArray(v)) return [];
   return v.filter(
-    (a): a is Attempt =>
-      isRecord(a) && typeof a.createdAt === 'string' && (a.target === 's' || a.target === 'sh'),
+    (a): a is Attempt => isRecord(a) && typeof a.createdAt === 'string' && isTargetSound(a.target),
   );
 }
 

@@ -1,12 +1,22 @@
 import type { PracticeWord } from '@/lib/types';
 
-/** Split the word so the target letters ("s" or "sh") can be marked. */
+/** Split the word so the target letters ("s", "sh", "z" or "ch") can be marked. */
 function splitTarget(word: PracticeWord): { before: string; mark: string; after: string } {
   const text = word.text;
   const lower = text.toLowerCase();
   let index = -1;
-  if (word.target === 'sh') {
-    index = word.position === 'start' ? lower.indexOf('sh') : lower.lastIndexOf('sh');
+  let length = 1;
+  if (word.target === 'sh' || word.target === 'ch') {
+    length = 2;
+    index = word.position === 'start' ? lower.indexOf(word.target) : lower.lastIndexOf(word.target);
+  } else if (word.target === 'z') {
+    // Spelled "z" ("zoo", "buzz") or with an "s" spoken as "z" ("dogs", "nose").
+    const letter = lower.includes('z') ? 'z' : 's';
+    index = word.position === 'start' ? lower.indexOf(letter) : lower.lastIndexOf(letter);
+    if (letter === 'z' && lower.endsWith('zz') && word.position !== 'start') {
+      index = lower.length - 2;
+      length = 2;
+    }
   } else if (word.position === 'start') {
     index = lower.indexOf('s');
   } else if (word.position === 'end') {
@@ -21,7 +31,6 @@ function splitTarget(word: PracticeWord): { before: string; mark: string; after:
     }
   }
   if (index < 0) return { before: text, mark: '', after: '' };
-  const length = word.target === 'sh' ? 2 : 1;
   return {
     before: text.slice(0, index),
     mark: text.slice(index, index + length),

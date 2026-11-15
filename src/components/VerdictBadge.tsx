@@ -1,3 +1,4 @@
+import { BASE_HISS } from '@/lib/scoring/constants';
 import type { TargetSound, Verdict } from '@/lib/types';
 
 function Icon({ verdict, target }: { verdict: Verdict; target: TargetSound }) {
@@ -21,10 +22,10 @@ function Icon({ verdict, target }: { verdict: Verdict; target: TargetSound }) {
     );
   }
   if (verdict === 'close') {
-    // Points toward the target's side of the meter: "s" is on the right, "sh" on the left.
+    // Points toward the target's side of the meter: "s" (and "z") on the right, "sh" (and "ch") on the left.
     return (
       <svg {...common}>
-        {target === 's' ? <path d="M4 12h15M13 6l6 6-6 6" /> : <path d="M20 12H5M11 6l-6 6 6 6" />}
+        {BASE_HISS[target] === 's' ? <path d="M4 12h15M13 6l6 6-6 6" /> : <path d="M20 12H5M11 6l-6 6 6 6" />}
       </svg>
     );
   }
@@ -37,8 +38,25 @@ function Icon({ verdict, target }: { verdict: Verdict; target: TargetSound }) {
   );
 }
 
-export function VerdictBadge({ verdict, target }: { verdict: Verdict; target: TargetSound }) {
-  const other = target === 's' ? 'sh' : 's';
+/** What to try next after a close result. "z" without voice and "ch" without a burst get their own hint. */
+function closeDetail(target: TargetSound, heard: TargetSound): string {
+  if (target === 'z' && heard === 's')
+    return 'Turn your voice on. Put a hand on your throat and feel the buzz.';
+  if (target === 'ch' && heard === 'sh') return 'Start with a little pop, like "t", then a short "sh".';
+  return `Aim for '${target}', ${BASE_HISS[target] === 's' ? 'right' : 'left'} on the meter.`;
+}
+
+export function VerdictBadge({
+  verdict,
+  target,
+  heard,
+}: {
+  verdict: Verdict;
+  target: TargetSound;
+  /** The sound the score found, when it knows. Without it the badge guesses the other hiss. */
+  heard?: TargetSound | null;
+}) {
+  const other = heard ?? (BASE_HISS[target] === 's' ? 'sh' : 's');
   const title =
     verdict === 'hit'
       ? `Got it: the '${target}' was there`
@@ -49,7 +67,7 @@ export function VerdictBadge({ verdict, target }: { verdict: Verdict; target: Ta
     verdict === 'hit'
       ? null
       : verdict === 'close'
-        ? `Aim for '${target}', ${target === 's' ? 'right' : 'left'} on the meter.`
+        ? closeDetail(target, other)
         : 'Take a breath and try again.';
   // Each result differs in grayscale too: a solid tint with a solid border (hit), a solid amber fill (close),
   // white with a dashed border (miss). The icon and the words always say the same thing as the color.

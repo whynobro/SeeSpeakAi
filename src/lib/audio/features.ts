@@ -14,6 +14,12 @@ const CENTROID_HIGH_HZ = 10000;
  * there is no hiss to measure and the centroid is null. About amplitude 0.0003: below mic noise.
  */
 const CENTROID_MIN_ENERGY = 1e-7;
+/**
+ * Voicing is measured in this band, where the buzz of the voice (the pitch and its first harmonics) lives.
+ * Below 80 Hz is skipped: mains hum and mic rumble are not a voice.
+ */
+const VOICING_FROM_HZ = 80;
+const VOICING_TO_HZ = 500;
 
 function clamp01(x: number): number {
   return x < 0 ? 0 : x > 1 ? 1 : x;
@@ -39,12 +45,14 @@ export function featuresFromSpectrum(
   let hiss = 0;
   let bandEnergy = 0;
   let bandWeighted = 0;
+  let low = 0;
   // Bin 0 is DC (a steady offset, not sound), so skip it.
   for (let k = 1; k < bins; k++) {
     const hz = k * binHz;
     const energy = magnitudes[k] * magnitudes[k];
     total += energy;
     if (hz >= HISS_FROM_HZ) hiss += energy;
+    if (hz >= VOICING_FROM_HZ && hz <= VOICING_TO_HZ) low += energy;
     if (hz >= CENTROID_LOW_HZ && hz <= centroidHigh) {
       bandEnergy += energy;
       bandWeighted += energy * hz;
@@ -58,6 +66,7 @@ export function featuresFromSpectrum(
     hissLevel: clamp01(Math.sqrt(hiss)),
     hissRatio: total > 0 ? clamp01(hiss / total) : 0,
     centroidHz,
+    voicing: low + hiss > 0 ? clamp01(low / (low + hiss)) : 0,
   };
 }
 

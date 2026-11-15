@@ -17,6 +17,8 @@ describe('WORD_BANK', () => {
   it('contains the letters of its target', () => {
     for (const w of WORD_BANK) {
       if (w.target === 'sh') expect(w.text, w.text).toContain('sh');
+      else if (w.target === 'ch') expect(w.text, w.text).toContain('ch');
+      else if (w.target === 'z') expect(/z|s/.test(w.text), w.text).toBe(true);
       else expect(/s|c/.test(w.text), w.text).toBe(true);
     }
   });
@@ -25,10 +27,31 @@ describe('WORD_BANK', () => {
     for (const w of WORD_BANK.filter((x) => x.target === 's')) expect(w.text, w.text).not.toContain('sh');
   });
 
-  it('only makes plurals after a voiceless consonant', () => {
-    for (const w of WORD_BANK.filter((x) => x.baseWord !== null)) {
+  it('only makes "s" plurals after a voiceless consonant', () => {
+    for (const w of WORD_BANK.filter((x) => x.baseWord !== null && x.target === 's')) {
       expect(w.text, w.text).toBe(`${w.baseWord}s`);
       expect(/(p|t|k|ck|f)$/.test(w.baseWord ?? ''), w.text).toBe(true);
+    }
+  });
+
+  it('only makes "z" plurals after a vowel or a voiced consonant', () => {
+    const zPlurals = WORD_BANK.filter((x) => x.baseWord !== null && x.target === 'z');
+    expect(zPlurals.length).toBeGreaterThanOrEqual(6);
+    for (const w of zPlurals) {
+      expect(w.text, w.text).toBe(`${w.baseWord}s`);
+      expect(/(p|t|k|ck|f)$/.test(w.baseWord ?? ''), w.text).toBe(false);
+    }
+  });
+
+  it('has no plurals for sh or ch', () => {
+    for (const w of WORD_BANK.filter((x) => x.target === 'sh' || x.target === 'ch')) {
+      expect(w.baseWord, w.text).toBeNull();
+    }
+  });
+
+  it('has no "ch" word that is spoken as k or sh, and no "ch" word with a second hiss', () => {
+    for (const w of WORD_BANK.filter((x) => x.target === 'ch')) {
+      expect(w.text, w.text).not.toMatch(/school|chef|chorus|machine|s|z/);
     }
   });
 
@@ -38,6 +61,10 @@ describe('WORD_BANK', () => {
       ['s', 'end'],
       ['sh', 'start'],
       ['sh', 'end'],
+      ['z', 'start'],
+      ['z', 'end'],
+      ['ch', 'start'],
+      ['ch', 'end'],
     ];
     for (const [t, p] of pairs) {
       const n = WORD_BANK.filter((w) => w.target === t && w.position === p).length;
@@ -49,7 +76,7 @@ describe('WORD_BANK', () => {
 
 describe('wordsFor', () => {
   it('respects count and target', () => {
-    for (const t of ['s', 'sh'] as const) {
+    for (const t of ['s', 'sh', 'z', 'ch'] as const) {
       const list = wordsFor(t, 6);
       expect(list).toHaveLength(6);
       expect(list.every((w) => w.target === t)).toBe(true);
@@ -61,12 +88,13 @@ describe('wordsFor', () => {
   it('is deterministic and puts grammar endings early', () => {
     expect(wordsFor('s', 8)).toEqual(wordsFor('s', 8));
     expect(wordsFor('s', 3)[0].baseWord).not.toBeNull();
+    expect(wordsFor('z', 3)[0].baseWord).not.toBeNull();
   });
 });
 
 describe('CUES', () => {
-  it('covers both sounds with at least 3 steps', () => {
-    for (const t of ['s', 'sh'] as const) {
+  it('covers all four sounds with at least 3 steps', () => {
+    for (const t of ['s', 'sh', 'z', 'ch'] as const) {
       expect(CUES[t].sound).toBe(t);
       expect(CUES[t].steps.length).toBeGreaterThanOrEqual(3);
     }

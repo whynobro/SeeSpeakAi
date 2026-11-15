@@ -98,3 +98,56 @@ export const NOISE_REL_LEVEL = 0.3;
 
 /** Room-noise check needs at least this many frames to say anything. */
 export const NOISE_MIN_FRAMES = 8;
+
+// ---------- "z" and "ch" ----------
+// Both are STARTING VALUES set on synthetic sounds only. They need tuning on real voices (see /lab).
+
+/** Every sound the app scores. Add one only when src/lib/scoring has tests for it. */
+export const TARGET_SOUNDS = ['s', 'sh', 'z', 'ch'] as const;
+
+/** True when `value` is one of the scored sounds. Use it to check data from outside (API bodies, storage). */
+export function isTargetSound(value: unknown): value is (typeof TARGET_SOUNDS)[number] {
+  return typeof value === 'string' && (TARGET_SOUNDS as readonly string[]).includes(value);
+}
+
+/** The plain hiss each sound is built on: "z" is a voiced "s", "ch" is a burst plus a short "sh". */
+export const BASE_HISS = { s: 's', sh: 'sh', z: 's', ch: 'sh' } as const;
+
+/**
+ * "z" only: a frame counts as hiss when at least this share of its energy is above 2 kHz. Lower than
+ * HISS_RATIO_MIN because the buzz of the voice puts real energy under 500 Hz. A vowel is still far below
+ * VOICED_RATIO_MAX, so the two stay apart.
+ */
+export const Z_HISS_RATIO_MIN = 0.45;
+
+/**
+ * "z" only: a hiss frame counts as voiced when its voicing (energy under 500 Hz next to the hiss energy,
+ * 0 to 1) is at least this. A plain "s" sits near 0; the synthetic "z" sits near 0.2.
+ */
+export const VOICING_FRAME_MIN = 0.08;
+
+/**
+ * "z" only: the share of the hiss frames that must be voiced for the hiss to count as a "z".
+ * Deliberately low: a word-final "z" ("dogs", "bees") is often partly devoiced in natural English, so the
+ * buzz may only last for the first part of the hiss. Voicing in about a third of it is enough.
+ * The first and last hiss frame are ignored: they overlap the neighbouring vowel and would look voiced.
+ */
+export const Z_VOICED_SHARE_MIN = 0.3;
+
+/** "ch" only: the first this many ms of the hiss run are the burst; the short "sh" after it is the body. */
+export const CH_ONSET_MS = 30;
+
+/**
+ * "ch" only: the burst counts when the loudest onset frame is at least this many times the typical
+ * (median) loudness of the body. A plain "sh" fades in, so its ratio sits under 1.
+ */
+export const CH_BURST_RATIO = 1.5;
+
+/** "ch" only: confidence from the burst is full when the ratio is this many times CH_BURST_RATIO. */
+export const CH_BURST_FULL_FACTOR = 2;
+
+/** "ch" only: the "sh" after the burst must be at least this long (ms), held at its level. About 40 ms. */
+export const CH_MIN_HISS_MS = 40;
+
+/** "ch" only: a body longer than this (ms) is a long "sh", not the short hiss of a "ch". About 150 ms. */
+export const CH_MAX_HISS_MS = 150;

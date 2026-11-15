@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { MeterStatus } from '@/hooks/useSoundMeter';
+import { BASE_HISS } from '@/lib/scoring/constants';
 import type { SoundReading, TargetSound } from '@/lib/types';
 
 /** Matches BOUNDARY in src/lib/scoring: at or above this the hiss reads as "s", below as "sh". */
@@ -43,6 +44,8 @@ export interface SoundMeterProps {
 
 export function SoundMeter({ reading, target, status, result = null }: SoundMeterProps) {
   const listening = status ? status === 'listening' : reading !== null;
+  // The meter shows pitch only: "z" sits on the "s" side and "ch" on the "sh" side.
+  const side = target ? BASE_HISS[target] : undefined;
   const position = reading?.hissing && reading.position !== null ? clamp01(reading.position) : null;
 
   // The trail and loudness history are kept from the `reading` prop. State is adjusted during render
@@ -71,8 +74,8 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
     }
   }
 
-  const zoneLeft = target === 's' ? BOUNDARY : 0;
-  const zoneWidth = target === 's' ? 1 - BOUNDARY : BOUNDARY;
+  const zoneLeft = side === 's' ? BOUNDARY : 0;
+  const zoneWidth = side === 's' ? 1 - BOUNDARY : BOUNDARY;
   const landed = result && result.position !== null ? clamp01(result.position) : null;
 
   let stateLine: string;
@@ -92,13 +95,13 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
     >
       <div className="flex items-end justify-between" aria-hidden="true">
         <span
-          className={`text-3xl leading-none font-extrabold ${target === 'sh' ? 'text-accent-edge underline decoration-4 underline-offset-4' : 'text-muted'}`}
+          className={`text-3xl leading-none font-extrabold ${side === 'sh' ? 'text-accent-edge underline decoration-4 underline-offset-4' : 'text-muted'}`}
         >
           sh
         </span>
         <span className="text-sm font-semibold text-muted">which hiss?</span>
         <span
-          className={`text-3xl leading-none font-extrabold ${target === 's' ? 'text-accent-edge underline decoration-4 underline-offset-4' : 'text-muted'}`}
+          className={`text-3xl leading-none font-extrabold ${side === 's' ? 'text-accent-edge underline decoration-4 underline-offset-4' : 'text-muted'}`}
         >
           s
         </span>
@@ -114,8 +117,8 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
                 style={{
                   left: `${zoneLeft * 100}%`,
                   width: `${zoneWidth * 100}%`,
-                  borderLeftWidth: target === 's' ? 3 : 0,
-                  borderRightWidth: target === 'sh' ? 3 : 0,
+                  borderLeftWidth: side === 's' ? 3 : 0,
+                  borderRightWidth: side === 'sh' ? 3 : 0,
                   borderStyle: 'dashed',
                   backgroundImage:
                     'repeating-linear-gradient(135deg, currentColor 0 3px, transparent 3px 11px)',
@@ -123,7 +126,7 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
               />
               <span
                 className="absolute top-1/2 -translate-y-1/2 rounded-lg bg-surface px-2 py-0.5 text-sm font-bold text-accent-edge"
-                style={target === 's' ? { right: 8 } : { left: 8 }}
+                style={side === 's' ? { right: 8 } : { left: 8 }}
               >
                 Aim here: {target}
               </span>

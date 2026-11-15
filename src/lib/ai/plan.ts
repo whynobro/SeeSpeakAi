@@ -2,9 +2,10 @@ import { WORD_BANK, wordsFor } from '@/content/words';
 import { askClaudeForJson } from '@/lib/ai/client';
 import { mergePlan } from '@/lib/ai/validate';
 import { pickTargets } from '@/lib/profile';
+import { TARGET_SOUNDS } from '@/lib/scoring/constants';
 import type { AssessmentReport, PlanStep, PracticePlan, TargetSound } from '@/lib/types';
 
-const SCORED: TargetSound[] = ['s', 'sh'];
+const SCORED: readonly TargetSound[] = TARGET_SOUNDS;
 
 function asScored(sound: string): TargetSound | null {
   const clean = sound
@@ -92,7 +93,9 @@ Rules:
 - Every newWords entry must follow the sound rules, because the server checks each word against a pronunciation dictionary and drops the ones that fail. Go by how the word SOUNDS, not how it is spelled:
   - Step "s": the word has exactly one "s" sound (as in "cats" or "bus") and no "sh", "z", "ch" or "j" sound. The "s" is either the very first sound followed by a vowel (sun, soap) or the very last sound after a vowel or after p, t, k or f (pass, kicks, nets, boots). No "s" blends at the start (not "stop" or "snake").
   - Step "sh": the same, with exactly one "sh" sound (ship, shot, fish).
-  - Plurals only count when the ending sounds like "s", not "z": "kicks" and "nets" are fine, "dogs", "beds", "bees", "cars" and "shoes" end in "z" and fail. "is", "nose", "sugar", "sure" and "measure" fail too.
+  - Step "z": exactly one "z" sound and no "s", "sh", "ch" or "j" sound. The "z" is either the very first sound followed by a vowel (zoo, zip) or the very last sound after a vowel or after b, d, g, v, m, n, l or r (dogs, beds, bees, toys, cars, nose). Never after p, t, k or f ("cats" ends in "s").
+  - Step "ch": exactly one "ch" sound (chip, chin, watch, beach, lunch) and no "s", "sh", "z" or "j" sound. The "ch" is either the very first sound followed by a vowel or the very last sound after a vowel or "n". It must be spoken "ch", not "k" ("school") or "sh" ("chef"). "cheese" and "chairs" fail because they hold a "z".
+  - For step "s" and step "sh", plurals only count when the ending sounds like "s", not "z": "kicks" and "nets" are fine, "dogs", "beds", "bees", "cars" and "shoes" end in "z" and fail. "is", "nose", "sugar", "sure" and "measure" fail too (but "dogs" and "nose" are good for step "z").
   - At most two vowel sounds (short words), 2 to 8 letters, lower case.
 Reply with JSON only, no other text, in exactly this shape:
 {"summary": string, "steps": [{"sound": string, "why": string, "goal": string, "wordIds": string[], "newWords": string[]}]}

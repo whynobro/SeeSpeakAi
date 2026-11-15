@@ -42,7 +42,7 @@ Read [docs/PLAN.md](../PLAN.md) first: report -> curated plan -> training -> fee
    Done when: every verdict produces feedback on both phone types.
 
 4. **Claude practice list.**
-   In `src/lib/ai/practiceList.ts`: when `ANTHROPIC_API_KEY` is set, ask Claude for words around the learner's target sounds and interests. Validate every word against the rules at the top of `src/content/words.ts` (voiceless hiss only, no spelling traps). On any error, fall back to the word bank.
+   In `src/lib/ai/practiceList.ts`: when `ANTHROPIC_API_KEY` is set, ask Claude for words around the learner's target sounds and interests. Validate every word against the rules at the top of `src/content/words.ts` (only the four scored sounds, no spelling traps). On any error, fall back to the word bank.
    Done when: the route returns AI words with a key, word-bank words without one, and never crashes.
 
 5. **Audiogram entry and photo.**

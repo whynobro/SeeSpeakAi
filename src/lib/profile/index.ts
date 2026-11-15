@@ -12,6 +12,8 @@ export const AUDIOGRAM_SOME_DB = 35;
 const AUDIOGRAM_HZ: Record<TargetSound, AudiogramHz[]> = {
   s: [4000, 6000, 8000],
   sh: [2000, 4000],
+  z: [4000, 6000, 8000], // "z" follows "s": the same hiss, with the voice on
+  ch: [2000, 4000], // "ch" follows "sh": it ends in the same hiss
 };
 
 /** Things the hearing profile cannot tell us. Show these on the profile screen. */

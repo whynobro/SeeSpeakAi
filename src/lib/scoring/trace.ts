@@ -24,7 +24,7 @@ function clamp01(x: number): number {
  */
 export function summarizeTrace(frames: FrameFeatures[], word: PracticeWord): TraceSummary | null {
   if (frames.length === 0) return null;
-  const a = analyse(frames);
+  const a = analyse(frames, word.target);
   const run = pickRun(frames, a, word, true);
   if (!run) return null;
 

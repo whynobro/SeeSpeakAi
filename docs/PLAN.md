@@ -28,7 +28,7 @@ test in the app          and steps                      |        ^
 ## Three things that keep this honest (read before you build or pitch)
 
 - **The phone measures. The brain explains.** Claude cannot hear audio. The phone measures the sound (was the hiss there, which hiss, how long) and gives an instant verdict. Those numbers, never the audio, go to the brain, which turns them into feedback and plan changes. So the instant color and vibration come from the phone, and the brain's sentence arrives a moment later. The brain now also receives the shape of the sound over the word (a handful of numbers such as how the hiss drifted and how steady it was), still never the audio.
-- **Only "s" and "sh" get a verdict today.** A therapist report can name any sound. The plan includes it, but marks it "show how, no score" (`scored: false`) unless it is "s" or "sh". Never show a verdict for a sound we cannot measure.
+- **Only "s", "sh", "z" and "ch" get a verdict today.** A therapist report can name any sound. The plan includes it, but marks it "show how, no score" (`scored: false`) unless it is one of those four. Never show a verdict for a sound we cannot measure.
 - **It works with no key.** Every brain call has a built-in fallback (`source: 'rules'`). No key or a failed call must never break the demo.
 
 ## Who builds what
@@ -44,7 +44,7 @@ test in the app          and steps                      |        ^
 
 - The shared contract in `src/lib/types.ts`: `AssessmentReport`, `PracticePlan`, `PlanStep`, `TrainingView`, `FeedbackRequest`, `CoachFeedback`.
 - `POST /api/plan` and `POST /api/feedback`: both work today using built-in rules. The Claude calls slot into `src/lib/ai/plan.ts` and `src/lib/ai/feedback.ts`.
-- The measuring: mic, s and sh scoring, live meter, `/lab` tuning page.
+- The measuring: mic, s, sh, z and ch scoring, live meter, `/lab` tuning page.
 - Plain versions of the profile, practice and progress screens.
 
 ## How the team and the AI agents work together
