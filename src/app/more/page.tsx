@@ -10,6 +10,7 @@ import { PageHeader, SECTION_TITLE, Screen } from '@/components/PageHeader';
 import { Wordmark } from '@/components/home/Wordmark';
 import { VoiceLoop } from '@/components/VoiceLoop';
 import { COPY } from '@/content/copy';
+import { LIMITATIONS } from '@/lib/scoring';
 import { THERAPIST } from '@/content/therapist';
 
 export const metadata: Metadata = { title: 'More · See Speak AI' };
@@ -21,7 +22,7 @@ export const metadata: Metadata = { title: 'More · See Speak AI' };
 export default function MorePage() {
   return (
     <Screen className="gap-8">
-      <PageHeader title="About See Speak AI">
+      <PageHeader back={{ href: '/', label: 'Home' }} title="About See Speak AI">
         <Wordmark className="mt-1 w-44" />
         <p className={SECTION_TITLE}>{COPY.tagline}</p>
       </PageHeader>
@@ -52,10 +53,23 @@ export default function MorePage() {
           </li>
         </ul>
       </section>
-      <footer className="flex flex-col gap-2 border-t border-line pt-6 text-[15px] leading-relaxed text-muted">
-        <p>{COPY.optIn}</p>
+      <section
+        aria-labelledby="limits-title"
+        className="flex flex-col gap-2 text-[15px] leading-relaxed text-muted"
+      >
+        <h2 id="limits-title" className={`${SECTION_TITLE} text-foreground`}>
+          What this cannot do
+        </h2>
+        <ul className="list-disc pl-5">
+          {LIMITATIONS.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
         <p>{COPY.notTherapy}</p>
         <p>{COPY.privacy}</p>
+      </section>
+      <footer className="flex flex-col gap-2 border-t border-line pt-6 text-[15px] leading-relaxed text-muted">
+        <p>{COPY.optIn}</p>
       </footer>
     </Screen>
   );

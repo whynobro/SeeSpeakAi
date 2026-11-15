@@ -1,42 +1,40 @@
-import { Button } from '@/components/ui';
+import type { Ref } from 'react';
 import { LightbulbIcon, SparkleIcon } from '@/components/Icons';
 import type { StuckHelp as StuckHelpAnswer } from '@/lib/ai/stuck';
 
+/** What goes out when the bird is tapped. Shown while the request runs and under the answer. */
+const SENDS_LINE = 'Sends the numbers from your last tries, never your voice or picture.';
+
 /*
- * "Stuck? Ask Claude for a closer look". The button shows after three tries in a row that did not count.
- * Nothing is sent until the learner taps it, and the line under the button says what goes out.
+ * "A closer look", asked for by tapping the bird (there is no separate button). Nothing is sent until the
+ * learner taps it, and the line next to the answer says what goes out.
  * The answer is a pattern, up to three steps and a kind closing line. It never changes a verdict.
+ * `ref` goes to the block, so the screen can scroll it into view.
  */
 export function StuckHelp({
-  canAsk,
   loading,
   help,
   failed,
-  onAsk,
+  ref,
 }: {
-  canAsk: boolean;
   loading: boolean;
   help: StuckHelpAnswer | null;
   failed: boolean;
-  onAsk: () => void;
+  ref?: Ref<HTMLDivElement>;
 }) {
-  if (!canAsk && !loading && !help) return null;
+  if (!loading && !help && !failed) return null;
   return (
-    <div aria-live="polite" className="flex flex-col gap-2">
-      {(canAsk || loading) && (
+    <div ref={ref} aria-live="polite" className="flex scroll-mt-4 flex-col gap-2">
+      {loading && (
         <div className="flex flex-col gap-1">
-          <Button variant="secondary" size="md" onClick={onAsk} disabled={loading}>
-            {loading ? 'Taking a closer look...' : 'Stuck? Ask Claude for a closer look'}
-          </Button>
-          <p className="px-1 text-sm text-muted">
-            Sends the numbers from your last tries, never your voice or picture.
-          </p>
-          {failed && !loading && (
-            <p role="status" className="px-1 text-sm font-bold">
-              That did not work just now. You can tap the button again.
-            </p>
-          )}
+          <p className="px-1 text-lg font-bold">Taking a closer look...</p>
+          <p className="px-1 text-sm text-muted">{SENDS_LINE}</p>
         </div>
+      )}
+      {failed && !loading && (
+        <p role="status" className="px-1 text-base font-bold">
+          That did not work just now. Tap the bird to try again.
+        </p>
       )}
       {help && (
         <section
@@ -57,6 +55,7 @@ export function StuckHelp({
             {help.source === 'ai' && <SparkleIcon className="h-4 w-4" />}
             {help.source === 'ai' ? 'Made by Claude' : 'Built-in tip'}
           </p>
+          <p className="text-sm text-muted">{SENDS_LINE}</p>
         </section>
       )}
     </div>

@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { AdultOverrideDialog } from '@/components/AdultOverrideDialog';
-import { HomeIcon, LightbulbIcon, MicIcon, StarIcon } from '@/components/Icons';
+import { LightbulbIcon, MicIcon, StarIcon } from '@/components/Icons';
 import { LipCamera } from '@/components/LipCamera';
 import { SoundVideo } from '@/components/SoundVideo';
 import { SoundMeter } from '@/components/SoundMeter';
+import { BackLink, PageHeader } from '@/components/PageHeader';
 import { Button, Card, IconTile, buttonClass } from '@/components/ui';
 import { CoachCard } from '@/components/CoachCard';
 import { StuckHelp } from '@/components/StuckHelp';
@@ -15,8 +16,7 @@ import { Confetti } from '@/components/Confetti';
 import { playHitDing } from '@/components/hitDing';
 import { VerdictBadge } from '@/components/VerdictBadge';
 import { WordCard } from '@/components/WordCard';
-import { BIRD_SIZE_PX, BirdMascot } from '@/components/bird/BirdMascot';
-import { COPY } from '@/content/copy';
+import { BirdMascot } from '@/components/bird/BirdMascot';
 import { CUES } from '@/content/cues';
 import { wordsFor } from '@/content/words';
 import {
@@ -50,12 +50,19 @@ import {
 import { buzz } from '@/lib/feedback';
 import type { LipSummary } from '@/lib/lips/types';
 import { saveOverride } from '@/lib/override';
-import { LIMITATIONS, scoreAttempt } from '@/lib/scoring';
+import { scoreAttempt } from '@/lib/scoring';
 import { isTargetSound } from '@/lib/scoring/constants';
 import { loadLevelResults, loadProfile, loadSettings, saveAttempt, saveLevelResults } from '@/lib/store';
 import type { AttemptScore, HearingProfile, LearnerSettings, PracticeWord, TargetSound } from '@/lib/types';
 
 const WORD_COUNT = 8;
+
+/** Bring a block into view. Instant (no glide) when the learner asked for reduced motion. */
+function scrollToBlock(element: HTMLElement | null) {
+  if (!element) return;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  element.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+}
 
 function StopIcon() {
   return (
@@ -137,6 +144,11 @@ function PracticeLoop() {
   const armed = useRef(false);
   const stopping = useRef(false);
   const onDoneRef = useRef<() => void>(() => {});
+  // The bird is the help button: these are the blocks it scrolls to.
+  const closerLookRef = useRef<HTMLDivElement>(null);
+  const stepsRef = useRef<HTMLDetailsElement>(null);
+  /** The bird was tapped and the closer look has not shown up on screen yet. */
+  const wantCloserLook = useRef(false);
 
   /** The plan step's words, in the plan's order, when this page was opened from that plan. Else the word bank. */
   function pickWords(t: Tier = tier, r: number = round): { list: PracticeWord[]; planned: boolean } {
@@ -188,15 +200,29 @@ function PracticeLoop() {
 
   const cue = CUES[target];
   const word = words[index] ?? null;
-  const stuckProps = {
-    canAsk: stuck.canAsk,
-    loading: stuck.loading,
-    help: stuck.help,
-    failed: stuck.failed,
-    onAsk: () => {
-      if (word) void stuck.ask(word);
-    },
-  };
+  const stuckProps = { loading: stuck.loading, help: stuck.help, failed: stuck.failed, ref: closerLookRef };
+
+  /** The bird was tapped. Tries that did not count: ask for a closer look. No tries yet: open the steps. */
+  function onBirdPress() {
+    if (stuck.hasTries && word) {
+      if (stuck.help || stuck.loading) scrollToBlock(closerLookRef.current);
+      else {
+        wantCloserLook.current = true; // the effect below scrolls once the loading line or the answer is on screen
+        void stuck.ask(word);
+      }
+      return;
+    }
+    setStepsOpen(true);
+    if (stepsRef.current) stepsRef.current.open = true;
+    scrollToBlock(stepsRef.current);
+  }
+
+  const { help: stuckHelp, loading: stuckLoading, failed: stuckFailed } = stuck;
+  useEffect(() => {
+    if (!wantCloserLook.current || !(stuckHelp || stuckLoading || stuckFailed)) return;
+    if (!stuckLoading) wantCloserLook.current = false;
+    scrollToBlock(closerLookRef.current);
+  }, [stuckHelp, stuckLoading, stuckFailed]);
 
   // A new word starts with no coach sentence.
   useEffect(() => {
@@ -235,7 +261,7 @@ function PracticeLoop() {
     setScore(result);
     setAdultRight(false);
     setTries((n) => n + 1);
-    // Three tries in a row that did not count on this word offer "Stuck? Ask Claude" (numbers only).
+    // Three tries in a row that did not count on this word make the bird say "Stuck? Tap me" (numbers only if tapped).
     stuck.record(word, result, level ? countsFor(tier, result) : result.verdict === 'hit', lips);
     if (result.verdict === 'hit') {
       playHitDing(); // the mic has stopped (meter.stop() above). Extra only: the badge carries the verdict.
@@ -352,29 +378,6 @@ function PracticeLoop() {
     setFinished(false);
   }
 
-  const footer = (
-    <footer className="mt-4 flex flex-col gap-2 border-t-2 border-line pt-6 text-sm leading-relaxed text-muted">
-      <h2 className="text-base font-bold text-foreground">What this cannot do</h2>
-      <ul className="list-disc pl-4">
-        {LIMITATIONS.map((line) => (
-          <li key={line}>{line}</li>
-        ))}
-      </ul>
-      <p>{COPY.notTherapy}</p>
-      <p>{COPY.privacy}</p>
-    </footer>
-  );
-
-  const homeLink = (
-    <Link
-      href="/"
-      className="flex min-h-12 min-w-12 shrink-0 items-center justify-center gap-1 rounded-xl px-1 text-base font-bold text-accent-edge"
-    >
-      <HomeIcon className="h-6 w-6" />
-      <span>Home</span>
-    </Link>
-  );
-
   if (finished && level) {
     const got = itemsHit(countedByItem);
     const ok = tierPasses(tier, got);
@@ -385,8 +388,8 @@ function PracticeLoop() {
     const levelOpen = ok && tier !== 'bronze' && next !== null;
     return (
       <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pt-2 pb-8">
-        <header className="flex items-center gap-3">{homeLink}</header>
-        <section className="relative flex flex-col gap-4 border-y border-line py-6">
+        <BackLink href="/" label="Home" />
+        <Card className="relative flex flex-col gap-4">
           {ok && <Confetti />}
           <div className={`flex flex-col gap-1 ${ok ? 'pr-16' : ''}`}>
             <p className="text-[15px] font-bold text-muted">
@@ -435,7 +438,7 @@ function PracticeLoop() {
                   : `That was the last level for "${target}".`
               : `${tierInfo.line} Get ${passItems(tier)} of ${words.length} to pass ${tierInfo.title}. Tries again count, and the words change.`}
           </p>
-        </section>
+        </Card>
         {ok && levelOpen ? (
           <Button href={`/practice?sound=${target}&level=${next.id}&tier=bronze`} size="xl">
             Next level
@@ -466,7 +469,6 @@ function PracticeLoop() {
         <Button href={`/levels?sound=${target}`} variant="secondary" size="lg">
           All levels
         </Button>
-        {footer}
       </main>
     );
   }
@@ -474,7 +476,7 @@ function PracticeLoop() {
   if (finished) {
     return (
       <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pt-2 pb-8">
-        <header className="flex items-center gap-3">{homeLink}</header>
+        <BackLink href="/" label="Home" />
         <Card className="flex flex-col gap-4">
           <h1 className="text-[28px] leading-tight font-extrabold tracking-tight">All done</h1>
           {tries > 0 && (
@@ -497,25 +499,23 @@ function PracticeLoop() {
         <Button variant="secondary" size="lg" onClick={onRestart}>
           Practice again
         </Button>
-        {footer}
       </main>
     );
   }
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-col gap-3 px-4 pt-2 pb-8">
-      <header className="relative flex flex-col gap-1">
-        <BirdMascot level={birdLevel} />
-        <div className="flex items-center gap-3" style={{ paddingRight: BIRD_SIZE_PX + 8 }}>
-          {homeLink}
-          <h1 className="text-xl font-extrabold tracking-tight">Practice the &apos;{target}&apos; sound</h1>
-        </div>
+      <PageHeader
+        back={{ href: '/', label: 'Home' }}
+        title={<>Practice the &apos;{target}&apos; sound</>}
+        aside={<BirdMascot level={birdLevel} onPress={onBirdPress} nudge={stuck.canAsk} />}
+      >
         {level && (
           <p className="text-base font-bold">
             Level {level.number} of 4: {level.title}, {tierById(tier).title}.{' '}
             <Link
               href={`/levels?sound=${target}`}
-              className="inline-block py-2 text-sm text-accent-edge underline underline-offset-4"
+              className="inline-flex min-h-11 items-center text-sm text-accent-edge underline underline-offset-4"
             >
               All levels
             </Link>
@@ -525,7 +525,7 @@ function PracticeLoop() {
           <p className="text-sm text-muted">
             <Link
               href={`/levels?sound=${target}`}
-              className="inline-block py-2 font-bold text-accent-edge underline underline-offset-4"
+              className="inline-flex min-h-11 items-center font-bold text-accent-edge underline underline-offset-4"
             >
               Practice by level
             </Link>
@@ -537,7 +537,7 @@ function PracticeLoop() {
             Words from your plan.{' '}
             <Link
               href="/plan"
-              className="inline-block py-2 font-bold text-accent-edge underline underline-offset-4"
+              className="inline-flex min-h-11 items-center font-bold text-accent-edge underline underline-offset-4"
             >
               Back to your plan
             </Link>
@@ -548,13 +548,13 @@ function PracticeLoop() {
             No hearing check saved yet.{' '}
             <Link
               href="/profile"
-              className="inline-block py-2 font-bold text-accent-edge underline underline-offset-4"
+              className="inline-flex min-h-11 items-center font-bold text-accent-edge underline underline-offset-4"
             >
               Do the hearing check
             </Link>
           </p>
         )}
-      </header>
+      </PageHeader>
 
       {word ? (
         <WordCard word={word} showSign={settings?.showSigns ?? false} />
@@ -572,7 +572,7 @@ function PracticeLoop() {
       {meter.status === 'error' && (
         <div
           role="alert"
-          className="flex flex-col gap-3 rounded-2xl border-4 border-dashed border-miss bg-surface p-4"
+          className="flex flex-col gap-3 rounded-xl border-4 border-dashed border-miss bg-surface p-4"
         >
           <p className="text-lg font-bold">{meter.error ?? 'The microphone could not be started.'}</p>
           <Button variant="secondary" onClick={onStart}>
@@ -627,7 +627,7 @@ function PracticeLoop() {
       )}
 
       {/* After the next try starts, a closer look already received stays on screen (the button waits for the result). */}
-      {!score && word && <StuckHelp {...stuckProps} canAsk={false} />}
+      {!score && word && <StuckHelp {...stuckProps} />}
 
       {score && word && (
         <div className="flex flex-col gap-3">
@@ -678,8 +678,9 @@ function PracticeLoop() {
 
       {/* Below the meter and the main button, so opening it never pushes them off the screen. */}
       <details
+        ref={stepsRef}
         open={index === 0 || stepsOpen}
-        className="group rounded-2xl border border-line bg-surface px-4 py-2"
+        className="group scroll-mt-4 rounded-xl border border-line bg-surface px-4 py-2"
       >
         <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 [&::-webkit-details-marker]:hidden">
           <IconTile tone="violet-soft" size="sm">
@@ -709,7 +710,6 @@ function PracticeLoop() {
         </div>
       </details>
 
-      {footer}
       <AdultOverrideDialog open={adultOpen} onClose={() => setAdultOpen(false)} onRight={onAdultRight} />
     </main>
   );
