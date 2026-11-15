@@ -1,4 +1,5 @@
 import { buildPlan } from '@/lib/ai/plan';
+import { removeNames } from '@/lib/privacy';
 import type { AssessmentReport, LearnerGoals } from '@/lib/types';
 
 function strings(value: unknown, max: number): string[] {
@@ -24,7 +25,7 @@ function cleanGoals(value: unknown): LearnerGoals | undefined {
 export const maxDuration = 30;
 
 // Server only: the key must never reach the browser. The report must arrive with names already removed.
-// Nothing sent here is stored.
+// Nothing sent here is stored. Names are removed from the notes a second time here, in case the device missed one.
 export async function POST(request: Request) {
   let body: { report?: Partial<AssessmentReport> };
   try {
@@ -42,7 +43,8 @@ export async function POST(request: Request) {
   const report: AssessmentReport = {
     source: r.source,
     therapistSounds: strings(r.therapistSounds, 10),
-    therapistNotes: typeof r.therapistNotes === 'string' ? r.therapistNotes.slice(0, 2000) : '',
+    therapistNotes:
+      typeof r.therapistNotes === 'string' ? removeNames(r.therapistNotes.slice(0, 6000)).slice(0, 2000) : '',
     profile: r.profile ?? null,
     baseline: r.baseline ?? {},
     ageGroup: r.ageGroup === 'child' || r.ageGroup === 'teen' ? r.ageGroup : 'adult',
