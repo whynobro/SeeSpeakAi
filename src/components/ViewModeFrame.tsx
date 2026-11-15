@@ -88,16 +88,25 @@ export function ViewModeFrame({ children }: { children: ReactNode }) {
           </button>
         ))}
       </div>
+      {/*
+       * Phone frame: the outer box does not scroll and holds the transform, so the fixed tab bar and the bird
+       * pin to it and stay put. The inner box scrolls. (Before, the box that scrolled was also the one the
+       * tab bar pinned to, so the tab bar scrolled away with the page.)
+       */}
       <div
-        ref={frameRef}
         className={
           phone
-            ? 'flex flex-1 flex-col md:h-[844px] md:max-h-[calc(100vh-5rem)] md:w-[390px] md:flex-none md:overflow-y-auto md:rounded-[48px] md:border-[12px] md:border-foreground md:bg-background md:[transform:translateZ(0)]'
+            ? 'flex flex-1 flex-col md:h-[844px] md:max-h-[calc(100vh-5rem)] md:w-[390px] md:flex-none md:overflow-hidden md:rounded-[48px] md:border-[12px] md:border-foreground md:bg-background md:[transform:translateZ(0)]'
             : 'flex flex-1 flex-col md:[&_main]:max-w-3xl md:[&_main]:px-8 md:[&_main]:pt-20'
         }
       >
-        <StartOver />
-        {children}
+        <div
+          ref={frameRef}
+          className={phone ? 'flex flex-1 flex-col md:min-h-0 md:overflow-y-auto' : 'contents'}
+        >
+          <StartOver />
+          {children}
+        </div>
       </div>
     </div>
   );
