@@ -7,8 +7,8 @@ import { MouthPictures } from './MouthPictures';
 import { Card } from './ui';
 
 /*
- * The optional lip camera on the practice screen: a switch (off by default), a small mirrored preview, a badge
- * for the lips right now, and the lips for the try that just ended. The picture never leaves the device: only
+ * The optional lip camera on the practice screen: a switch (off by default), a big mirrored preview with a badge
+ * on it for the lips right now, and the lips for the try that just ended. The picture never leaves the device: only
  * lip numbers are used, for a tip after the try. If the camera fails, practice carries on with voice only.
  * To restyle: change the classes here. The logic lives in `useLipCamera`, so nothing else needs to move.
  */
@@ -111,7 +111,7 @@ export function LipCamera({
   const live = frameShape(latest);
 
   return (
-    <Card className="flex flex-col gap-3 p-4">
+    <Card className="flex flex-col gap-2 p-4">
       <label className="flex min-h-12 cursor-pointer items-center gap-3 text-lg font-bold">
         <input
           type="checkbox"
@@ -134,31 +134,35 @@ export function LipCamera({
       )}
 
       {/* Always mounted, so the camera can attach to it. Hidden until it is watching. */}
-      <div className={watching ? 'flex items-start gap-3' : 'hidden'}>
-        <video
-          ref={videoRef}
-          muted
-          playsInline
-          aria-label="Camera preview, mirrored. It stays on this device."
-          className="aspect-[4/3] w-28 shrink-0 -scale-x-100 rounded-2xl border border-line bg-black object-cover"
-        />
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <LipBadge shape={live} />
-          <div className="max-w-36">
+      <div className={watching ? 'mt-1 flex flex-col gap-3' : 'hidden'}>
+        <div className="relative overflow-hidden rounded-2xl border border-line bg-black">
+          <video
+            ref={videoRef}
+            muted
+            playsInline
+            aria-label="Camera preview, mirrored. It stays on this device."
+            className="block aspect-[4/3] w-full -scale-x-100 object-cover"
+          />
+          <LipBadge shape={live} className="absolute bottom-2 left-2 py-1.5 text-base shadow-sm" />
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="w-28 shrink-0 sm:w-32">
             <MouthPictures sound={target} only="front" />
           </div>
+          {/* Polite live region: said once per try, not 10 times a second. */}
+          <div className="flex min-w-0 flex-1 flex-col gap-2">
+            <p className="text-base font-bold">Aim for this look</p>
+            <div aria-live="polite" className="empty:hidden">
+              {watching && lastTry && (
+                <p className="text-base">
+                  {lastTry.shape === 'unknown'
+                    ? 'No face seen in that try, so no lip tip. Voice still counts.'
+                    : `This try: ${SHAPE_LABEL[lastTry.shape].text.replace('Lips: ', 'lips ')}.`}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-
-      {/* Polite live region: said once per try, not 10 times a second. */}
-      <div aria-live="polite" className="empty:hidden">
-        {watching && lastTry && (
-          <p className="text-base">
-            {lastTry.shape === 'unknown'
-              ? 'No face seen in that try, so no lip tip. Voice still counts.'
-              : `This try: ${SHAPE_LABEL[lastTry.shape].text.replace('Lips: ', 'lips ')}.`}
-          </p>
-        )}
       </div>
     </Card>
   );
