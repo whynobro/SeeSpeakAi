@@ -4,7 +4,7 @@ Eight photos Holly collected on Pinterest (Nov 14) of kids and adults with heari
 
 Rules for using them on screens or slides:
 
-- Show a small caption "Photo: Pinterest" (or the real source if known) under each one.
+- No caption on screen (it cluttered the design, decided Nov 15). The source is credited here and in `docs/HACKATHON.md`.
 - Use them to show who the app is for. Never next to user quotes, test numbers or "people who tried it": these are not our users.
 - Alt text describes the photo plainly.
 

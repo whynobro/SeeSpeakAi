@@ -250,7 +250,7 @@ export default function ProgressPage() {
 
   return (
     <Screen>
-      <PageHeader title="Progress" />
+      <PageHeader back={{ href: '/', label: 'Home' }} title="Progress" />
 
       <Card as="section" tone="accent" aria-labelledby="summary-heading" className="flex flex-col gap-3">
         <h2 id="summary-heading" className={SECTION_TITLE}>
