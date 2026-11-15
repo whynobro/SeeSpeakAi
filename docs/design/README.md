@@ -13,6 +13,10 @@ Served from `public/brand/`, so the app can use them as `/brand/<file>`:
 
 Colors: teal `#2A9D8F` (bird, "See"), sunny yellow `#FFD166` (beak, notes), dark navy `#1E2A3A` ("Speak" on light). The bird is the mascot: it can sing when a sound lands. The logo was made with ChatGPT image generation (listed in the AI disclosure in `docs/HACKATHON.md`).
 
+## Proposed theme v2
+
+[theme-v2.md](theme-v2.md): one blue and tan theme for every age, an app shell and a no-AI-look checklist (issue #74). A proposal until Michael and Mason agree.
+
 ## Reference photos for the UI
 
 Put screenshots and pictures of apps, games and styles we like in [`references/`](references/). Anyone can add them. AI agents building screens look here first.
