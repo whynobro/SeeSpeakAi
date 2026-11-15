@@ -1,4 +1,5 @@
 import { WORD_BANK } from '@/content/words';
+import { toPracticeWord } from '@/lib/ai/wordCheck';
 import type { CoachFeedback, PlanStep, PracticePlan, PracticeWord, TraceSummary } from '@/lib/types';
 
 // Built from a char code so this file never contains the character itself.
@@ -9,6 +10,11 @@ export const MAX_MESSAGE = 240;
 export const MAX_CUE = 200;
 export const MIN_AI_WORDS = 4;
 const MAX_AI_WORDS = 12;
+/** Themed words (suggested by Claude, checked by the dictionary) kept per step, and the step's total. */
+export const MAX_THEMED_WORDS = 6;
+export const WORDS_PER_STEP = 8;
+/** At most this many suggestions are looked at per step. */
+const MAX_SUGGESTIONS = 15;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -37,11 +43,34 @@ function pickWords(ids: unknown, step: PlanStep): PracticeWord[] | null {
 }
 
 /**
+ * Themed words: run each of Claude's suggestions through the pronunciation check, drop failures and repeats,
+ * keep up to MAX_THEMED_WORDS, then fill up to WORDS_PER_STEP with the bank words. Grammar endings go first.
+ * Returns the bank words unchanged when nothing passes.
+ */
+function withThemedWords(newWords: unknown, step: PlanStep, bankWords: PracticeWord[]): PracticeWord[] {
+  if (!Array.isArray(newWords) || (step.sound !== 's' && step.sound !== 'sh')) return bankWords;
+  const target = step.sound;
+  const themed: PracticeWord[] = [];
+  for (const raw of newWords.slice(0, MAX_SUGGESTIONS)) {
+    if (typeof raw !== 'string') continue;
+    const word = toPracticeWord(raw, target);
+    if (word && !themed.some((t) => t.id === word.id)) themed.push(word);
+    if (themed.length >= MAX_THEMED_WORDS) break;
+  }
+  if (themed.length === 0) return bankWords;
+  const fill = bankWords.filter((b) => !themed.some((t) => t.id === b.id));
+  const all = [...themed, ...fill].slice(0, WORDS_PER_STEP);
+  return [...all.filter((w) => w.baseWord !== null), ...all.filter((w) => w.baseWord === null)];
+}
+
+/**
  * Merge Claude's plan into the rules plan. Claude may only reorder steps, reword summary, why and goal, and
  * choose word ids from the word bank. The sounds and the `scored` flags always come from the rules plan.
- * Expected shape: { summary, steps: [{ sound, why, goal, wordIds }] }.
+ * Scored steps may also carry `newWords`: themed suggestions, each checked by wordCheck (set `allowThemed`
+ * to false when the learner gave no interests).
+ * Expected shape: { summary, steps: [{ sound, why, goal, wordIds, newWords? }] }.
  */
-export function mergePlan(rulesPlan: PracticePlan, aiJson: unknown): PracticePlan {
+export function mergePlan(rulesPlan: PracticePlan, aiJson: unknown, allowThemed = true): PracticePlan {
   if (!isRecord(aiJson)) return rulesPlan;
   let used = false;
 
@@ -60,7 +89,8 @@ export function mergePlan(rulesPlan: PracticePlan, aiJson: unknown): PracticePla
     used = true;
     const why = cleanText(raw.why, MAX_PLAN_TEXT) ?? base.why;
     const goal = cleanText(raw.goal, MAX_PLAN_TEXT) ?? base.goal;
-    const words = base.scored ? (pickWords(raw.wordIds, base) ?? base.words) : base.words;
+    const bankWords = base.scored ? (pickWords(raw.wordIds, base) ?? base.words) : base.words;
+    const words = base.scored && allowThemed ? withThemedWords(raw.newWords, base, bankWords) : bankWords;
     ordered.push({ ...base, why, goal, words });
   }
   if (!used) return rulesPlan;
