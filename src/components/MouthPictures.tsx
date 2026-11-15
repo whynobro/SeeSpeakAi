@@ -71,7 +71,7 @@ export function MouthPictures({ sound, only }: { sound: TargetSound; only?: 'fro
   return (
     <div className={`grid gap-2 ${only ? 'grid-cols-1' : 'grid-cols-2'}`}>
       {shown.map((picture) => (
-        <figure key={picture.src} className="rounded-2xl border-2 border-line bg-surface p-2">
+        <figure key={picture.src} className="rounded-2xl border border-line bg-surface p-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={picture.src} alt={picture.alt} width={240} height={240} className="h-auto w-full" />
           <figcaption className="mt-2 text-sm leading-snug font-semibold text-foreground">

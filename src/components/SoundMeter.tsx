@@ -87,10 +87,7 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
   const recentLevel = levels.length > 0 && listening ? levels[levels.length - 1] : 0;
 
   return (
-    <section
-      aria-label="Live sound meter"
-      className="w-full rounded-3xl border-2 border-line bg-surface p-4 shadow-clay"
-    >
+    <section aria-label="Live sound meter" className="w-full rounded-2xl border border-line bg-surface p-4">
       <div className="flex items-end justify-between" aria-hidden="true">
         <span
           className={`text-3xl leading-none font-extrabold ${side === 'sh' ? 'text-accent-edge underline decoration-4 underline-offset-4' : 'text-muted'}`}
@@ -153,7 +150,7 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
         {/* Live marker while hissing. */}
         {listening && position !== null && (
           <span
-            className="absolute top-1/2 h-14 w-14 rounded-full border-4 border-surface bg-accent shadow-[0_4px_0_var(--accent-edge)] motion-safe:transition-[left] motion-safe:duration-75"
+            className="absolute top-1/2 h-14 w-14 rounded-full border-4 border-surface bg-accent motion-safe:transition-[left] motion-safe:duration-75"
             style={{ left: `${position * 100}%`, transform: 'translate(-50%, -50%)' }}
           />
         )}
@@ -164,7 +161,7 @@ export function SoundMeter({ reading, target, status, result = null }: SoundMete
             className="absolute top-1/2 flex h-14 w-14 items-center justify-center"
             style={{ left: `${landed * 100}%`, transform: 'translate(-50%, -50%)' }}
           >
-            <span className="h-10 w-10 rotate-45 rounded-lg border-4 border-surface bg-foreground shadow-[0_3px_0_var(--line)]" />
+            <span className="h-10 w-10 rotate-45 rounded-lg border-4 border-surface bg-foreground" />
           </span>
         )}
       </div>

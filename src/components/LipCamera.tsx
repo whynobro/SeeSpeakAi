@@ -72,7 +72,7 @@ export function LipBadge({ shape, className = '' }: { shape: LipShape; className
   const { text, icon } = SHAPE_LABEL[shape];
   return (
     <p
-      className={`flex items-center gap-2 rounded-2xl border-2 border-line bg-accent-soft px-3 py-2 text-lg font-bold ${className}`}
+      className={`flex items-center gap-2 rounded-2xl border border-line bg-accent-soft px-3 py-2 text-lg font-bold ${className}`}
     >
       {icon}
       <span>{text}</span>
@@ -140,7 +140,7 @@ export function LipCamera({
           muted
           playsInline
           aria-label="Camera preview, mirrored. It stays on this device."
-          className="aspect-[4/3] w-28 shrink-0 -scale-x-100 rounded-2xl border-2 border-line bg-black object-cover"
+          className="aspect-[4/3] w-28 shrink-0 -scale-x-100 rounded-2xl border border-line bg-black object-cover"
         />
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <LipBadge shape={live} />

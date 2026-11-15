@@ -116,7 +116,7 @@ export default function ListeningCheckPage() {
     <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 pt-6 pb-10">{children}</main>
   );
   const choice =
-    'flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border-4 bg-surface text-2xl font-extrabold transition-[transform,box-shadow] duration-75 active:translate-y-1 disabled:opacity-60';
+    'flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border-4 bg-surface text-2xl font-extrabold transition-[transform,background-color] duration-75 active:scale-[0.98] disabled:opacity-60';
 
   if (phase === 'results' && summary) {
     const share = summary.contrastTotal > 0 ? `${summary.contrastCorrect} of ${summary.contrastTotal}` : null;
@@ -184,7 +184,7 @@ export default function ListeningCheckPage() {
             <div className="flex flex-col items-center gap-3 py-6">
               <span
                 aria-hidden="true"
-                className={`inline-flex h-32 w-32 items-center justify-center rounded-full border-4 border-accent bg-accent-soft text-accent-edge ${playing ? 'motion-safe:animate-listen-ring' : ''}`}
+                className={`inline-flex h-32 w-32 items-center justify-center rounded-full border-2 border-accent bg-accent-soft text-accent-edge ${playing ? 'motion-safe:animate-listen-ring' : ''}`}
               >
                 <EarIcon className="h-16 w-16" />
               </span>
@@ -282,8 +282,8 @@ export default function ListeningCheckPage() {
               onClick={() => setAge(g)}
               className={`inline-flex min-h-12 items-center gap-2 rounded-2xl px-4 text-lg font-bold ${
                 age === g
-                  ? 'border-4 border-accent bg-accent-soft text-accent-edge'
-                  : 'border-2 border-line bg-surface'
+                  ? 'border-2 border-accent bg-accent-soft text-accent-edge'
+                  : 'border border-line bg-surface'
               }`}
             >
               {age === g && <CheckCircleIcon className="h-5 w-5" />}
@@ -302,8 +302,8 @@ export default function ListeningCheckPage() {
             onClick={() => setDevices(d)}
             className={`flex min-h-12 items-center gap-2 rounded-2xl px-4 text-left text-lg font-bold ${
               devices === d
-                ? 'border-4 border-accent bg-accent-soft text-accent-edge'
-                : 'border-2 border-line bg-surface'
+                ? 'border-2 border-accent bg-accent-soft text-accent-edge'
+                : 'border border-line bg-surface'
             }`}
           >
             {devices === d && <CheckCircleIcon className="h-5 w-5" />}

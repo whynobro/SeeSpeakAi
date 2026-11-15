@@ -44,7 +44,7 @@ export function ViewModeFrame({ children }: { children: ReactNode }) {
       <div
         role="group"
         aria-label="Preview size"
-        className="fixed top-4 right-4 z-50 hidden gap-1 rounded-2xl border-2 border-line bg-surface p-1 shadow-clay md:flex"
+        className="fixed top-4 right-4 z-50 hidden gap-1 rounded-2xl border border-line bg-surface p-1 md:flex"
       >
         {(
           [

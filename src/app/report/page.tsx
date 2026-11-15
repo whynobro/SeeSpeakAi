@@ -38,10 +38,8 @@ function Toggle({ label, on, onChange }: { label: string; on: boolean; onChange:
       type="button"
       aria-pressed={on}
       onClick={() => onChange(!on)}
-      className={`inline-flex min-h-14 items-center gap-2 rounded-2xl px-5 text-xl font-bold transition-[transform,box-shadow] duration-75 active:translate-y-1 active:shadow-none ${
-        on
-          ? 'border-4 border-accent bg-accent-soft text-accent-edge shadow-edge-accent'
-          : 'border-2 border-line bg-surface shadow-edge-line'
+      className={`inline-flex min-h-14 items-center gap-2 rounded-2xl px-5 text-xl font-bold transition-[transform,background-color] duration-75 active:scale-[0.98] ${
+        on ? 'border-2 border-accent bg-accent-soft text-accent-edge' : 'border border-line bg-surface'
       }`}
     >
       {on && <CheckCircleIcon className="h-5 w-5" />}
@@ -51,7 +49,7 @@ function Toggle({ label, on, onChange }: { label: string; on: boolean; onChange:
 }
 
 const FIELD =
-  'w-full rounded-2xl border-2 border-line bg-surface px-4 py-3 text-lg placeholder:text-muted/70 focus:border-accent';
+  'w-full rounded-2xl border border-line bg-surface px-4 py-3 text-lg placeholder:text-muted/70 focus:border-accent';
 
 export default function ReportPage() {
   const [sounds, setSounds] = useState<string[]>([]);

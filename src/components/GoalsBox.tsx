@@ -44,7 +44,7 @@ export function GoalsBox({
               className={`inline-flex min-h-12 items-center gap-2 rounded-full px-4 text-base font-bold transition-[transform,box-shadow] duration-75 active:translate-y-0.5 ${
                 on
                   ? 'border-2 border-accent bg-accent-soft text-accent-edge'
-                  : 'border-2 border-line bg-surface text-foreground'
+                  : 'border border-line bg-surface text-foreground'
               }`}
             >
               {on && <CheckCircleIcon className="h-5 w-5" />}
@@ -62,7 +62,7 @@ export function GoalsBox({
         value={goals.text}
         onChange={(e) => onChange({ ...goals, text: e.target.value })}
         placeholder={CHECK_COPY.goalsPlaceholder}
-        className="w-full rounded-2xl border-2 border-line bg-surface p-4 text-lg leading-relaxed"
+        className="w-full rounded-2xl border border-line bg-surface p-4 text-lg leading-relaxed"
       />
       <p className="text-base text-muted">{CHECK_COPY.goalsNoNames}</p>
       {cleaned.trim() !== '' && cleaned !== goals.text && (

@@ -53,8 +53,8 @@ export function ReportFiles({
       <h2 id="files-heading" className="text-xl font-bold">
         Upload your report (optional)
       </h2>
-      <label className="flex cursor-pointer items-center gap-4 rounded-3xl border-2 border-dashed border-accent bg-accent-soft p-5 transition-transform duration-75 active:translate-y-1">
-        <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-accent text-accent-ink shadow-edge-accent">
+      <label className="flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed border-accent bg-accent-soft p-5 transition-transform duration-75 active:scale-[0.98]">
+        <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-accent text-accent-ink">
           <UploadIcon className="h-7 w-7" />
         </span>
         <span className="flex flex-col">
@@ -81,7 +81,7 @@ export function ReportFiles({
       {files.length > 0 && (
         <ul className="flex flex-col gap-3">
           {files.map((file) => (
-            <li key={file.id} className="flex flex-col gap-2 rounded-3xl border-2 border-line bg-surface p-3">
+            <li key={file.id} className="flex flex-col gap-2 rounded-2xl border border-line bg-surface p-3">
               {file.isImage ? (
                 <a
                   href={file.url}
