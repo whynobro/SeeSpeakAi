@@ -11,7 +11,7 @@ import { getBirdLevel, isBirdHidden, subscribeBirdHidden } from './birdSignal';
  * - On load it flies one loop, then lands in the bottom right corner, standing on the tab bar, and stays
  *   there. It does not follow the mouse or a tap (followPointer and followTouch below): that got in the way
  *   while using the site. Its eyes still look toward the pointer.
- * - On /practice it sits still at the top right and its beak opens with the mic level. Loudness only:
+ * - On /practice it sits still at the top right (no flying over, no hop, no sway, eyes still) and its beak opens with the mic level. Loudness only:
  *   the bird is never a verdict and never reacts to a hit or a miss.
  * - Reduced motion: no flight, no following, no beak. It sits still in its corner.
  * - It never takes a click (pointer-events: none) and screen readers skip it (aria-hidden).
@@ -316,10 +316,12 @@ export function BirdMascot() {
         const dx = targetX - pos.x;
         const dy = targetY - pos.y;
         const distance = Math.hypot(dx, dy);
-        if (reduced) {
+        if (reduced || onPractice) {
+          // On practice the bird just sits in its spot: no flying over, no hop.
           pos.x = targetX;
           pos.y = targetY;
           airborne = false;
+          hopStart = -Infinity;
         } else {
           let stepX = dx * ease(dt, T.followLagMs);
           let stepY = dy * ease(dt, T.followLagMs);
@@ -375,7 +377,7 @@ export function BirdMascot() {
       // Eyes look at the pointer, wherever it is in the window.
       let wantEyeX = 0;
       let wantEyeY = 0;
-      if (mouseLive) {
+      if (mouseLive && !onPractice) {
         const gapX = mouseX - pos.x;
         const gapY = mouseY - pos.y;
         const gap = Math.hypot(gapX, gapY);
@@ -395,7 +397,7 @@ export function BirdMascot() {
       beak += (wantBeak - beak) * ease(dt, wantBeak > beak ? T.beakOpenMs : T.beakShutMs);
 
       const wantScale = onPractice ? T.practiceScale : 1;
-      scale = reduced ? wantScale : scale + (wantScale - scale) * ease(dt, T.followLagMs);
+      scale = reduced || onPractice ? wantScale : scale + (wantScale - scale) * ease(dt, T.followLagMs);
 
       // Two small bounces that die out.
       let hop = 0;
