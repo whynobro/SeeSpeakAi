@@ -1,5 +1,5 @@
 import { buildPlan } from '@/lib/ai/plan';
-import type { AssessmentReport } from '@/lib/types';
+import type { AssessmentReport, LearnerGoals } from '@/lib/types';
 
 function strings(value: unknown, max: number): string[] {
   if (!Array.isArray(value)) return [];
@@ -7,6 +7,17 @@ function strings(value: unknown, max: number): string[] {
     .filter((x): x is string => typeof x === 'string')
     .slice(0, max)
     .map((x) => x.slice(0, 40));
+}
+
+/** Learner goals: a generous limit only, so one request cannot be huge. Names were removed on the device. */
+export const GOALS_TEXT_MAX = 6000;
+
+function cleanGoals(value: unknown): LearnerGoals | undefined {
+  if (typeof value !== 'object' || value === null) return undefined;
+  const g = value as Partial<LearnerGoals>;
+  const text = typeof g.text === 'string' ? g.text.slice(0, GOALS_TEXT_MAX) : '';
+  const chips = strings(g.chips, 12);
+  return text || chips.length > 0 ? { chips, text } : undefined;
 }
 
 // The Claude call can take up to 20 seconds, so give the function room before the host cuts it off.
@@ -36,6 +47,7 @@ export async function POST(request: Request) {
     baseline: r.baseline ?? {},
     ageGroup: r.ageGroup === 'child' || r.ageGroup === 'teen' ? r.ageGroup : 'adult',
     interests: strings(r.interests, 5),
+    learnerGoals: cleanGoals(r.learnerGoals),
     createdAt: typeof r.createdAt === 'string' ? r.createdAt : new Date().toISOString(),
   };
   return Response.json(await buildPlan(report));
