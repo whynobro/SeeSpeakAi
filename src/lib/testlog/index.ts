@@ -16,8 +16,11 @@ import type { AttemptScore, FrameFeatures, PracticeWord, TargetSound, WordPositi
 /** What the tester says they really said. This is the "right answer" that tuning needs. */
 export type Said = 'with-sound' | 'without-sound' | 'other-sound' | 'unsure';
 
-/** One frame, shortened to save space: [tMs, level, hissRatio, centroidHz or -1]. */
-export type PackedFrame = [number, number, number, number];
+/**
+ * One frame, shortened to save space: [tMs, level, hissRatio, centroidHz or -1, voicing 0 to 1].
+ * Voicing was added 2026-11-14 night: older logged tries have only the first four numbers.
+ */
+export type PackedFrame = [number, number, number, number, number?];
 
 export interface TestLogEntry {
   v: 1;
@@ -121,6 +124,7 @@ export function packFrames(frames: FrameFeatures[]): PackedFrame[] {
       Number(f.level.toFixed(4)),
       Number(f.hissRatio.toFixed(3)),
       f.centroidHz === null ? -1 : Math.round(f.centroidHz),
+      Number((f.voicing ?? 0).toFixed(3)),
     ]);
 }
 

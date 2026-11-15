@@ -37,10 +37,10 @@ describe('test log', () => {
   it('does nothing and does not throw when sharing is off', () => {
     expect(() => sharePracticeAttempt('bus', 's', scoreAttempt(frames, word))).not.toThrow();
   });
-  it('packs frames as four short numbers and caps the count', () => {
+  it('packs frames as five short numbers (voicing last) and caps the count', () => {
     const packed = packFrames(frames);
     expect(packed.length).toBe(frames.length);
-    expect(packed[0]).toHaveLength(4);
+    expect(packed[0]).toHaveLength(5);
     expect(packed.every((f) => Number.isInteger(f[0]) && Number.isInteger(f[3]))).toBe(true);
     expect(packFrames(Array.from({ length: 2000 }, () => frames[0])).length).toBe(600);
   });
