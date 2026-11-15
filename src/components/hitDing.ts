@@ -69,6 +69,10 @@ export function playHitDing(): void {
     tone.onended = () => {
       tone.disconnect();
       volume.disconnect();
+      // Close the player once the ding ends. On iPhone Safari a sound player left running can make the next
+      // microphone start hear only silence (the meter stays flat). The next ding makes a new one.
+      if (context === ctx) context = null;
+      void ctx.close().catch(() => {});
     };
   } catch {
     // Sound is extra. The verdict is already on screen.
