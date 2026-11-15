@@ -401,17 +401,6 @@ function PracticeLoop() {
         result={score ? { position: score.meterPosition } : null}
       />
 
-      <LipCamera
-        enabled={lipCam.enabled}
-        onEnabledChange={lipCam.setEnabled}
-        status={lipCam.status}
-        error={lipCam.error}
-        latest={lipCam.latest}
-        videoRef={lipCam.videoRef}
-        target={target}
-        lastTry={score ? lastLips : null}
-      />
-
       {meter.status === 'error' && (
         <div
           role="alert"
@@ -478,6 +467,18 @@ function PracticeLoop() {
           </div>
         </div>
       )}
+
+      {/* The camera sits below the Start button and the result, so the word and the button stay on one screen. */}
+      <LipCamera
+        enabled={lipCam.enabled}
+        onEnabledChange={lipCam.setEnabled}
+        status={lipCam.status}
+        error={lipCam.error}
+        latest={lipCam.latest}
+        videoRef={lipCam.videoRef}
+        target={target}
+        lastTry={score ? lastLips : null}
+      />
 
       {/* Below the meter and the main button, so opening it never pushes them off the screen. */}
       <details open={index === 0} className="group rounded-2xl border border-line bg-surface px-4 py-2">
