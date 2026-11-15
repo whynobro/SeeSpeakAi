@@ -150,3 +150,14 @@ describe('lip capture entry', () => {
     );
   });
 });
+
+describe('nicknameOnly', () => {
+  it('keeps the first word only, at most 20 characters, never a full name', async () => {
+    const { nicknameOnly } = await import('@/lib/testlog');
+    expect(nicknameOnly('Pat Smith')).toBe('Pat');
+    expect(nicknameOnly('  Michael  ')).toBe('Michael');
+    expect(nicknameOnly('')).toBe('');
+    expect(nicknameOnly(undefined)).toBe('');
+    expect(nicknameOnly('A'.repeat(30))).toHaveLength(20);
+  });
+});

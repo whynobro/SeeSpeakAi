@@ -73,6 +73,10 @@ for (const blob of blobs) {
 }
 // Lip captures from /lab/lips (kind "lips") go to their own file. They have no verdict, so they stay out of the summary.
 const lipEntries = [...byTry.values()].filter((e) => e.kind === 'lips');
+// The log is public: a label is a nickname only (first word). Older tries saved a full name, so clean them here too.
+for (const e of byTry.values()) {
+  if (typeof e.label === 'string') e.label = (e.label.trim().split(/\s+/)[0] ?? '').slice(0, 20);
+}
 const entries = [...byTry.values()].filter((e) => e.kind !== 'lips');
 
 mkdirSync('data', { recursive: true });

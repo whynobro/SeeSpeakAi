@@ -1,6 +1,7 @@
 import { put } from '@vercel/blob';
 import { cleanLips } from '@/lib/ai/validate';
 import { isTargetSound } from '@/lib/scoring/constants';
+import { nicknameOnly } from '@/lib/testlog';
 
 const MAX_BYTES = 120_000;
 
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
       attemptId: str(entry.attemptId, 40),
       at: str(entry.at, 40),
       tester: str(entry.tester, 20),
-      label: str(entry.label, 20),
+      label: nicknameOnly(entry.label),
       page: 'lab',
       sound: entry.sound,
       device: str(entry.device, 200),
@@ -67,11 +68,15 @@ export async function POST(request: Request) {
   const id = `${now.getTime()}-${Math.random().toString(36).slice(2, 8)}`;
   try {
     // The server sets the time, so a wrong clock on a phone cannot scramble the order.
-    await put(`attempts/${day}/${id}.json`, JSON.stringify({ ...entry, receivedAt: now.toISOString() }), {
-      access: 'private',
-      contentType: 'application/json',
-      addRandomSuffix: false,
-    });
+    await put(
+      `attempts/${day}/${id}.json`,
+      JSON.stringify({ ...entry, label: nicknameOnly(entry.label), receivedAt: now.toISOString() }),
+      {
+        access: 'private',
+        contentType: 'application/json',
+        addRandomSuffix: false,
+      },
+    );
     return Response.json({ stored: true });
   } catch {
     return Response.json({ stored: false }, { status: 502 });

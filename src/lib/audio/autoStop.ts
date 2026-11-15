@@ -12,6 +12,11 @@ export interface LevelPoint {
 
 /** Stop after this much quiet that follows sound (ms). */
 export const AUTO_STOP_QUIET_MS = 1000;
+/**
+ * Practice screen, single sounds and words: a slightly shorter quiet window, so the verdict comes sooner.
+ * The lab keeps AUTO_STOP_QUIET_MS. Phrases on practice also keep AUTO_STOP_QUIET_MS (people pause between words).
+ */
+export const AUTO_STOP_QUIET_MS_WORD = 800;
 /** Stop no matter what after this long (ms). */
 export const AUTO_STOP_MAX_MS = 4000;
 /** The loudest moment must reach this level before it counts as "made sound". Above mic noise. */
@@ -22,7 +27,7 @@ export const AUTO_STOP_QUIET_SHARE = 0.15;
 export type AutoStopReason = 'quiet' | 'max-time' | null;
 
 /** Whether to stop now, and why. `null` means keep listening. */
-export function autoStopReason(points: LevelPoint[]): AutoStopReason {
+export function autoStopReason(points: LevelPoint[], quietMs: number = AUTO_STOP_QUIET_MS): AutoStopReason {
   if (points.length === 0) return null;
   const first = points[0].tMs;
   const last = points[points.length - 1].tMs;
@@ -34,7 +39,7 @@ export function autoStopReason(points: LevelPoint[]): AutoStopReason {
     for (let i = points.length - 1; i >= 0 && points[i].level < quietBelow; i--) quietSince = points[i].tMs;
     // Only quiet that comes after the loudest moment counts: a person pausing mid-word has not finished.
     const peakAt = points.find((p) => p.level === peak)?.tMs ?? first;
-    if (quietSince > peakAt && last - quietSince >= AUTO_STOP_QUIET_MS) return 'quiet';
+    if (quietSince > peakAt && last - quietSince >= quietMs) return 'quiet';
   }
   if (last - first >= AUTO_STOP_MAX_MS) return 'max-time';
   return null;
@@ -43,4 +48,18 @@ export function autoStopReason(points: LevelPoint[]): AutoStopReason {
 /** True when the whole recording never rose above mic noise: nothing was said. */
 export function heardNothing(points: LevelPoint[]): boolean {
   return points.every((p) => p.level < AUTO_STOP_MIN_PEAK);
+}
+
+/** What the practice screen does next: keep listening, grade the try, or give up because nothing was said. */
+export type AutoGradeStep = 'listen' | 'grade' | 'no-voice';
+
+/**
+ * Practice screen: decide from the level points so far. Spoke then quiet, or time up with sound: grade it
+ * (same path as the Done button). Time up with no sound at all: do not grade, ask the learner to try again.
+ */
+export function autoGradeStep(points: LevelPoint[], quietMs: number = AUTO_STOP_QUIET_MS): AutoGradeStep {
+  const reason = autoStopReason(points, quietMs);
+  if (reason === null) return 'listen';
+  if (reason === 'max-time' && heardNothing(points)) return 'no-voice';
+  return 'grade';
 }
