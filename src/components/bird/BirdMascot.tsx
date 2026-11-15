@@ -8,8 +8,9 @@ import { getBirdLevel, isBirdHidden, subscribeBirdHidden } from './birdSignal';
 /*
  * The bird that lives on the site. Mounted once in the layout, next to the tab bar.
  *
- * - On load it flies one loop, then lands: beside the mouse pointer on a laptop, in the bottom right corner
- *   (standing on the tab bar) on a phone. A tap on an empty spot calls it over for a few seconds.
+ * - On load it flies one loop, then lands in the bottom right corner, standing on the tab bar, and stays
+ *   there. It does not follow the mouse or a tap (followPointer and followTouch below): that got in the way
+ *   while using the site. Its eyes still look toward the pointer.
  * - On /practice it sits still at the top right and its beak opens with the mic level. Loudness only:
  *   the bird is never a verdict and never reacts to a hit or a miss.
  * - Reduced motion: no flight, no following, no beak. It sits still in its corner.
@@ -40,6 +41,9 @@ export const BIRD_TUNING = {
   flightStartTurn: 0.125,
   fadeInMs: 280,
 
+  /** Off: after the loop on load, the bird stays in its corner instead of following the mouse or a tap. */
+  followPointer: false,
+  followTouch: false,
   /** Lag behind the pointer. Bigger is lazier. */
   followLagMs: 150,
   /** Top speed, px per second, so a jump across the screen is a glide and not a teleport. */
@@ -248,7 +252,8 @@ export function BirdMascot() {
       const mouseX = mouse.x - left;
       const mouseY = mouse.y - top;
       const mouseLive = !reduced && finePointer && mouse.seen;
-      const mouseInside = mouseLive && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height;
+      const mouseInside =
+        T.followPointer && mouseLive && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height;
 
       // Pick the spot to sit on.
       let spot: 'home' | 'practice' | 'cursor' | 'touch' = 'home';
@@ -265,7 +270,7 @@ export function BirdMascot() {
         const side = mouseX + T.cursorSidePx + half + 2 > width ? -1 : 1;
         targetX = mouseX + side * T.cursorSidePx;
         targetY = mouseY - T.cursorUpPx;
-      } else if (!reduced && touchSpot && now < touchSpot.until) {
+      } else if (T.followTouch && !reduced && touchSpot && now < touchSpot.until) {
         spot = 'touch';
         targetX = touchSpot.x - left;
         targetY = touchSpot.y - top - T.touchLiftPx;
