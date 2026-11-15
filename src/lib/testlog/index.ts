@@ -22,7 +22,7 @@ export interface TestLogEntry {
   at: string; // ISO timestamp
   tester: string; // random id made on the device
   label: string; // optional nickname or initials the tester typed, never a full name
-  page: 'practice' | 'lab';
+  page: 'practice' | 'lab' | 'guided';
   wordId: string;
   target: TargetSound;
   position: WordPosition;
@@ -109,7 +109,7 @@ export function packFrames(frames: FrameFeatures[]): PackedFrame[] {
 
 /** Build one log entry. Pure, so it can be tested. */
 export function buildEntry(input: {
-  page: 'practice' | 'lab';
+  page: 'practice' | 'lab' | 'guided';
   word: Pick<PracticeWord, 'id' | 'target' | 'position'> & Partial<PracticeWord>;
   score: AttemptScore;
   frames: FrameFeatures[];
@@ -169,11 +169,12 @@ export function shareLabAttempt(
   sampleRate: number | null,
   said: Said | null,
   attemptId: string,
+  page: 'lab' | 'guided' = 'lab',
 ): Promise<boolean> {
   if (!isLabSharing()) return Promise.resolve(false);
   return send(
     buildEntry({
-      page: 'lab',
+      page,
       word,
       score,
       frames,

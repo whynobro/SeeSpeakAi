@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { SoundMeter } from '@/components/SoundMeter';
 import { WORD_BANK } from '@/content/words';
@@ -123,6 +124,9 @@ export default function LabPage() {
   return (
     <main className="mx-auto flex w-full max-w-xl flex-col gap-6 p-4">
       <p className="text-sm">Lab: for tuning. Audio stays on this device.</p>
+      <Link href="/lab/guided" className="text-lg font-bold underline">
+        Quick guided test (hands-free, 24 steps)
+      </Link>
 
       <label className="flex flex-col gap-1 font-bold">
         Word to test

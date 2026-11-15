@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   const okShape =
     entry.v === 1 &&
     isTargetSound(entry.target) &&
-    (entry.page === 'practice' || entry.page === 'lab') &&
+    (entry.page === 'practice' || entry.page === 'lab' || entry.page === 'guided') &&
     typeof entry.wordId === 'string' &&
     typeof entry.score === 'object' &&
     Array.isArray(entry.frames) &&
