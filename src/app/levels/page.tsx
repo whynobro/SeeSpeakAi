@@ -6,14 +6,17 @@ import { Suspense, useEffect, useState } from 'react';
 import { ArrowLeftIcon, CheckCircleIcon, LockIcon } from '@/components/Icons';
 import { Button, SegmentedControl } from '@/components/ui';
 import {
-  ITEMS_PER_LEVEL,
   LEVELS,
-  PASS_ITEMS,
+  TIERS,
   currentLevel,
+  currentTier,
+  isTierUnlocked,
   isUnlocked,
-  levelKey,
+  levelPassed,
+  tierPassed,
   type Level,
   type LevelResults,
+  type Tier,
 } from '@/lib/levels';
 import { TARGET_SOUNDS, isTargetSound } from '@/lib/scoring/constants';
 import { loadLevelResults } from '@/lib/store';
@@ -21,8 +24,8 @@ import type { TargetSound } from '@/lib/types';
 
 const SOUND_OPTIONS = TARGET_SOUNDS.map((s) => ({ value: s, label: s }));
 
-function practiceHref(sound: TargetSound, level: Level): string {
-  return `/practice?sound=${sound}&level=${level.id}`;
+function practiceHref(sound: TargetSound, level: Level, tier: Tier): string {
+  return `/practice?sound=${sound}&level=${level.id}&tier=${tier}`;
 }
 
 const QUIET_LINK =
@@ -45,9 +48,9 @@ function LevelStop({
   current: boolean;
   last: boolean;
 }) {
-  const result = results[levelKey(sound, level.id)];
-  const done = result?.passed === true;
+  const done = levelPassed(results, sound, level.id);
   const open = isUnlocked(results, sound, level.id);
+  const started = TIERS.some((t) => results[`${sound}:${level.id}`]?.tiers[t.id] !== undefined);
 
   return (
     <li className="flex gap-4">
@@ -77,16 +80,10 @@ function LevelStop({
           {done ? (
             <span className="inline-flex items-center gap-1.5 text-hit-strong">
               <CheckCircleIcon className="h-4 w-4 shrink-0" />
-              Passed, best {result.bestHits} of {ITEMS_PER_LEVEL}
-            </span>
-          ) : result ? (
-            <span>
-              Best so far {result.bestHits} of {ITEMS_PER_LEVEL}. Pass with {PASS_ITEMS}.
+              Level passed
             </span>
           ) : open ? (
-            <span>
-              Pass with {PASS_ITEMS} of {ITEMS_PER_LEVEL} right.
-            </span>
+            <span>{started ? 'Pass Silver to open the next level.' : 'Start with Bronze.'}</span>
           ) : (
             <span className="inline-flex items-center gap-1.5 text-muted">
               <LockIcon className="h-4 w-4 shrink-0" />
@@ -94,14 +91,53 @@ function LevelStop({
             </span>
           )}
         </p>
+        <ul className="mt-1 flex flex-wrap gap-x-4" aria-label="Tiers">
+          {TIERS.map((t) => {
+            const tierDone = tierPassed(results, sound, level.id, t.id);
+            const tierOpen = isTierUnlocked(results, sound, level.id, t.id);
+            const inner = (
+              <>
+                {tierDone ? (
+                  <CheckCircleIcon className="h-4 w-4 shrink-0" />
+                ) : !tierOpen ? (
+                  <LockIcon className="h-4 w-4 shrink-0" />
+                ) : null}
+                {t.title}
+                <span className="sr-only">{tierDone ? ', passed' : tierOpen ? '' : ', locked'}</span>
+              </>
+            );
+            return (
+              <li key={t.id}>
+                {tierOpen ? (
+                  <Link
+                    href={practiceHref(sound, level, t.id)}
+                    className={`inline-flex min-h-12 min-w-12 items-center gap-1.5 text-[15px] font-bold underline decoration-2 underline-offset-4 ${tierDone ? 'text-hit-strong' : 'text-accent-edge'}`}
+                  >
+                    {inner}
+                  </Link>
+                ) : (
+                  <span className="inline-flex min-h-12 items-center gap-1.5 text-[15px] font-bold text-muted">
+                    {inner}
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
         {current ? (
-          <Button href={practiceHref(sound, level)} size="md" className="mt-3">
+          <Button
+            href={practiceHref(sound, level, currentTier(results, sound, level.id).id)}
+            size="md"
+            className="mt-1"
+          >
             Start
           </Button>
         ) : (
-          <Link href={practiceHref(sound, level)} className={QUIET_LINK}>
-            {done ? 'Play again' : open ? 'Play' : 'Jump ahead anyway'}
-          </Link>
+          !open && (
+            <Link href={practiceHref(sound, level, 'bronze')} className={QUIET_LINK}>
+              Jump ahead anyway
+            </Link>
+          )
         )}
       </div>
     </li>
@@ -147,7 +183,7 @@ function LevelsMap() {
               sound={sound}
               level={level}
               results={results}
-              current={level.id === current.id && results[levelKey(sound, level.id)]?.passed !== true}
+              current={level.id === current.id && !levelPassed(results, sound, level.id)}
               last={i === LEVELS.length - 1}
             />
           ))}

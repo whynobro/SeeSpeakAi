@@ -1,4 +1,4 @@
-import type { LevelResults } from '@/lib/levels';
+import { normalizeLevelResult, type LevelResults } from '@/lib/levels';
 import { isTargetSound } from '@/lib/scoring/constants';
 import { sharePracticeAttempt } from '@/lib/testlog';
 import type {
@@ -145,14 +145,8 @@ export function loadLevelResults(): LevelResults {
   if (!isRecord(raw)) return {};
   const out: LevelResults = {};
   for (const [key, v] of Object.entries(raw)) {
-    if (
-      isRecord(v) &&
-      typeof v.bestHits === 'number' &&
-      typeof v.passed === 'boolean' &&
-      typeof v.updatedAt === 'string'
-    ) {
-      out[key] = { bestHits: v.bestHits, passed: v.passed, updatedAt: v.updatedAt };
-    }
+    const r = normalizeLevelResult(v);
+    if (r) out[key] = r;
   }
   return out;
 }

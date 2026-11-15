@@ -7,7 +7,7 @@ import { loadAssignment, quotedSounds, type Assignment } from '@/components/assi
 import { Button, Card, IconTile } from '@/components/ui';
 import { COPY } from '@/content/copy';
 import { ASSIGN, THERAPIST_SUMMARY } from '@/content/therapist';
-import { LEVELS, levelById, levelKey, type LevelResults } from '@/lib/levels';
+import { LEVELS, levelById, levelPassed, type LevelResults } from '@/lib/levels';
 import { TARGET_SOUNDS } from '@/lib/scoring/constants';
 import {
   MIN_TRIES_FOR_CHANGE,
@@ -75,7 +75,7 @@ function daysPracticed(attempts: Attempt[], now: Date): number {
 function levelLines(results: LevelResults): string[] {
   const lines: string[] = [];
   for (const sound of TARGET_SOUNDS) {
-    const done = LEVELS.filter((l) => results[levelKey(sound, l.id)]?.passed === true);
+    const done = LEVELS.filter((l) => levelPassed(results, sound, l.id));
     if (done.length > 0) {
       lines.push(`${sound}: ${done.map((l) => THERAPIST_SUMMARY.levelPassed(l.number, l.title)).join(', ')}`);
     }

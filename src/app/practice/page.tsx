@@ -17,14 +17,21 @@ import { COPY } from '@/content/copy';
 import { CUES } from '@/content/cues';
 import { wordsFor } from '@/content/words';
 import {
+  countsFor,
+  currentTier,
   isLevelId,
+  isTier,
   itemsHit,
   levelById,
   levelItems,
   mergeResult,
   nextLevel,
-  passed,
-  PASS_ITEMS,
+  nextTier,
+  passItems,
+  tierById,
+  tierPasses,
+  tierPlays,
+  type Tier,
 } from '@/lib/levels';
 import { loadPlan } from '@/components/planStore';
 import { useCoachFeedback } from '@/hooks/useCoachFeedback';
@@ -82,6 +89,8 @@ function PracticeLoop() {
   // Opened from the levels map: ?level=alone|start|end|phrase. Then the words come from that level.
   const levelParam = searchParams.get('level');
   const level = isLevelId(levelParam) ? levelById(levelParam) : null;
+  // ?tier=bronze|silver|gold. Without it, the level opens on its first tier not yet passed.
+  const tierParam = searchParams.get('tier');
 
   const meter = useSoundMeter();
   const coach = useCoachFeedback();
@@ -97,12 +106,18 @@ function PracticeLoop() {
   const [tries, setTries] = useState(0);
   const [finished, setFinished] = useState(false);
   const [fromPlan, setFromPlan] = useState(false);
-  /** Level mode: did each item get at least one hit (retries count). */
-  const [hitByItem, setHitByItem] = useState<boolean[]>([]);
+  /** Level mode: did each item get at least one try that counts for the tier (retries count). */
+  const [countedByItem, setCountedByItem] = useState<boolean[]>([]);
+  /** Level mode: the tier being played, and how many times it was finished (the round, so words change). */
+  const [tier, setTier] = useState<Tier>('bronze');
+  const [round, setRound] = useState(0);
+  /** Tries in a row on this item that did not count. */
+  const [missStreak, setMissStreak] = useState(0);
+  const [stepsOpen, setStepsOpen] = useState(false);
 
   /** The plan step's words, in the plan's order, when this page was opened from that plan. Else the word bank. */
-  function pickWords(): { list: PracticeWord[]; planned: boolean } {
-    if (level) return { list: levelItems(target, level.id), planned: false };
+  function pickWords(t: Tier = tier, r: number = round): { list: PracticeWord[]; planned: boolean } {
+    if (level) return { list: levelItems(target, level.id, t, r), planned: false };
     const plan = planId ? loadPlan() : null;
     const step = plan && plan.id === planId ? plan.steps[stepIndex] : undefined;
     const planned = step?.words.filter((w) => w.target === target) ?? [];
@@ -119,14 +134,25 @@ function PracticeLoop() {
       if (!active) return;
       setSettings(loadSettings());
       setProfile(loadProfile());
-      const picked = pickWords();
+      let t: Tier = 'bronze';
+      let r = 0;
+      if (level) {
+        const saved = loadLevelResults();
+        t = isTier(tierParam) ? tierParam : currentTier(saved, target, level.id).id;
+        r = tierPlays(saved, target, level.id, t);
+      }
+      setTier(t);
+      setRound(r);
+      setMissStreak(0);
+      setStepsOpen(false);
+      const picked = pickWords(t, r);
       setWords(picked.list);
       setFromPlan(picked.planned);
       setIndex(0);
       setScore(null);
       setHits(0);
       setTries(0);
-      setHitByItem([]);
+      setCountedByItem([]);
       setFinished(false);
     });
     return () => {
@@ -134,7 +160,7 @@ function PracticeLoop() {
     };
     // pickWords reads only the URL values listed here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target, planId, stepIndex, levelParam]);
+  }, [target, planId, stepIndex, levelParam, tierParam]);
 
   const cue = CUES[target];
   const word = words[index] ?? null;
@@ -168,11 +194,20 @@ function PracticeLoop() {
     if (result.verdict === 'hit') {
       playHitDing(); // the mic has stopped (meter.stop() above). Extra only: the badge carries the verdict.
       setHits((n) => n + 1);
-      setHitByItem((prev) => {
-        const next = [...prev];
-        next[index] = true;
-        return next;
-      });
+    }
+    if (level) {
+      if (countsFor(tier, result)) {
+        setMissStreak(0);
+        setCountedByItem((prev) => {
+          const next = [...prev];
+          next[index] = true;
+          return next;
+        });
+      } else {
+        // Two tries in a row that do not count: open the steps and point at them.
+        if (missStreak + 1 >= 2) setStepsOpen(true);
+        setMissStreak((n) => n + 1);
+      }
     }
     if (settings.channels.includes('vibration')) buzz(result.verdict);
     saveAttempt(
@@ -193,19 +228,27 @@ function PracticeLoop() {
 
   function onNext() {
     setScore(null);
+    setMissStreak(0);
     if (index + 1 >= words.length) {
-      if (level) saveLevelResults(mergeResult(loadLevelResults(), target, level.id, itemsHit(hitByItem)));
+      if (level) {
+        const merged = mergeResult(loadLevelResults(), target, level.id, tier, itemsHit(countedByItem));
+        saveLevelResults(merged);
+        // The tier was finished once more, so a replay gets new words.
+        setRound(tierPlays(merged, target, level.id, tier));
+      }
       setFinished(true);
     } else setIndex(index + 1);
   }
 
   function onRestart() {
-    setWords(pickWords().list);
+    setWords(pickWords(tier, round).list);
     setIndex(0);
     setScore(null);
     setHits(0);
     setTries(0);
-    setHitByItem([]);
+    setCountedByItem([]);
+    setMissStreak(0);
+    setStepsOpen(false);
     setFinished(false);
   }
 
@@ -233,9 +276,13 @@ function PracticeLoop() {
   );
 
   if (finished && level) {
-    const got = itemsHit(hitByItem);
-    const ok = passed(got);
+    const got = itemsHit(countedByItem);
+    const ok = tierPasses(tier, got);
+    const tierInfo = tierById(tier);
+    const upTier = nextTier(tier);
     const next = nextLevel(level.id);
+    // Silver opens the next level, so a silver or gold pass leads there.
+    const levelOpen = ok && tier !== 'bronze' && next !== null;
     return (
       <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-4 pt-2 pb-8">
         <header className="flex items-center gap-3">{homeLink}</header>
@@ -243,13 +290,13 @@ function PracticeLoop() {
           {ok && <Confetti />}
           <div className={`flex flex-col gap-1 ${ok ? 'pr-16' : ''}`}>
             <p className="text-[15px] font-bold text-muted">
-              Level {level.number}: {level.title}
+              Level {level.number}: {level.title}, {tierInfo.title}
             </p>
             <h1 className="flex items-center gap-2 text-[28px] leading-tight font-extrabold tracking-tight">
               {ok ? (
                 <>
                   <StarIcon className="h-7 w-7 shrink-0 text-accent" />
-                  Level passed
+                  {tierInfo.title} passed
                 </>
               ) : (
                 'Nice work, keep going'
@@ -260,9 +307,9 @@ function PracticeLoop() {
             {words.map((w, i) => (
               <li
                 key={i}
-                className={`flex h-6 w-6 items-center justify-center rounded-full border ${hitByItem[i] ? 'border-hit-strong bg-hit text-hit-ink' : 'border-muted bg-surface'}`}
+                className={`flex h-6 w-6 items-center justify-center rounded-full border ${countedByItem[i] ? 'border-hit-strong bg-hit text-hit-ink' : 'border-muted bg-surface'}`}
               >
-                {hitByItem[i] && (
+                {countedByItem[i] && (
                   <svg
                     viewBox="0 0 24 24"
                     className="h-3.5 w-3.5"
@@ -277,23 +324,43 @@ function PracticeLoop() {
             ))}
           </ul>
           <p className="text-[20px] leading-snug font-bold">
-            {got} of {words.length} right.
+            {got} of {words.length}.
           </p>
           <p className="text-[17px] leading-relaxed text-muted">
             {ok
-              ? next
+              ? levelOpen
                 ? `Level ${next.number} is open: ${next.title.toLowerCase()}.`
-                : `That was the last level for "${target}".`
-              : `Get ${PASS_ITEMS} of ${words.length} right to open the next level. Tries again count.`}
+                : upTier
+                  ? `${upTier.title} is open. ${upTier.line}`
+                  : `That was the last level for "${target}".`
+              : `${tierInfo.line} Get ${passItems(tier)} of ${words.length} to pass ${tierInfo.title}. Tries again count, and the words change.`}
           </p>
         </section>
-        {ok && next ? (
-          <Button href={`/practice?sound=${target}&level=${next.id}`} size="xl">
+        {ok && levelOpen ? (
+          <Button href={`/practice?sound=${target}&level=${next.id}&tier=bronze`} size="xl">
             Next level
+          </Button>
+        ) : ok && upTier ? (
+          <Button href={`/practice?sound=${target}&level=${level.id}&tier=${upTier.id}`} size="xl">
+            Go for {upTier.title}
           </Button>
         ) : (
           <Button size="xl" onClick={onRestart}>
-            {ok ? 'Play again' : 'Try the level again'}
+            {ok ? 'Play again' : 'Try again'}
+          </Button>
+        )}
+        {ok && levelOpen && upTier && (
+          <Button
+            href={`/practice?sound=${target}&level=${level.id}&tier=${upTier.id}`}
+            variant="secondary"
+            size="lg"
+          >
+            Go for {upTier.title}
+          </Button>
+        )}
+        {ok && (levelOpen || upTier) && (
+          <Button variant="secondary" size="lg" onClick={onRestart}>
+            Try again
           </Button>
         )}
         <Button href={`/levels?sound=${target}`} variant="secondary" size="lg">
@@ -344,7 +411,7 @@ function PracticeLoop() {
         </div>
         {level && (
           <p className="text-base font-bold">
-            Level {level.number} of 4: {level.title}.{' '}
+            Level {level.number} of 4: {level.title}, {tierById(tier).title}.{' '}
             <Link
               href={`/levels?sound=${target}`}
               className="inline-block py-2 text-sm text-accent-edge underline underline-offset-4"
@@ -449,6 +516,12 @@ function PracticeLoop() {
       {score && word && (
         <div className="flex flex-col gap-3">
           <VerdictBadge verdict={score.verdict} target={word.target} heard={score.heard} />
+          {level && score.verdict === 'close' && countsFor(tier, score) && (
+            <p className="text-base font-bold">Close. That counts for {tierById(tier).title}.</p>
+          )}
+          {level && missStreak >= 2 && !countsFor(tier, score) && (
+            <p className="text-base">Tip: open the steps below and try it slowly.</p>
+          )}
           {score.warnings.length > 0 && (
             <ul className="flex flex-col gap-1 text-base text-muted">
               {score.warnings.map((warning) => (
@@ -481,7 +554,10 @@ function PracticeLoop() {
       />
 
       {/* Below the meter and the main button, so opening it never pushes them off the screen. */}
-      <details open={index === 0} className="group rounded-2xl border border-line bg-surface px-4 py-2">
+      <details
+        open={index === 0 || stepsOpen}
+        className="group rounded-2xl border border-line bg-surface px-4 py-2"
+      >
         <summary className="flex min-h-14 cursor-pointer list-none items-center gap-3 [&::-webkit-details-marker]:hidden">
           <IconTile tone="violet-soft" size="sm">
             <LightbulbIcon className="h-5 w-5" />
