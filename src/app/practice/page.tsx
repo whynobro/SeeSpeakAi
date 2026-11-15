@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
+import { AdultOverrideDialog } from '@/components/AdultOverrideDialog';
 import { HomeIcon, LightbulbIcon, MicIcon, StarIcon } from '@/components/Icons';
 import { LipCamera } from '@/components/LipCamera';
 import { SoundVideo } from '@/components/SoundVideo';
@@ -13,7 +14,7 @@ import { Confetti } from '@/components/Confetti';
 import { playHitDing } from '@/components/hitDing';
 import { VerdictBadge } from '@/components/VerdictBadge';
 import { WordCard } from '@/components/WordCard';
-import { setBirdLevel } from '@/components/bird/birdSignal';
+import { BIRD_SIZE_PX, BirdMascot } from '@/components/bird/BirdMascot';
 import { COPY } from '@/content/copy';
 import { CUES } from '@/content/cues';
 import { wordsFor } from '@/content/words';
@@ -40,6 +41,7 @@ import { useLipCamera } from '@/hooks/useLipCamera';
 import { useSoundMeter } from '@/hooks/useSoundMeter';
 import { buzz } from '@/lib/feedback';
 import type { LipSummary } from '@/lib/lips/types';
+import { saveOverride } from '@/lib/override';
 import { LIMITATIONS, scoreAttempt } from '@/lib/scoring';
 import { isTargetSound } from '@/lib/scoring/constants';
 import { loadLevelResults, loadProfile, loadSettings, saveAttempt, saveLevelResults } from '@/lib/store';
@@ -115,6 +117,9 @@ function PracticeLoop() {
   /** Tries in a row on this item that did not count. */
   const [missStreak, setMissStreak] = useState(0);
   const [stepsOpen, setStepsOpen] = useState(false);
+  /** An adult marked this try right. The measured verdict is not changed. */
+  const [adultRight, setAdultRight] = useState(false);
+  const [adultOpen, setAdultOpen] = useState(false);
 
   /** The plan step's words, in the plan's order, when this page was opened from that plan. Else the word bank. */
   function pickWords(t: Tier = tier, r: number = round): { list: PracticeWord[]; planned: boolean } {
@@ -151,6 +156,7 @@ function PracticeLoop() {
       setFromPlan(picked.planned);
       setIndex(0);
       setScore(null);
+      setAdultRight(false);
       setHits(0);
       setTries(0);
       setCountedByItem([]);
@@ -176,13 +182,12 @@ function PracticeLoop() {
   const listening = meter.status === 'listening';
   const busy = meter.status === 'starting';
 
-  // The bird mascot opens its beak with the mic level. Loudness only, never a verdict.
-  useEffect(() => {
-    setBirdLevel(listening ? (meter.reading?.level ?? 0) : 0);
-  }, [listening, meter.reading]);
+  // The bird opens its beak with the mic level. Loudness only, never a verdict.
+  const birdLevel = listening ? (meter.reading?.level ?? 0) : 0;
 
   async function onStart() {
     setScore(null);
+    setAdultRight(false);
     setLastLips(null);
     coach.clear();
     beginLips(); // the lip numbers cover this try only
@@ -196,6 +201,7 @@ function PracticeLoop() {
     setLastLips(lips);
     const result = scoreAttempt(frames, word, { alone: level?.id === 'alone' });
     setScore(result);
+    setAdultRight(false);
     setTries((n) => n + 1);
     if (result.verdict === 'hit') {
       playHitDing(); // the mic has stopped (meter.stop() above). Extra only: the badge carries the verdict.
@@ -232,8 +238,31 @@ function PracticeLoop() {
     void coach.ask(word, result, lips);
   }
 
+  /** The right adult code was entered: remember it, and in level mode count this item for the tier. */
+  function onAdultRight() {
+    setAdultOpen(false);
+    if (!word || !score) return;
+    saveOverride({
+      wordId: word.id,
+      target: word.target,
+      level: level?.id,
+      tier: level ? tier : undefined,
+      at: new Date().toISOString(),
+    });
+    setAdultRight(true);
+    if (level) {
+      setMissStreak(0);
+      setCountedByItem((prev) => {
+        const next = [...prev];
+        next[index] = true;
+        return next;
+      });
+    }
+  }
+
   function onNext() {
     setScore(null);
+    setAdultRight(false);
     setMissStreak(0);
     if (index + 1 >= words.length) {
       if (level) {
@@ -250,6 +279,7 @@ function PracticeLoop() {
     setWords(pickWords(tier, round).list);
     setIndex(0);
     setScore(null);
+    setAdultRight(false);
     setHits(0);
     setTries(0);
     setCountedByItem([]);
@@ -410,8 +440,9 @@ function PracticeLoop() {
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-col gap-3 px-4 pt-2 pb-8">
-      <header className="flex flex-col gap-1">
-        <div className="flex items-center gap-3">
+      <header className="relative flex flex-col gap-1">
+        <BirdMascot level={birdLevel} />
+        <div className="flex items-center gap-3" style={{ paddingRight: BIRD_SIZE_PX + 8 }}>
           {homeLink}
           <h1 className="text-xl font-extrabold tracking-tight">Practice the &apos;{target}&apos; sound</h1>
         </div>
@@ -522,6 +553,7 @@ function PracticeLoop() {
       {score && word && (
         <div className="flex flex-col gap-3">
           <VerdictBadge verdict={score.verdict} target={word.target} heard={score.heard} />
+          {adultRight && <p className="text-base font-bold">Marked right by an adult.</p>}
           {level && score.verdict === 'close' && countsFor(tier, score) && (
             <p className="text-base font-bold">Close. That counts for {tierById(tier).title}.</p>
           )}
@@ -536,6 +568,11 @@ function PracticeLoop() {
             </ul>
           )}
           <CoachCard feedback={coach.feedback} loading={coach.loading} />
+          {!adultRight && score.verdict !== 'hit' && !(level && countsFor(tier, score)) && (
+            <Button variant="secondary" size="md" onClick={() => setAdultOpen(true)}>
+              An adult heard it right
+            </Button>
+          )}
           <div className="grid grid-cols-2 gap-3">
             <Button variant={suggestRetry ? 'primary' : 'secondary'} size="lg" onClick={onStart}>
               Try again
@@ -593,6 +630,7 @@ function PracticeLoop() {
       </details>
 
       {footer}
+      <AdultOverrideDialog open={adultOpen} onClose={() => setAdultOpen(false)} onRight={onAdultRight} />
     </main>
   );
 }

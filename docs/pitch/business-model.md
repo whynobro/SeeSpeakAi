@@ -4,16 +4,16 @@ Decided Sat Nov 14 (Michael). One model only. Sources for prices are in `demo-sc
 
 ## Who pays, who uses it
 
-| Who                                 | Pays               | Gets                                                                                                |
-| ----------------------------------- | ------------------ | --------------------------------------------------------------------------------------------------- |
-| Family or learner                   | $0                 | Practice, levels and tiers, progress, the bird and its outfits                                      |
-| Speech therapist or school district | $120 a seat a year | Sends practice by link, gets summaries back, tracks many students, adult override code (when built) |
+| Who                                 | Pays               | Gets                                                                                   |
+| ----------------------------------- | ------------------ | -------------------------------------------------------------------------------------- |
+| Family or learner                   | $0                 | Practice, levels and tiers, progress, the bird and its outfits                         |
+| Speech therapist or school district | $120 a seat a year | Sends practice by link, gets summaries back, tracks many students, adult override code |
 
 - **The payer:** the school district's special education office, one seat per speech therapist or teacher of the
   deaf.
 - **Why $120:** Little Bee Speech charges therapists $119.99 a year. SLP Toolkit charges districts $235 a seat.
-- **Built today:** the therapist practice link, the learner assign page and the summary back (#98). The override
-  code is planned, not built: do not demo or claim it until it is merged.
+- **Built today:** the therapist practice link, the learner assign page and the summary back (#98). The adult
+  override code is built (the code stays on the device; overrides never change the measured numbers).
 
 ## Why free for families is good business
 
