@@ -5,14 +5,14 @@ import type { ComponentPropsWithoutRef, ElementType, HTMLAttributes, KeyboardEve
  * Shared building blocks. Every screen uses these so buttons and cards look and press the same.
  * Flat, per theme v2 (docs/design/theme-v2.md): 1 px borders, no bottom-edge shadows. A tap responds at once
  * with a slight shrink and a darker fill, so the press is still felt without the old "clay" edge.
- * Buttons are pills and groups use hairline dividers (theme v2 step 4, after the ORYZO style reference).
+ * Groups use hairline dividers (theme v2 step 4, after the ORYZO style reference). Buttons have 12 px corners.
  */
 
 export type ButtonVariant = 'primary' | 'secondary' | 'violet' | 'danger' | 'ghost';
 export type ButtonSize = 'md' | 'lg' | 'xl';
 
 const BASE =
-  'inline-flex items-center justify-center gap-3 rounded-full text-center font-bold select-none transition-[transform,background-color] duration-75 disabled:cursor-not-allowed disabled:opacity-60';
+  'inline-flex items-center justify-center gap-3 rounded-xl text-center font-bold select-none transition-[transform,background-color] duration-75 disabled:cursor-not-allowed disabled:opacity-60';
 
 // Pressed: a slight shrink. Each variant also darkens its fill on hover and press.
 const PRESS = 'active:scale-[0.98]';
