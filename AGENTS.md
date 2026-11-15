@@ -12,6 +12,17 @@ Read [docs/HACKATHON.md](docs/HACKATHON.md) and [docs/PLAN.md](docs/PLAN.md) bef
 - **Weigh every task against the rubric** in `docs/HACKATHON.md`. 45 of 100 points are for real users and a path to customers, 25 for a live, working, easy product. Tell your user when a task does not help any row.
 - **The demo is live, from the production link.** Never fake a flow. Never leave `main` broken.
 
+## Git routine (do this every time, without being asked)
+
+Three people and their agents push to this repo all day. Stale branches cause most of our breakages.
+
+1. **Start of every session and every task:** `git checkout main && git pull origin main`, then `git checkout -b <lane>/<task>`. Never reuse an old branch for new work.
+2. **Before every push:** `git fetch origin && git merge origin/main`. Fix conflicts (keep both sides' work unless one is clearly wrong), then rerun `npm run lint`, `npm run typecheck`, `npm test` and `npm run build`.
+3. **Open a pull request,** wait for the green `check`, squash merge, delete the branch, go back to `main` and pull.
+4. **Uncommitted work at the start of a session:** run `git status` first. Tell your user what is there before switching branches. Never `git reset --hard`, `git checkout .` or `git stash drop` without your user's OK.
+5. **Never force-push, never rewrite history, never delete someone else's branch.**
+6. **After a merge that changes `src/lib/types.ts`, `package.json` or docs:** tell your user to post in team chat so the others pull. After pulling a change to `package.json`, run `npm install`.
+
 ## Safety rules (read first)
 
 1. **Stay in your user's lane folders.** Ask your user which lane they own. Lanes:
