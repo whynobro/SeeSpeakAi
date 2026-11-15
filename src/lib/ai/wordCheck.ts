@@ -3,8 +3,8 @@ import pronunciations from './pronounce.generated.json';
 
 /*
  * Word check, server side. Claude suggests practice words, this file decides if each one is safe.
- * The phone can only score a voiceless hiss, and English spelling lies ("dogs" ends in a "z" sound), so every
- * word is looked up in the CMU Pronouncing Dictionary (see scripts/build-pronounce.mjs) and judged by its sounds.
+ * The phone scores "s", "sh", "z" and "ch", and English spelling lies ("dogs" ends in a "z" sound, "cheese"
+ * has a "z" in it), so every word is looked up in the CMU Pronouncing Dictionary (see scripts/build-pronounce.mjs) and judged by its sounds.
  * Pure functions, no network.
  */
 
@@ -29,9 +29,18 @@ const VOWELS = new Set([
 ]);
 /** Hissing and buzzing sounds that would confuse the phone's hiss check. */
 const HISSES = ['S', 'SH', 'Z', 'ZH', 'CH', 'JH'];
-const TARGET_PHONEME: Record<TargetSound, string> = { s: 'S', sh: 'SH' };
-/** A word-final hiss is clean after a vowel or one of these (so "cats", "cups", "books", "fish" pass). */
-const END_FRIENDS = new Set(['P', 'T', 'K', 'F']);
+const TARGET_PHONEME: Record<TargetSound, string> = { s: 'S', sh: 'SH', z: 'Z', ch: 'CH' };
+/**
+ * A word-final sound is clean after a vowel or one of these. "s" and "sh" after a voiceless consonant
+ * ("cats", "cups", "books"). "z" after a voiced one ("dogs", "beds", "cars"), so the voicing is not
+ * borrowed from a voiceless neighbour. "ch" after "n" ("lunch").
+ */
+const END_FRIENDS: Record<TargetSound, Set<string>> = {
+  s: new Set(['P', 'T', 'K', 'F']),
+  sh: new Set(['P', 'T', 'K', 'F']),
+  z: new Set(['B', 'D', 'G', 'V', 'M', 'N', 'NG', 'L', 'R', 'DH']),
+  ch: new Set(['N']),
+};
 /** Words with at most this many vowel sounds are accepted (short words only). */
 const MAX_VOWELS = 2;
 /** Middle-of-word targets are rejected for now: the bank has none and scoring there is the least tested. */
@@ -90,7 +99,7 @@ export function checkWord(text: string, target: TargetSound): WordCheck {
   } else if (at === list.length - 1) {
     position = 'end';
     const before = list[at - 1];
-    if (!VOWELS.has(before) && !END_FRIENDS.has(before)) {
+    if (!VOWELS.has(before) && !END_FRIENDS[target].has(before)) {
       return { ok: false, reason: `"${word}" (${phonemes}) has a sound before the ${target} that blurs it.` };
     }
   } else {
@@ -101,13 +110,16 @@ export function checkWord(text: string, target: TargetSound): WordCheck {
   return { ok: true, position, phonemes };
 }
 
-/** "cats" gives "cat" when the final S is a real "s" sound and the base word sounds the same without it. */
-export function baseWordFor(text: string): string | null {
+/**
+ * "cats" gives "cat" when the final S is a real "s" sound and the base word sounds the same without it.
+ * Pass 'Z' for the voiced ending: "dogs" gives "dog".
+ */
+export function baseWordFor(text: string, ending: 'S' | 'Z' = 'S'): string | null {
   const word = normalize(text);
   if (word.length < 3 || !word.endsWith('s')) return null;
   const dict = DICTIONARY as Record<string, string | undefined>;
   const phonemes = dict[word];
-  if (!phonemes || !phonemes.endsWith(' S')) return null;
+  if (!phonemes || !phonemes.endsWith(` ${ending}`)) return null;
   const base = word.slice(0, -1);
   const basePhonemes = dict[base];
   return basePhonemes !== undefined && basePhonemes === phonemes.slice(0, -2) ? base : null;
@@ -123,7 +135,10 @@ export function toPracticeWord(text: string, target: TargetSound): PracticeWord 
     text: word,
     target,
     position: check.position,
-    baseWord: target === 's' && check.position === 'end' ? baseWordFor(word) : null,
+    baseWord:
+      check.position === 'end' && (target === 's' || target === 'z')
+        ? baseWordFor(word, target === 's' ? 'S' : 'Z')
+        : null,
     contrastWord: null,
     sign: null,
   };

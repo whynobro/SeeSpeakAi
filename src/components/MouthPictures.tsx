@@ -7,7 +7,7 @@ interface MouthPicture {
 }
 
 /** Our own drawings in public/mouth/. Captions follow the cue steps in src/content/cues.ts. */
-const PICTURES: Record<TargetSound, { side: MouthPicture; front: MouthPicture }> = {
+const BASE_PICTURES = {
   s: {
     side: {
       src: '/mouth/s-side.svg',
@@ -30,6 +30,35 @@ const PICTURES: Record<TargetSound, { side: MouthPicture; front: MouthPicture }>
       src: '/mouth/sh-front.svg',
       alt: 'Drawing of a mouth from the front making "sh". The lips are rounded and pushed forward into a small round opening. Only the edge of the top teeth shows.',
       caption: 'Front view: lips rounded',
+    },
+  },
+};
+
+/** No separate drawings yet: "z" has the same mouth as "s", and "ch" ends in the "sh" mouth. */
+const PICTURES: Record<TargetSound, { side: MouthPicture; front: MouthPicture }> = {
+  ...BASE_PICTURES,
+  z: {
+    side: {
+      ...BASE_PICTURES.s.side,
+      alt: `${BASE_PICTURES.s.side.alt} The "z" uses the same mouth as "s", with the voice turned on.`,
+      caption: 'Side view: same as "s", voice on',
+    },
+    front: {
+      ...BASE_PICTURES.s.front,
+      alt: `${BASE_PICTURES.s.front.alt} The "z" uses the same mouth as "s", with the voice turned on.`,
+      caption: 'Front view: same as "s", voice on',
+    },
+  },
+  ch: {
+    side: {
+      ...BASE_PICTURES.sh.side,
+      alt: `${BASE_PICTURES.sh.side.alt} The "ch" starts with the tongue up like "t", then lets go into this "sh" shape.`,
+      caption: 'Side view: starts like "t", ends like "sh"',
+    },
+    front: {
+      ...BASE_PICTURES.sh.front,
+      alt: `${BASE_PICTURES.sh.front.alt} The "ch" ends in this shape, after a quick "t".`,
+      caption: 'Front view: ends with lips rounded',
     },
   },
 };

@@ -12,6 +12,7 @@ import { loadProfile, loadSettings, saveAttempt } from '@/lib/store';
 import type { AssessmentReport, PracticePlan, PracticeWord, TargetSound, Verdict } from '@/lib/types';
 
 const PER_SOUND = 3;
+/** The starting check covers "s" and "sh" only: six short words. "z" and "ch" are practiced from a plan. */
 const SOUNDS: TargetSound[] = ['s', 'sh'];
 
 /** 3 "s" words and 3 "sh" words, taking turns, so the check is not one long run of the same sound. */

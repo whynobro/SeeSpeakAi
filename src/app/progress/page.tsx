@@ -5,10 +5,12 @@ import { BeforeAfterBars } from '@/components/BeforeAfterBars';
 import { ArrowDownIcon, ArrowUpIcon, EqualsIcon, HomeIcon, ShareIcon, TrashIcon } from '@/components/Icons';
 import { Button, Card, IconTile } from '@/components/ui';
 import { COPY } from '@/content/copy';
+import { TARGET_SOUNDS } from '@/lib/scoring/constants';
 import { clearAll, loadAttempts, progressFor } from '@/lib/store';
 import type { Attempt, SoundProgress, TargetSound } from '@/lib/types';
 
-const SOUNDS: TargetSound[] = ['s', 'sh'];
+/** "s" and "sh" always show. "z" and "ch" show once there is a try, so a new learner sees two cards, not four. */
+const ALWAYS: TargetSound[] = ['s', 'sh'];
 
 /** progressFor uses the first 10 and the latest 10 tries. They share no tries only from 20 tries on. */
 const WINDOW = 10;
@@ -21,7 +23,8 @@ interface SoundView {
 }
 
 function viewsFrom(attempts: Attempt[]): SoundView[] {
-  return SOUNDS.map((sound) => ({
+  const sounds = TARGET_SOUNDS.filter((s) => ALWAYS.includes(s) || attempts.some((a) => a.target === s));
+  return sounds.map((sound) => ({
     p: progressFor(attempts, sound),
     hits: attempts.filter((a) => a.target === sound && a.score.verdict === 'hit').length,
   }));

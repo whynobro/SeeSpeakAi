@@ -11,7 +11,7 @@ The learner brings a speech therapist report and an audiogram (or the app checks
 ## Rules this demo must keep (do not trade these for a better show)
 
 - **Privacy.** Audio and video never leave the device. Claude receives only: the report text with names removed, the audiogram numbers, age group, interests, score numbers and lip numbers (`LipSummary`). The screen says what will be sent before it is sent, and it is sent once.
-- **The phone measures, Claude explains.** Claude never decides a verdict. Only "s" and "sh" are scored. Any other sound in a report shows "show how, no score".
+- **The phone measures, Claude explains.** Claude never decides a verdict. Only "s", "sh", "z" and "ch" are scored. Any other sound in a report shows "show how, no score".
 - **No made-up users or data.** The report and audiogram typed in during the demo must be real, from a person who agreed, with names removed. If we have none by Sunday 9 AM, the demo uses the "check me in the app" route with the presenter's own real results. Never type a made-up report and present it as a person.
 - **Age changes how it explains, not what it trains.** Same sounds, same scoring, same words for every age. Only the wording of the plan, the coach sentence and the look change.
 - **It works with no key.** If Claude fails, the built-in rules answer (`source: 'rules'`) and the demo goes on.
@@ -23,7 +23,7 @@ Today the recorded demo user is a **college-age adult** (`docs/pitch/story.md`),
 **Proposal:** aim the look and the rewards at learners about **9 to 14**, where the research and the payer (school districts) are. This is a proposal for Holly to confirm. It needs all three by Sunday 9 AM:
 
 1. A real tester aged 9 to 14, with a parent present who agrees to quotes and numbers (`docs/pitch/user-tests.md` rules).
-2. Their voice measured in `/lab`, so Michael can say if "s" and "sh" score right on a child voice.
+2. Their voice measured in `/lab`, so Michael can say if "s", "sh", "z" and "ch" score right on a child voice.
 3. Holly's OK on the child and teen wording.
 
 If any is missing, the demo user stays the college student and we say: "it adapts its explanations by age group; this weekend we tested on adults." Age-adjusted wording works for every age group either way, because `ageGroup` (`child`, `teen`, `adult`) is already in the report and the plan prompt.
@@ -77,7 +77,7 @@ If 6 or 7 are cut, give the time to step 4: one more try, so the judge sees the 
 | Claude slow or down           | Nothing to do: the built-in rules answer in its place. The plan says "Built-in plan". Say: "this one came from our built-in rules; with Claude it is personal to the report." Never pretend it was Claude. |
 | Wi-Fi down                    | Phone hotspot for the laptop. The meter and verdicts run on the device, so practice still works. Plan and coach fall back to rules.                                                                        |
 | Points or shop broken         | Skip step 7. Go straight to progress.                                                                                                                                                                      |
-| A verdict looks wrong         | Say "the phone got that one wrong; we only claim s and sh, tested on a few voices." Honest answers score in the pitch row.                                                                                 |
+| A verdict looks wrong         | Say "the phone got that one wrong; we only claim s, sh, z and ch, tested on a few voices." Honest answers score in the pitch row.                                                                          |
 
 ## What to build first (rubric points per hour)
 

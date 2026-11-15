@@ -1,4 +1,5 @@
 import type { PlanStep, PracticePlan } from '@/lib/types';
+import { isTargetSound } from '@/lib/scoring/constants';
 import { CheckCircleIcon, EyeIcon } from './Icons';
 import { Button, Card, IconTile } from './ui';
 
@@ -41,7 +42,7 @@ function StepCard({ step, index, first }: { step: PlanStep; index: number; first
         <p className="text-lg">{step.goal}</p>
         {preview && <p className="pt-1 text-base text-muted">Words: {preview}</p>}
       </div>
-      {step.scored && (step.sound === 's' || step.sound === 'sh') && (
+      {step.scored && isTargetSound(step.sound) && (
         <Button href={`/practice?sound=${step.sound}`} variant={first ? 'primary' : 'secondary'}>
           {first ? 'Start practicing' : `Practice "${step.sound}"`}
         </Button>
