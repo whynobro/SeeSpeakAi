@@ -3,8 +3,8 @@ import type { ComponentPropsWithoutRef, ElementType, HTMLAttributes, KeyboardEve
 
 /*
  * Shared building blocks. Every screen uses these so buttons and cards look and press the same.
- * Flat, per theme v2 (docs/design/theme-v2.md): 1 px borders, no bottom-edge shadows. A tap responds at once
- * with a slight shrink and a darker fill, so the press is still felt without the old "clay" edge.
+ * Buttons are soft pills (Holly's design references, Nov 14): fully round ends and a soft shadow under them, so
+ * they read as things to press. No hard bottom edge. A tap responds at once with a slight shrink and a darker fill.
  * Groups use hairline dividers (theme v2 step 4, after the ORYZO style reference). Buttons, cards and lists all have 12 px corners.
  */
 
@@ -12,15 +12,15 @@ export type ButtonVariant = 'primary' | 'secondary' | 'violet' | 'danger' | 'gho
 export type ButtonSize = 'md' | 'lg' | 'xl';
 
 const BASE =
-  'inline-flex items-center justify-center gap-3 rounded-xl text-center font-bold select-none transition-[transform,background-color] duration-75 disabled:cursor-not-allowed disabled:opacity-60';
+  'inline-flex items-center justify-center gap-3 rounded-full text-center font-bold select-none transition-[transform,background-color] duration-75 disabled:cursor-not-allowed disabled:opacity-60';
 
 // Pressed: a slight shrink. Each variant also darkens its fill on hover and press.
 const PRESS = 'active:scale-[0.98]';
 
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: `bg-accent text-accent-ink hover:bg-accent-edge active:bg-accent-edge ${PRESS}`,
-  secondary: `border border-accent bg-surface text-accent-edge hover:bg-accent-soft active:bg-accent-soft ${PRESS}`,
-  violet: `bg-violet text-violet-ink hover:brightness-95 active:brightness-90 ${PRESS}`,
+  primary: `bg-accent text-accent-ink shadow-[0_10px_22px_-12px_rgb(19_74_112/0.8),inset_0_1px_0_rgb(255_255_255/0.22)] hover:bg-accent-edge active:bg-accent-edge ${PRESS}`,
+  secondary: `border border-line bg-surface text-accent-edge shadow-[0_8px_18px_-12px_rgb(30_42_58/0.45)] hover:bg-accent-soft active:bg-accent-soft ${PRESS}`,
+  violet: `bg-violet text-violet-ink shadow-[0_10px_22px_-12px_rgb(138_61_12/0.7)] hover:brightness-95 active:brightness-90 ${PRESS}`,
   danger: `border border-miss-ink bg-surface text-miss-ink hover:bg-miss-soft active:bg-miss-soft ${PRESS}`,
   ghost: 'rounded-xl text-accent-edge underline underline-offset-4 decoration-2',
 };
