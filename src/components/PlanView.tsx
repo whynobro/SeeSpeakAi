@@ -1,3 +1,4 @@
+import { PLAN_WAIT } from '@/content/tryIt';
 import type { PlanStep, PracticePlan } from '@/lib/types';
 import { isTargetSound } from '@/lib/scoring/constants';
 import { CheckCircleIcon, ClipboardIcon, EyeIcon, SparkleIcon } from './Icons';
@@ -65,7 +66,7 @@ function StepCard({
 }
 
 /** The curated plan from POST /api/plan: a short summary, then one card per sound. */
-export function PlanView({ plan }: { plan: PracticePlan }) {
+export function PlanView({ plan, personalizing = false }: { plan: PracticePlan; personalizing?: boolean }) {
   const firstScored = plan.steps.findIndex((s) => s.scored);
   return (
     <div className="flex flex-col gap-6">
@@ -85,6 +86,15 @@ export function PlanView({ plan }: { plan: PracticePlan }) {
           )}
         </p>
         <p className="text-lg leading-relaxed">{plan.summary}</p>
+        {personalizing && (
+          <p role="status" className="flex items-center gap-2 text-base font-bold text-accent-edge">
+            <span
+              aria-hidden="true"
+              className="inline-block h-3 w-3 shrink-0 rounded-full bg-accent motion-safe:animate-pulse"
+            />
+            {PLAN_WAIT.personalizing}
+          </p>
+        )}
       </Card>
       <ol className="flex flex-col gap-5">
         {plan.steps.map((step, i) => (
