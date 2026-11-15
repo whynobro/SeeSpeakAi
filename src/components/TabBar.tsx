@@ -20,7 +20,7 @@ const TABS: Tab[] = [
     href: '/',
     label: 'Practice',
     Icon: MicIcon,
-    match: (p) => p === '/' || p.startsWith('/practice') || p.startsWith('/plan'),
+    match: (p) => p === '/' || p.startsWith('/practice') || p.startsWith('/plan') || p.startsWith('/levels'),
   },
   {
     href: '/checks',
