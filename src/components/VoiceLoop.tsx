@@ -19,7 +19,7 @@ import { VOICE_LOOP } from '@/content/voiceLoop';
 const TIMING = {
   /** Length of one whole loop, pause included. The story ends at fadeOut[0]. */
   total: 7.2,
-  /** The big, slow "cat" wave draws out of the beak. The beak moves from here until sayS ends. */
+  /** The big, slow "cat" wave draws out of the beak. */
   sayCat: [0.3, 1.5],
   /** The tight "s" hiss draws right after it. */
   sayS: [1.5, 2.1],
@@ -41,8 +41,6 @@ const TIMING = {
 const BACK_SLIDE = 26;
 /** How flat the returning "s" gets (1 is full height, 0 is a straight line). */
 const S_FLAT_SCALE = 0.06;
-/** How far the top of the beak swings open while singing, in degrees. */
-const BEAK_SWING = 9;
 
 /* ---------- Layout, in picture units. The picture is VIEW_W wide and VIEW_H tall and scales to fit. ---------- */
 const VIEW_W = 360;
@@ -61,10 +59,24 @@ const CAT_WAVE = { outHeight: 14, backHeight: 12, wiggle: 30 };
 /** The "s" hiss: small, fast, tight. */
 const S_WAVE = { height: 5, wiggle: 5.5 };
 
-/** The turn on the right. Lopsided on purpose so it reads as drawn by hand. */
-const BEND_PATH = `M ${X.sTo} ${OUT_Y} C 316 ${OUT_Y + 3}, 348 ${OUT_Y - 5}, 345 66 C 343 45, 321 ${BACK_Y - 4}, ${X.sTo} ${BACK_Y}`;
-/** A small arrowhead on the turn, so the direction shows without motion. */
-const BEND_ARROW = 'M 339.5 71.5 L 345.2 63.5 L 351 70.5';
+/*
+ * The turn on the right: a loop the loop, not a flat running track. The line dips down and toward you
+ * (thick), comes around, then crosses BEHIND itself (thin, faded, with a gap where the near line passes in
+ * front) and rises to the lane it comes back on. The crossing is what makes it read as 3D.
+ */
+/** Near half: out of the hiss, down, around the bottom and up to just past the crossing. */
+const LOOP_NEAR = `M ${X.sTo} ${OUT_Y} C 318 ${OUT_Y}, 346 ${OUT_Y + 4}, 346 ${OUT_Y + 20} C 346 ${OUT_Y + 36}, 312 ${OUT_Y + 40}, 302 ${OUT_Y + 28} C 297 ${OUT_Y + 21}, 297 ${OUT_Y + 12}, 299 ${OUT_Y + 4}`;
+/** Far half: from the crossing up and back to the lane the sound returns on. */
+const LOOP_FAR = `M 299 ${OUT_Y + 4} C 302 ${OUT_Y - 12}, 314 ${BACK_Y + 14}, 304 ${BACK_Y + 4} C 299 ${BACK_Y}, 292 ${BACK_Y}, ${X.sTo} ${BACK_Y}`;
+/** The whole middle line, used to reveal the loop in order. */
+const BEND_PATH = `${LOOP_NEAR} ${LOOP_FAR.replace(/^M [^C]*/, '')}`;
+/** Line widths: near is thick, far is thin, so the far half sits back. */
+const LOOP_WIDTH = { near: 4.6, far: 2 };
+/** A small arrowhead on the far half, pointing up, so the direction shows without motion. */
+const BEND_ARROW = `M 300.5 ${OUT_Y - 16} L 304.5 ${OUT_Y - 24} L 310 ${OUT_Y - 17}`;
+/** A soft shadow under the loop, so it stands up off the page. */
+const LOOP_SHADOW = { cx: 324, cy: OUT_Y + 45, rx: 24, ry: 3 };
+
 /** The ear, in picture units, and the last stretch of line that lands on it. */
 const EAR = { x: BIRD.x + 44, y: BIRD.y + 22, r: 4.5 };
 const ARRIVE_PATH = `M ${X.start + 3} ${BACK_Y} C 78 ${BACK_Y - 1}, 57 44, 51 63 C 48.5 71, 49 79, ${EAR.x} ${EAR.y - EAR.r}`;
@@ -122,8 +134,6 @@ function drawOn(name: string, [from, to]: readonly [number, number]) {
   }`;
 }
 
-const SING_FROM = TIMING.sayCat[0];
-const SING = TIMING.sayS[1] - SING_FROM;
 const BACK_LENGTH = TIMING.back[1] - TIMING.back[0];
 const BEND_MIDDLE = (TIMING.bend[0] + TIMING.bend[1]) / 2;
 
@@ -143,7 +153,6 @@ const CSS = `
   .vl-arrive { animation-name: vl-arrive; }
   .vl-arrive-gap { animation-name: vl-arrive-gap; }
   .vl-ear-ring { animation-name: vl-ear-ring; }
-  .vl-beak { animation-name: vl-beak; }
   ${drawOn('vl-say-cat', TIMING.sayCat)}
   ${drawOn('vl-say-s', TIMING.sayS)}
   ${drawOn('vl-bend', TIMING.bend)}
@@ -173,13 +182,6 @@ const CSS = `
     ${pct(TIMING.earPulse[0] + 0.05)} { opacity: 0.9; transform: scale(0.8); }
     ${pct(TIMING.earPulse[1])}, 100% { opacity: 0; transform: scale(2.6); }
   }
-  @keyframes vl-beak {
-    0%, ${pct(SING_FROM)} { transform: rotate(0deg); }
-    ${pct(SING_FROM + SING * 0.2)} { transform: rotate(-${BEAK_SWING}deg); }
-    ${pct(SING_FROM + SING * 0.45)} { transform: rotate(-${BEAK_SWING * 0.3}deg); }
-    ${pct(SING_FROM + SING * 0.7)} { transform: rotate(-${BEAK_SWING * 0.8}deg); }
-    ${pct(SING_FROM + SING)}, 100% { transform: rotate(0deg); }
-  }
 }
 `;
 
@@ -203,20 +205,12 @@ function SingerBird({ x, y }: { x: number; y: number }) {
         className="fill-background"
         d="M 21 50 C 33 50, 46 44, 52 33 C 55 46, 47 57, 34 57 C 28 57, 23 54, 21 50 Z"
       />
-      {/* Beak, open. The top half swings while the bird sings. It turns around its hinge, this group's own 0 0. */}
-      <g transform="translate(72 26)">
-        <path
-          className="vl-anim vl-beak fill-violet stroke-violet"
-          strokeWidth={2.5}
-          strokeLinejoin="round"
-          d="M -1 -6 L 16 -9 L 4 1 Z"
-        />
-      </g>
+      {/* Beak: one piece, pointing at where the sound leaves. */}
       <path
         className="fill-violet stroke-violet"
-        strokeWidth={2.5}
+        strokeWidth={2}
         strokeLinejoin="round"
-        d="M 73 30 L 86 34 L 72 37 Z"
+        d="M 71 19.5 C 78 21, 85 23.5, 91 26.5 C 85 29.5, 78 32, 71 33.5 C 72.5 29, 72.5 24, 71 19.5 Z"
       />
       {/* Eye. */}
       <circle className="fill-foreground" cx={60} cy={19} r={3.3} />
@@ -247,7 +241,7 @@ export function VoiceLoop() {
   const line = { fill: 'none', strokeLinecap: 'round', strokeLinejoin: 'round' } as const;
 
   return (
-    <figure ref={ref} className="vl flex flex-col gap-1.5">
+    <figure ref={ref} className="vl mx-auto flex w-full max-w-[290px] flex-col gap-1">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <svg
         viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
@@ -283,19 +277,53 @@ export function VoiceLoop() {
           </text>
         </g>
 
-        {/* The turn. */}
+        {/* The turn: a loop the loop. The far half is drawn first so the near half passes in front of it. */}
+        <defs>
+          <mask id="vl-bend-reveal" maskUnits="userSpaceOnUse">
+            <path
+              className="vl-anim vl-draw vl-bend"
+              stroke="white"
+              strokeWidth={16}
+              pathLength={1}
+              d={BEND_PATH}
+              {...line}
+            />
+          </mask>
+        </defs>
+        <g className="vl-anim vl-bend-arrow">
+          <ellipse
+            className="fill-foreground"
+            opacity={0.08}
+            cx={LOOP_SHADOW.cx}
+            cy={LOOP_SHADOW.cy}
+            rx={LOOP_SHADOW.rx}
+            ry={LOOP_SHADOW.ry}
+          />
+        </g>
+        <g mask="url(#vl-bend-reveal)">
+          <path
+            className="stroke-accent"
+            strokeWidth={LOOP_WIDTH.far}
+            opacity={0.55}
+            d={LOOP_FAR}
+            {...line}
+          />
+          {/* A strip of page color under the near half makes the gap where it crosses in front. */}
+          <path className="stroke-background" strokeWidth={LOOP_WIDTH.near + 5} d={LOOP_NEAR} {...line} />
+          <path className="stroke-accent" strokeWidth={LOOP_WIDTH.near} d={LOOP_NEAR} {...line} />
+        </g>
         <path
-          className="vl-anim vl-draw vl-bend stroke-accent"
-          strokeWidth={2.5}
-          pathLength={1}
-          d={BEND_PATH}
+          className="vl-anim vl-bend-arrow stroke-accent"
+          strokeWidth={2}
+          opacity={0.7}
+          d={BEND_ARROW}
           {...line}
         />
-        <path className="vl-anim vl-bend-arrow stroke-accent" strokeWidth={2.5} d={BEND_ARROW} {...line} />
 
         {/* Coming back: "cat" is still there. Where the "s" was, only a faint flat dashed line. */}
         <g className="vl-anim vl-back">
-          <path className="stroke-accent" strokeWidth={3.75} d={BACK_CAT_PATH} {...line} />
+          {/* Farther away than the way out: a thinner, lighter line. */}
+          <path className="stroke-accent" strokeWidth={2.4} opacity={0.75} d={BACK_CAT_PATH} {...line} />
           <g transform={`translate(${X.sFrom} ${BACK_Y})`}>
             <path className="vl-anim vl-s-back stroke-foreground" strokeWidth={1.9} d={HISS} {...line} />
             <path
@@ -348,7 +376,7 @@ export function VoiceLoop() {
         </g>
 
         {/* The words, on screen the whole time. */}
-        <text className="fill-muted" x={X.start + 3} y={15} fontSize={15} fontWeight={600}>
+        <text className="fill-muted" x={X.start + 3} y={15} fontSize={17} fontWeight={600}>
           {VOICE_LOOP.hearLabel}{' '}
           <tspan className="fill-foreground" fontWeight={800}>
             {VOICE_LOOP.word}
@@ -357,7 +385,7 @@ export function VoiceLoop() {
             {VOICE_LOOP.ending}
           </tspan>
         </text>
-        <text className="fill-muted" x={X.start + 3} y={VIEW_H - 5} fontSize={15} fontWeight={600}>
+        <text className="fill-muted" x={X.start + 3} y={VIEW_H - 5} fontSize={17} fontWeight={600}>
           {VOICE_LOOP.sayLabel}{' '}
           <tspan className="fill-foreground" fontWeight={800}>
             {VOICE_LOOP.word}
@@ -365,7 +393,9 @@ export function VoiceLoop() {
           </tspan>
         </text>
       </svg>
-      <figcaption className="text-[14px] leading-snug text-muted">{VOICE_LOOP.caption}</figcaption>
+      <figcaption className="text-center text-[13px] leading-snug text-muted">
+        {VOICE_LOOP.caption}
+      </figcaption>
     </figure>
   );
 }
