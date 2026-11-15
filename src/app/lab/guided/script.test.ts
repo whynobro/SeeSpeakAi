@@ -32,8 +32,9 @@ describe('guided script', () => {
   });
 
   it('writes plain instructions', () => {
-    expect(instructionFor({ wordId: 'cats', say: 'with-sound' })).toBe('Say: cats (with the s)');
-    expect(instructionFor({ wordId: 'sip', say: 'other-sound', as: 'ship' })).toContain('sh instead of s');
+    expect(instructionFor({ wordId: 'cats', say: 'with-sound' })).toBe('cats');
+    expect(instructionFor({ wordId: 'sip', say: 'other-sound', as: 'ship' })).toBe('ship');
+    expect(instructionFor({ wordId: 'hats', say: 'without-sound', as: 'hat' })).toBe('hat');
   });
 
   it('judges a match against what was asked', () => {
