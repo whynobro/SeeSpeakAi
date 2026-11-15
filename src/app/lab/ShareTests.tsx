@@ -117,7 +117,8 @@ export function ShareTests({
       <p className="text-sm">
         Each time you press Stop, the numbers from that try (loudness, pitch and the result) are saved so we
         can make the scoring better. They are copied to our public project page on GitHub. Your voice is never
-        recorded or sent, and there is no name unless you type a nickname below.
+        recorded or sent, and there is no name unless you type a nickname below. The lip page (/lab/lips) uses
+        the same switch: it saves lip shape numbers and which sound you held, never camera pictures.
       </p>
       <label className="flex min-h-12 items-center gap-3 font-bold">
         <input

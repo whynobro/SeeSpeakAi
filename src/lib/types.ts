@@ -1,5 +1,7 @@
 /** Shared contract between all lanes. Change only with team agreement. */
 
+import type { LipSummary } from '@/lib/lips/types';
+
 // ---------- Sounds ----------
 
 /** Sounds the app can score today. Add one only when src/lib/scoring can really detect it. */
@@ -196,6 +198,8 @@ export interface FeedbackRequest {
   trace?: TraceSummary | null; // the shape of the latest try only
   /** The learner's goals, names removed, so the coach can tie a tip back to them. */
   learnerGoals?: LearnerGoals | null;
+  /** Optional camera: lip numbers for the latest try (never a picture). A tip only, never changes the verdict. */
+  lips?: LipSummary | null;
 }
 /** Steps 3 to 4. What the brain says after a try. */
 export interface CoachFeedback {

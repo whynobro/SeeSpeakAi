@@ -13,12 +13,37 @@ import type { LipFrame, LipShape, LipSummary } from './types';
 export const MIN_FACE_SHARE = 0.5;
 /** Fewer frames than this and the call is 'unknown'. Starting value. */
 export const MIN_FRAMES = 3;
-/** The stronger of rounded and spread must reach this, or the lips are 'neutral'. Starting value. */
-export const MIN_SHAPE_SCORE = 0.2;
-/** The stronger must beat the other by this much to count as clear. Starting value. */
-export const SHAPE_MARGIN = 0.1;
 /** Share of the try treated as "the end", where an end-of-word sound sits. */
 export const END_SHARE = 1 / 3;
+
+/*
+ * Cutoffs for the shape call. They work on "lean" = rounded minus spread (-1 to 1), not on absolute scores,
+ * because a real face reaches nowhere near 1 on either. All of these come from ONE capture of ONE face
+ * (Michael, Windows laptop webcam, 2026-11-14, "sss" then "shh" held in the same capture):
+ *   the whole capture (mostly "sss"): rounded 0.107, spread 0.449, lean -0.34
+ *   the last third ("shh"):           rounded 0.207, spread 0.408, lean -0.20
+ * Rounding doubled for "sh" but stayed under spread, so "rounded" cannot mean "rounded beats spread".
+ * They need more faces. Re-tune from the saved lip captures on /lab/lips before trusting them.
+ */
+/** Lean at or below this is a smile ("s" lips). Starting value, one face. */
+export const SPREAD_LEAN = -0.3;
+/** Lean at or above this (and rounding of at least MIN_ROUNDED) is rounded ("sh" lips). Starting value, one face. */
+export const ROUNDED_LEAN = -0.22;
+/** Rounding must be at least this, so a relaxed mouth is never called rounded. Starting value, one face. */
+export const MIN_ROUNDED = 0.15;
+/** With a person's own smile as the baseline: rounded needs lean this much above the baseline. */
+export const BASELINE_ROUNDED_SHIFT = 0.1;
+/** With a baseline: lean within this much above the baseline still counts as the same smile. */
+export const BASELINE_SPREAD_SHIFT = 0.04;
+/** The "sh" capture must sit at least this far above the "s" capture in lean to say they are separable. */
+export const MIN_SEPARATION = 0.1;
+/** Kill switch for lip tips. The badge and the saved numbers stay. Set false if the cutoffs prove unreliable. */
+export const LIP_TIPS_ENABLED = true;
+
+/** A person's own "s" (smile) lean, taken from their "sss" capture. Later calls are judged against it. */
+export interface LipBaseline {
+  smileLean: number;
+}
 
 const clamp01 = (n: number): number => (Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : 0);
 const avg = (xs: number[]): number => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
@@ -36,10 +61,39 @@ export function lipFrameFromBlendshapes(scores: Record<string, number>, tMs: num
   };
 }
 
-function callShape(rounded: number, spread: number): LipShape {
-  const top = Math.max(rounded, spread);
-  if (top < MIN_SHAPE_SCORE || Math.abs(rounded - spread) < SHAPE_MARGIN) return 'neutral';
-  return rounded > spread ? 'rounded' : 'spread';
+/** Roundedness minus spread. Positive: rounder than wide. */
+export const leanOf = (rounded: number, spread: number): number => rounded - spread;
+
+function callShape(rounded: number, spread: number, baseline?: LipBaseline): LipShape {
+  const lean = leanOf(rounded, spread);
+  if (baseline) {
+    const shift = lean - baseline.smileLean;
+    if (shift >= BASELINE_ROUNDED_SHIFT && rounded >= MIN_ROUNDED) return 'rounded';
+    return shift <= BASELINE_SPREAD_SHIFT ? 'spread' : 'neutral';
+  }
+  if (lean <= SPREAD_LEAN) return 'spread';
+  if (lean >= ROUNDED_LEAN && rounded >= MIN_ROUNDED) return 'rounded';
+  return 'neutral';
+}
+
+/** The shape of one camera frame, for a live badge. 'unknown' when no face was seen. */
+export function frameShape(f: LipFrame | null): LipShape {
+  return f && f.faceSeen ? callShape(f.rounded, f.spread) : 'unknown';
+}
+
+export function baselineFrom(smile: LipSummary): LipBaseline {
+  return { smileLean: leanOf(smile.rounded, smile.spread) };
+}
+
+/** The call for a try, judged against the person's own smile instead of fixed cutoffs. */
+export function shapeAgainst(summary: LipSummary, baseline: LipBaseline): LipShape {
+  if (summary.shape === 'unknown') return 'unknown';
+  return callShape(summary.rounded, summary.spread, baseline);
+}
+
+/** How far the "sh" capture sits above the "s" capture in lean. Needs MIN_SEPARATION or more. */
+export function lipSeparation(s: LipSummary, sh: LipSummary): number {
+  return leanOf(sh.rounded, sh.spread) - leanOf(s.rounded, s.spread);
 }
 
 export function summarizeLips(frames: LipFrame[]): LipSummary {
@@ -65,13 +119,26 @@ export function summarizeLips(frames: LipFrame[]): LipSummary {
   };
 }
 
-/** One short sentence when the lips do not match the target sound. Null when they match or are unknown. */
+/** One short sentence when the lips do not match the target sound. Null when they match, are unknown or tips are off. */
 export function lipHint(target: 's' | 'sh', summary: LipSummary): string | null {
+  if (!LIP_TIPS_ENABLED) return null;
   if (target === 's' && summary.shape === 'rounded') {
     return 'Your lips were rounded. For "s", smile so your lips pull back.';
   }
   if (target === 'sh' && summary.shape === 'spread') {
     return 'Your lips were pulled back. For "sh", round your lips and push them forward.';
+  }
+  return null;
+}
+
+/** The same tip, for a "close" try where the hiss came out as the other sound. The tip comes first. */
+export function lipCloseHint(target: 's' | 'sh', summary: LipSummary): string | null {
+  if (!LIP_TIPS_ENABLED) return null;
+  if (target === 's' && summary.shape === 'rounded') {
+    return 'Your lips rounded, so it came out nearer "sh". For "s", smile so your lips pull back.';
+  }
+  if (target === 'sh' && summary.shape === 'spread') {
+    return 'Your lips were pulled back, so it came out nearer "s". For "sh", round your lips and push them forward.';
   }
   return null;
 }

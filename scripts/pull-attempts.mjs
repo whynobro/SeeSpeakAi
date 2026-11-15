@@ -1,5 +1,6 @@
 // Download the shared test log and write:
 //   data/attempts.jsonl  one try per line (the newest entry for each try wins)
+//   data/lips.jsonl      one lip capture per line (/lab/lips: the held sound and lip numbers, never a picture)
 //   data/summary.md      how often the verdict was right, per tester and word type
 // Needs BLOB_READ_WRITE_TOKEN in the environment or in .env.local (run `vercel env pull` once).
 // data/ is git-ignored on main. A GitHub Action copies both files to the `test-log` branch.
@@ -70,12 +71,19 @@ for (const blob of blobs) {
     console.error(`Skipped unreadable entry ${blob.pathname}`);
   }
 }
-const entries = [...byTry.values()];
+// Lip captures from /lab/lips (kind "lips") go to their own file. They have no verdict, so they stay out of the summary.
+const lipEntries = [...byTry.values()].filter((e) => e.kind === 'lips');
+const entries = [...byTry.values()].filter((e) => e.kind !== 'lips');
 
 mkdirSync('data', { recursive: true });
 writeFileSync(
   'data/attempts.jsonl',
   entries.map((e) => JSON.stringify(e)).join('\n') + (entries.length ? '\n' : ''),
+);
+
+writeFileSync(
+  'data/lips.jsonl',
+  lipEntries.map((e) => JSON.stringify(e)).join('\n') + (lipEntries.length ? '\n' : ''),
 );
 
 // For tries where the tester told us what they really said: was the verdict right?

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { getLastRecording } from '@/lib/audio/lastRecording';
 import { summarizeTrace } from '@/lib/scoring/trace';
 import { loadGoals } from '@/lib/store';
+import type { LipSummary } from '@/lib/lips/types';
 import type { AttemptScore, CoachFeedback, FeedbackRequest, PracticeWord } from '@/lib/types';
 
 /** How many past tries on the same word are sent to the brain. */
@@ -12,6 +13,7 @@ const MAX_RECENT = 10;
 /**
  * The brain's sentence after a try. Screens call `ask(word, score)` right after `scoreAttempt`, show
  * `feedback.message` and `feedback.cue` when they arrive, and follow `feedback.nextAction`.
+ * With the optional camera on, `ask(word, score, lips)` also sends the lip numbers (never a picture).
  * Only numbers (the scores and the shape of the sound) are sent to the server, never audio. If the call fails, `feedback` stays null and
  * the screen simply shows the verdict without a sentence.
  */
@@ -28,44 +30,48 @@ export function useCoachFeedback() {
     setLoading(false);
   }, []);
 
-  const ask = useCallback(async (word: PracticeWord, score: AttemptScore): Promise<void> => {
-    // Tries are remembered per word, so "three in a row" means three on this word.
-    if (recent.current.wordId !== word.id) recent.current = { wordId: word.id, scores: [] };
-    recent.current.scores = [...recent.current.scores, score].slice(-MAX_RECENT);
+  const ask = useCallback(
+    async (word: PracticeWord, score: AttemptScore, lips?: LipSummary | null): Promise<void> => {
+      // Tries are remembered per word, so "three in a row" means three on this word.
+      if (recent.current.wordId !== word.id) recent.current = { wordId: word.id, scores: [] };
+      recent.current.scores = [...recent.current.scores, score].slice(-MAX_RECENT);
 
-    request.current?.abort();
-    const controller = new AbortController();
-    request.current = controller;
-    setFeedback(null);
-    setLoading(true);
-    try {
-      // The shape of the sound over the last recording: numbers only, never audio.
-      const trace = summarizeTrace(getLastRecording().frames, word);
-      const body: FeedbackRequest = {
-        target: word.target,
-        word: word.text,
-        recent: recent.current.scores,
-        trace,
-        learnerGoals: loadGoals(),
-      };
-      const response = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-      if (!response.ok) throw new Error(`Feedback call failed with ${response.status}`);
-      const result = (await response.json()) as CoachFeedback;
-      if (!controller.signal.aborted) setFeedback(result);
-    } catch {
-      // No sentence is better than a wrong or broken one. The verdict is already on screen.
-    } finally {
-      if (request.current === controller) {
-        request.current = null;
-        setLoading(false);
+      request.current?.abort();
+      const controller = new AbortController();
+      request.current = controller;
+      setFeedback(null);
+      setLoading(true);
+      try {
+        // The shape of the sound over the last recording: numbers only, never audio.
+        const trace = summarizeTrace(getLastRecording().frames, word);
+        const body: FeedbackRequest = {
+          target: word.target,
+          word: word.text,
+          recent: recent.current.scores,
+          trace,
+          learnerGoals: loadGoals(),
+          lips: lips ?? null,
+        };
+        const response = await fetch('/api/feedback', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error(`Feedback call failed with ${response.status}`);
+        const result = (await response.json()) as CoachFeedback;
+        if (!controller.signal.aborted) setFeedback(result);
+      } catch {
+        // No sentence is better than a wrong or broken one. The verdict is already on screen.
+      } finally {
+        if (request.current === controller) {
+          request.current = null;
+          setLoading(false);
+        }
       }
-    }
-  }, []);
+    },
+    [],
+  );
 
   // Stop any call still in flight when the screen goes away.
   useEffect(() => () => request.current?.abort(), []);
