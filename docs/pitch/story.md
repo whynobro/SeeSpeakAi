@@ -1,6 +1,23 @@
 # The one user and the one story
 
-Owner: Holly. Status: DRAFT. The user is not chosen yet. Nothing here is final until Holly picks, and until a real person agrees to be the story. We do not invent a person.
+Owner: Holly. Status: decided after the Saturday call (see "After the call" below). We do not invent a person.
+
+## After the call (Holly, Sat Nov 14, night)
+
+- **Who we build for, in one sentence:** a child from about kindergarten to third grade who is hard of hearing and
+  in speech therapy, practicing at home with a parent next to them.
+- **The story, in one sentence:** the "s" is too high for them to hear, so they cannot tell if they said it, and
+  SeeSpeak shows them on the screen.
+- **The real person in our pitch is Yuka**, who gave us feedback on a recorded call: she had speech therapy from
+  kindergarten to third grade, her therapist sent practice home, and her parents helped. She is not a deaf user
+  and we do not present her as one. Her words and what we built from them are in `user-call-nov14.md`.
+- **Why the change from the college student:** Yuka told us the app fits young children with a parent better than
+  deaf adults, and that is also where the published numbers and the payer (school speech therapy) are. The
+  "first-year Cal Poly student with hearing aids" below was a planning sketch, never a real person. **Do not use
+  that sentence in the pitch.**
+- Demo voices are still adults (the team), and we say so if asked: children's voices need their own tuning.
+
+The rest of this page is the earlier draft, kept for the lines and the sources.
 
 ## The two choices
 
