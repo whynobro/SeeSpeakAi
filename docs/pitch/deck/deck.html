@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>SeeSpeak pitch</title>
+    <!-- Print: open in Chrome, Ctrl+P, Save as PDF, Margins none, Background graphics on. Or headless:
+     chrome --headless=new --no-pdf-header-footer --print-to-pdf=seespeak-pitch-v2.pdf docs/pitch/deck/deck.html -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* SeeSpeak pitch deck, v2 (Holly, Nov 15). Built on Michael's 7-slide deck: same slides, same order, checked numbers,
+     restyled to match the app's kingfisher home (aqua and sage page, soft color blobs, kingfisher blue, navy ink). */
+      @page {
+        size: 1600px 900px;
+        margin: 0;
+      }
+      :root {
+        --ink: #1e2a3a;
+        --muted: #4b5563;
+        --blue: #1b628f;
+        --blue-deep: #134a70;
+        --orange: #f08a3c;
+        --s: #3b7de0;
+        --sh: #f4728a;
+        --z: #22a99a;
+        --ch: #9b7bf0;
+        --sun: #ffd166;
+        --card: rgba(255, 255, 255, 0.82);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        background: #dfe9e4;
+      }
+      body {
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        color: var(--ink);
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .slide {
+        width: 1600px;
+        height: 900px;
+        position: relative;
+        overflow: hidden;
+        page-break-after: always;
+        break-after: page;
+        background: linear-gradient(160deg, #b9dde3 0%, #c7e0d2 55%, #d9e8cf 100%);
+        padding: 84px 104px;
+      }
+      .blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(70px);
+        opacity: 0.55;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .slide > :not(.blob) {
+        z-index: 1;
+      }
+      .slide > p,
+      .slide > h1,
+      .slide > div:not(.blob):not(.photo):not(.bird):not(.qr) {
+        position: relative;
+      }
+      .slide > p.src,
+      .slide > p.credit,
+      .slide > p.team {
+        position: absolute;
+      }
+      .eyebrow {
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--blue);
+      }
+      h1 {
+        font-size: 64px;
+        line-height: 1.05;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin-top: 14px;
+        max-width: 1250px;
+      }
+      .src {
+        position: absolute;
+        left: 104px;
+        right: 104px;
+        bottom: 40px;
+        font-size: 15px;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        border-radius: 28px;
+        box-shadow: 0 24px 48px -28px rgba(19, 74, 112, 0.45);
+        backdrop-filter: blur(6px);
+      }
+      .num {
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 0.95;
+      }
+      .photo {
+        position: absolute;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 28px 60px -30px rgba(30, 42, 58, 0.6);
+      }
+      .photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .credit {
+        position: absolute;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        background: var(--blue);
+        color: #fff;
+        border-radius: 999px;
+        padding: 16px 30px;
+        font-weight: 800;
+        font-size: 26px;
+        box-shadow: 0 14px 30px -14px rgba(19, 74, 112, 0.9);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-weight: 800;
+        font-size: 46px;
+        letter-spacing: -0.02em;
+      }
+      .brand img {
+        width: 78px;
+        background: #fff;
+        border-radius: 50%;
+        padding: 6px;
+        box-shadow: 0 10px 24px -14px rgba(30, 42, 58, 0.5);
+      }
+      .brand .see {
+        color: var(--blue);
+      }
+
+      /* 1. Cover: the green and yellow gradient */
+      .cover {
+        background:
+          radial-gradient(70% 90% at 100% 0%, #ffe08a 0%, rgba(255, 224, 138, 0) 60%),
+          linear-gradient(135deg, #9fd8b8 0%, #c6e6a6 45%, #f6e27a 100%);
+      }
+      .cover h1 {
+        font-size: 104px;
+        max-width: 900px;
+        margin-top: 56px;
+      }
+      .cover .lede {
+        font-size: 32px;
+        line-height: 1.35;
+        max-width: 780px;
+        margin-top: 28px;
+        color: #26394a;
+        font-weight: 500;
+      }
+      .cover .bird {
+        position: absolute;
+        right: -60px;
+        top: 120px;
+        width: 900px;
+        height: 610px;
+        -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 55%, transparent 100%);
+        mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 55%, transparent 100%);
+      }
+      .cover .bird img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .team {
+        position: absolute;
+        left: 104px;
+        bottom: 56px;
+        font-size: 20px;
+        color: #2c4152;
+        font-weight: 600;
+      }
+
+      /* 2. The gap */
+      .gap-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+        margin-top: 40px;
+        width: 1010px;
+      }
+      .gap-grid .card {
+        padding: 30px 30px 28px;
+        height: 470px;
+        display: flex;
+        flex-direction: column;
+      }
+      .gap-grid .num {
+        font-size: 104px;
+        color: var(--blue);
+      }
+      .gap-grid p {
+        font-size: 21px;
+        line-height: 1.38;
+        margin-top: 12px;
+      }
+      .viz {
+        margin-top: auto;
+      }
+      .dots {
+        display: grid;
+        grid-template-columns: repeat(10, 18px);
+        gap: 8px;
+      }
+      .dots i {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #9fc3dc;
+        display: block;
+      }
+      .dots i.me {
+        background: var(--orange);
+        box-shadow: 0 0 0 4px rgba(240, 138, 60, 0.25);
+      }
+      .week {
+        display: flex;
+        gap: 8px;
+        align-items: flex-end;
+        height: 92px;
+      }
+      .week div {
+        flex: 1;
+        border-radius: 10px;
+        background: #d6e4ee;
+        position: relative;
+        height: 100%;
+      }
+      .week div.on {
+        background: linear-gradient(180deg, #4b8fd6, var(--blue));
+      }
+      .week div.part {
+        background: linear-gradient(0deg, var(--blue) 0 70%, #d6e4ee 70% 100%);
+      }
+      .week span {
+        position: absolute;
+        bottom: -26px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 14px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .donut {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: conic-gradient(var(--sh) 0 30%, #d6e4ee 30% 100%);
+        display: grid;
+        place-items: center;
+      }
+      .donut b {
+        width: 98px;
+        height: 98px;
+        border-radius: 50%;
+        background: #fff;
+        display: grid;
+        place-items: center;
+        font-size: 26px;
+        font-weight: 800;
+        color: #b4233f;
+      }
+
+      /* 3. sip and ship */
+      .sip {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 70px;
+        margin-top: 70px;
+      }
+      .word {
+        font-size: 230px;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        line-height: 1;
+      }
+      .word .s {
+        color: var(--s);
+        text-shadow: 0 0 60px rgba(59, 125, 224, 0.45);
+      }
+      .word .sh {
+        color: var(--sh);
+        text-shadow: 0 0 60px rgba(244, 114, 138, 0.45);
+      }
+      .word.faded {
+        opacity: 0.9;
+      }
+      .arrow {
+        font-size: 96px;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .pitch {
+        margin: 60px auto 0;
+        width: 1180px;
+        position: relative;
+        height: 150px;
+      }
+      .pitch .line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 70px;
+        height: 6px;
+        border-radius: 6px;
+        background: linear-gradient(90deg, #a7b6c4, #7d8fa1);
+      }
+      .band {
+        position: absolute;
+        top: 34px;
+        height: 78px;
+        border-radius: 40px;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        font-size: 26px;
+        color: #fff;
+      }
+      .fade {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 470px;
+        border-radius: 24px;
+        background: repeating-linear-gradient(
+          135deg,
+          rgba(30, 42, 58, 0.1) 0 12px,
+          rgba(30, 42, 58, 0.03) 12px 24px
+        );
+        border: 2px dashed rgba(30, 42, 58, 0.35);
+      }
+      .fade em {
+        position: absolute;
+        top: -40px;
+        right: 10px;
+        font-style: normal;
+        font-weight: 800;
+        font-size: 20px;
+        color: var(--ink);
+      }
+      .tick {
+        position: absolute;
+        top: 122px;
+        font-size: 18px;
+        color: var(--muted);
+        font-weight: 700;
+        transform: translateX(-50%);
+      }
+
+      /* 4. How the AI works */
+      .flow {
+        display: grid;
+        grid-template-columns: 1fr 70px 1fr 70px 1fr;
+        align-items: stretch;
+        margin-top: 46px;
+      }
+      .flow .card {
+        padding: 34px;
+      }
+      .flow h3 {
+        font-size: 32px;
+        font-weight: 800;
+        margin-top: 18px;
+      }
+      .flow p {
+        font-size: 21px;
+        line-height: 1.4;
+        margin-top: 10px;
+      }
+      .flow .dark {
+        background: var(--ink);
+        color: #f3f4f1;
+        border: 0;
+      }
+      .flow .arr {
+        display: grid;
+        place-items: center;
+        font-size: 46px;
+        color: var(--blue);
+        font-weight: 800;
+      }
+      .ico {
+        width: 64px;
+        height: 64px;
+        border-radius: 20px;
+        display: grid;
+        place-items: center;
+      }
+      .asr {
+        display: grid;
+        grid-template-columns: 330px 1fr;
+        gap: 36px;
+        margin-top: 34px;
+        padding: 30px 36px;
+        align-items: center;
+      }
+      .asr h4 {
+        font-size: 28px;
+        font-weight: 800;
+        line-height: 1.2;
+      }
+      .bars {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .bar {
+        display: grid;
+        grid-template-columns: 330px 1fr 92px;
+        align-items: center;
+        gap: 16px;
+        font-size: 19px;
+        font-weight: 600;
+      }
+      .bar .track {
+        height: 26px;
+        border-radius: 14px;
+        background: #e3eaf0;
+        overflow: hidden;
+      }
+      .bar .fill {
+        height: 100%;
+        border-radius: 14px;
+      }
+      .bar b {
+        font-size: 26px;
+        font-weight: 800;
+        text-align: right;
+      }
+
+      /* 5. Market */
+      .mkt {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-top: 44px;
+        width: 1040px;
+      }
+      .mkt .card {
+        padding: 36px 40px;
+        height: 430px;
+        display: flex;
+        flex-direction: column;
+      }
+      .mkt .num {
+        font-size: 132px;
+      }
+      .mkt .tag {
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        color: var(--blue);
+      }
+      .mkt p {
+        font-size: 23px;
+        line-height: 1.4;
+        margin-top: 16px;
+      }
+      .mkt .dark {
+        background: var(--ink);
+        color: #f3f4f1;
+        border: 0;
+      }
+      .mkt .dark .tag {
+        color: #9fd0f2;
+      }
+      .ring {
+        margin-top: auto;
+        height: 22px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.18);
+        overflow: hidden;
+      }
+      .ring i {
+        display: block;
+        height: 100%;
+        width: 90%;
+        border-radius: 12px;
+        background: linear-gradient(90deg, var(--z), #8fe3c0);
+      }
+
+      /* 6. Built and next */
+      .two {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-top: 44px;
+      }
+      .two .card {
+        padding: 36px 40px;
+        min-height: 470px;
+      }
+      .two .tag {
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        color: var(--blue);
+      }
+      .two ul {
+        list-style: none;
+        margin-top: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      .two li {
+        display: grid;
+        grid-template-columns: 40px 1fr;
+        gap: 14px;
+        font-size: 24px;
+        line-height: 1.35;
+        align-items: start;
+      }
+      .chk {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-weight: 800;
+        font-size: 20px;
+      }
+      .two .dark {
+        background: var(--ink);
+        color: #f3f4f1;
+        border: 0;
+      }
+      .two .dark .tag {
+        color: #9fd0f2;
+      }
+      .step {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        font-size: 26px;
+        color: #fff;
+      }
+      .two .dark li {
+        grid-template-columns: 64px 1fr;
+        align-items: center;
+      }
+
+      /* 7. Questions */
+      .q {
+        background:
+          radial-gradient(60% 80% at 0% 100%, rgba(155, 123, 240, 0.55), transparent 70%),
+          radial-gradient(55% 70% at 100% 0%, rgba(124, 196, 255, 0.6), transparent 70%),
+          linear-gradient(150deg, #1e2a3a 0%, #1b3c55 100%);
+        color: #f3f4f1;
+      }
+      .q .brand {
+        color: #f3f4f1;
+      }
+      .q .brand .see {
+        color: #8fd0ff;
+      }
+      .q h1 {
+        font-size: 150px;
+        margin-top: 40px;
+      }
+      .qr {
+        position: absolute;
+        right: 104px;
+        top: 160px;
+        width: 520px;
+        height: 580px;
+        background: #fff;
+        border-radius: 36px;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 22px;
+        box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.7);
+      }
+      .qr img {
+        width: 440px;
+        height: 440px;
+      }
+      .qr p {
+        color: var(--ink);
+        font-size: 26px;
+        font-weight: 800;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 1. COVER -->
+    <section class="slide cover">
+      <div
+        class="blob"
+        style="width: 520px; height: 520px; left: -160px; bottom: -200px; background: #7cc4ff"
+      ></div>
+      <div
+        class="blob"
+        style="width: 420px; height: 420px; left: 520px; top: -180px; background: #ffd166; opacity: 0.6"
+      ></div>
+      <div class="bird">
+        <img src="img/kingfisher.jpg" alt="A kingfisher on a branch, from the app's home screen" />
+      </div>
+      <div class="brand">
+        <img src="../../../public/brand/seespeak-icon.png" alt="" /><span
+          ><span class="see">See</span>Speak</span
+        >
+      </div>
+      <h1>See the sound you can’t hear.</h1>
+      <p class="lede">
+        Speech practice for kids who are hard of hearing, for the days between speech therapy sessions.
+      </p>
+      <p class="team">
+        Michael Fischbach · Holly Steen · Mason Di Leo · CPVC × OCOB × CPE AI Hackathon, Cal Poly, Nov 2026
+      </p>
+    </section>
+
+    <!-- 2. THE GAP -->
+    <section class="slide">
+      <div
+        class="blob"
+        style="width: 520px; height: 520px; right: -140px; top: -160px; background: #7cc4ff"
+      ></div>
+      <div
+        class="blob"
+        style="width: 460px; height: 460px; left: -160px; bottom: -200px; background: #f3bdf6"
+      ></div>
+      <p class="eyebrow">The gap</p>
+      <h1 style="max-width: 1000px">Practice happens between sessions, with no feedback.</h1>
+      <div class="gap-grid">
+        <div class="card">
+          <div class="num">50</div>
+          <p>students on a school speech therapist’s caseload (median)</p>
+          <div class="viz">
+            <div class="dots">
+              <i class="me"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i> <i></i><i></i
+              ><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i> <i></i><i></i><i></i><i></i><i></i
+              ><i></i><i></i><i></i><i></i><i></i> <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i
+              ><i></i><i></i> <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="num">1.7</div>
+          <p>
+            sessions a week, about 31 minutes each, for hard-of-hearing kids who get school speech therapy
+          </p>
+          <div class="viz" style="padding-bottom: 26px">
+            <div class="week">
+              <div class="on"><span>M</span></div>
+              <div><span>T</span></div>
+              <div class="part"><span>W</span></div>
+              <div><span>T</span></div>
+              <div><span>F</span></div>
+              <div><span>S</span></div>
+              <div><span>S</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="num" style="color: #c2334f">30%</div>
+          <p>of hard-of-hearing kids got no speech or deaf-education services, their parents said</p>
+          <div class="viz">
+            <div class="donut"><b>30%</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="photo" style="right: 104px; top: 250px; width: 370px; height: 520px">
+        <img
+          src="../../../public/photos/photo-4.jpg"
+          alt="Children in a classroom sign with a teacher, one of them in a wheelchair."
+          style="object-position: 50% 40%"
+        />
+      </div>
+      <p class="credit" style="right: 104px; top: 780px">Photo: Pinterest</p>
+      <p class="src">
+        Sources: ASHA 2026 Schools Survey, caseload (median 50). Page et al. 2018, 155 hard-of-hearing
+        school-age children: 1.7 sessions a week of 30.7 minutes for those seen by a school speech therapist;
+        parents of 30% (46 of 155) reported no services.
+      </p>
+    </section>
+
+    <!-- 3. SIP AND SHIP -->
+    <section class="slide">
+      <div
+        class="blob"
+        style="width: 520px; height: 520px; left: 120px; top: 60px; background: #7cc4ff; opacity: 0.5"
+      ></div>
+      <div
+        class="blob"
+        style="width: 520px; height: 520px; right: 100px; top: 60px; background: #f4728a; opacity: 0.4"
+      ></div>
+      <p class="eyebrow">The problem</p>
+      <div class="sip">
+        <div class="word"><span class="s">s</span>ip</div>
+        <div class="arrow">→</div>
+        <div class="word faded"><span class="sh">sh</span>ip</div>
+      </div>
+      <p style="text-align: center; font-size: 40px; font-weight: 700; margin-top: 34px">
+        When high sounds fade, “sip” can drift toward “ship”.
+      </p>
+      <div class="pitch">
+        <div class="line"></div>
+        <div class="fade"><em>Often the first to fade</em></div>
+        <div class="band" style="left: 300px; width: 300px; background: var(--sh)">“sh”</div>
+        <div class="band" style="left: 700px; width: 420px; background: var(--s)">“s”</div>
+        <span class="tick" style="left: 300px">2 kHz</span><span class="tick" style="left: 600px">4 kHz</span
+        ><span class="tick" style="left: 1120px">8 kHz</span>
+        <span class="tick" style="left: 40px">low pitch</span>
+      </div>
+      <p class="src">
+        “s” is a high hiss, “sh” a lower one. When high pitches are hard to hear, a speaker’s “s” can drift
+        toward “sh”: measured in children with implants (Todd 2011) and children and teens with hearing aids
+        (Pittman 2018).
+      </p>
+    </section>
+
+    <!-- 4. HOW THE AI WORKS -->
+    <section class="slide">
+      <div
+        class="blob"
+        style="width: 520px; height: 520px; right: -160px; bottom: -200px; background: #a8ecc4"
+      ></div>
+      <div
+        class="blob"
+        style="width: 420px; height: 420px; left: -120px; top: -160px; background: #7cc4ff"
+      ></div>
+      <p class="eyebrow">How the AI works</p>
+      <h1>The phone measures. Claude explains.</h1>
+      <div class="flow">
+        <div class="card">
+          <div class="ico" style="background: #dbeafe">
+            <svg
+              width="34"
+              height="34"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#1b628f"
+              stroke-width="2.2"
+              stroke-linecap="round"
+            >
+              <rect x="9" y="3" width="6" height="11" rx="3" />
+              <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+            </svg>
+          </div>
+          <h3>On the phone</h3>
+          <p>
+            Measures the hiss about 50 times a second and shows the result at once. The optional lip camera
+            turns lip shape into numbers.
+          </p>
+        </div>
+        <div class="arr">→</div>
+        <div class="card dark">
+          <div class="ico" style="background: rgba(255, 255, 255, 0.12)">
+            <svg
+              width="34"
+              height="34"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#8fd0ff"
+              stroke-width="2.2"
+              stroke-linecap="round"
+            >
+              <rect x="5" y="11" width="14" height="10" rx="2" />
+              <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+            </svg>
+          </div>
+          <h3>Numbers only</h3>
+          <p>Never your voice. Never your video. Names removed from reports.</p>
+        </div>
+        <div class="arr">→</div>
+        <div class="card">
+          <div class="ico" style="background: #ede4ff">
+            <svg
+              width="34"
+              height="34"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#6d28d9"
+              stroke-width="2.2"
+              stroke-linecap="round"
+            >
+              <path d="M12 3l2.2 5.3L20 9l-4.4 3.8L17 18.5 12 15.6 7 18.5l1.4-5.7L4 9l5.8-.7z" />
+            </svg>
+          </div>
+          <h3>Claude</h3>
+          <p>
+            Turns a hearing check or a therapist’s goals into a practice plan, and writes one tip after every
+            try.
+          </p>
+        </div>
+      </div>
+      <div class="card asr">
+        <h4>
+          Why not speech recognition?<br /><span
+            style="font-weight: 600; font-size: 21px; color: var(--muted)"
+            >It can also fill in an “s” that was never said.</span
+          >
+        </h4>
+        <div class="bars">
+          <div class="bar">
+            <span>Deaf and hard-of-hearing adults</span>
+            <div class="track"><div class="fill" style="width: 52.6%; background: var(--sh)"></div></div>
+            <b>53%</b>
+          </div>
+          <div class="bar">
+            <span>… who communicate by speech only</span>
+            <div class="track"><div class="fill" style="width: 19.7%; background: var(--orange)"></div></div>
+            <b>20%</b>
+          </div>
+          <div class="bar">
+            <span>Hearing adults</span>
+            <div class="track"><div class="fill" style="width: 5%; background: var(--z)"></div></div>
+            <b>5%</b>
+          </div>
+          <p style="font-size: 16px; color: var(--muted); margin-left: 346px">
+            Words gotten wrong, averaged over four speech recognition systems
+          </p>
+        </div>
+      </div>
+      <p class="src">
+        Source: Zhao et al., Laryngoscope 2025 (online 2024): 24 deaf and hard-of-hearing adults, 9 hearing
+        adults. Claude never hears audio and never decides the verdict.
+      </p>
+    </section>
+
+    <!-- 5. MARKET -->
+    <section class="slide">
+      <div
+        class="blob"
+        style="width: 520px; height: 520px; right: -160px; top: -180px; background: #a8ecc4"
+      ></div>
+      <div
+        class="blob"
+        style="width: 460px; height: 460px; left: 300px; bottom: -260px; background: #7cc4ff"
+      ></div>
+      <p class="eyebrow">Market</p>
+      <h1 style="max-width: 1050px">Start where it hurts most. Grow with the same meter.</h1>
+      <div class="mkt">
+        <div class="card">
+          <span class="tag">START</span>
+          <div class="num" style="margin-top: 12px; color: var(--blue)">70,000</div>
+          <p>
+            US students served under special education law for hearing loss (2022-23). They can’t hear their
+            own “s”, and almost no tool is built for them.
+          </p>
+        </div>
+        <div class="card dark">
+          <span class="tag">GROW</span>
+          <div class="num" style="margin-top: 12px">90%</div>
+          <p>
+            of school speech therapists serve students with speech sound disorders. The same meter already
+            scores s, sh, z and ch and flags a lisp.
+          </p>
+          <div class="ring"><i></i></div>
+        </div>
+      </div>
+      <div class="photo" style="right: 104px; top: 250px; width: 330px; height: 470px">
+        <img
+          src="../../../public/photos/photo-5.jpg"
+          alt="A girl with a hearing device behind her ear listens in a classroom."
+          style="object-position: 72% 50%"
+        />
+      </div>
+      <p class="credit" style="right: 104px; top: 730px">Photo: Pinterest</p>
+      <p class="src">
+        Sources: NCES Digest table 204.30, 2022-23 (ages 3 to 21 served under IDEA for hearing impairment,
+        about 70 thousand). ASHA 2026 Schools Survey (90% serve speech sound disorders). Not yet tested on
+        hearing kids with lisps.
+      </p>
+    </section>
+
+    <!-- 6. BUILT AND NEXT -->
+    <section class="slide">
+      <div
+        class="blob"
+        style="width: 520px; height: 520px; left: -160px; bottom: -220px; background: #a8ecc4"
+      ></div>
+      <div
+        class="blob"
+        style="width: 460px; height: 460px; right: -120px; top: -160px; background: #f3bdf6"
+      ></div>
+      <p class="eyebrow">What’s built, what’s next</p>
+      <h1>Built since Friday. 3 next steps.</h1>
+      <div class="two">
+        <div class="card">
+          <span class="tag">BUILT THIS WEEKEND</span>
+          <ul>
+            <li>
+              <span class="chk" style="background: var(--s)">✓</span
+              ><span>Live meter for s, sh, z and ch, with an instant result</span>
+            </li>
+            <li>
+              <span class="chk" style="background: var(--sh)">✓</span
+              ><span>Claude’s practice plan and one tip after every try</span>
+            </li>
+            <li>
+              <span class="chk" style="background: var(--z)">✓</span
+              ><span>Optional lip camera: numbers only, never a picture</span>
+            </li>
+            <li>
+              <span class="chk" style="background: var(--ch)">✓</span
+              ><span>Therapist practice links and progress summaries</span>
+            </li>
+          </ul>
+        </div>
+        <div class="card dark">
+          <span class="tag">3 NEXT STEPS</span>
+          <ul>
+            <li>
+              <span class="step" style="background: var(--s)">1</span
+              ><span>A caseload dashboard where Claude summarizes every student</span>
+            </li>
+            <li>
+              <span class="step" style="background: var(--sh)">2</span
+              ><span>“r” and “th”: show how first, scoring once it’s tested</span>
+            </li>
+            <li>
+              <span class="step" style="background: var(--z)">3</span
+              ><span>Tune on deaf speakers’ voices, with permission (Yuka offered introductions)</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. QUESTIONS -->
+    <section class="slide q">
+      <div class="brand">
+        <img src="../../../public/brand/seespeak-icon.png" alt="" /><span
+          ><span class="see">See</span>Speak</span
+        >
+      </div>
+      <h1>Questions?</h1>
+      <p style="font-size: 34px; font-weight: 700; margin-top: 24px">Try it on your phone right now.</p>
+      <p style="font-size: 38px; font-weight: 800; margin-top: 18px; color: #8fd0ff">seespeak.vercel.app</p>
+      <div class="qr">
+        <img src="img/qr.svg" alt="QR code for seespeak.vercel.app" />
+        <p>Scan to try it</p>
+      </div>
+      <p class="team" style="color: #b9c6d3">
+        Michael Fischbach · Holly Steen · Mason Di Leo · Built this weekend with Claude Code and the Claude
+        API
+      </p>
+    </section>
+  </body>
+</html>
