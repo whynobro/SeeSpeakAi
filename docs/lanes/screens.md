@@ -136,7 +136,7 @@ Rules:
   Use it in the redesign. Its text says "See Speak AI": check with Michael which name to show.
 - **Photos:** `public/photos/photo-1.jpg` to `photo-8.jpg` (served as `/photos/photo-N.jpg`), with
   `public/photos/CREDITS.md`. Use them to show who the app is for (landing page, "who it's for" sections).
-  Every photo gets a small "Photo: Pinterest" caption, and none goes next to user quotes, test numbers or
+  No on-screen caption (credited in `public/photos/CREDITS.md` and `docs/HACKATHON.md`). None goes next to user quotes, test numbers or
   "people who tried it". Use `next/image` with real alt text.
 
 ## Example word: "sip" and "ship", not "cats" (Nov 14)
