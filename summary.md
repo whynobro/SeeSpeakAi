@@ -1,8 +1,8 @@
 # SeeSpeak shared test log
 
-Updated 2026-11-15T11:49:24.608Z. 223 tries. Numbers only, never audio.
+Updated 2026-11-15T18:17:55.936Z. 225 tries. Numbers only, never audio.
 
-Tries where the tester said what they really said: 170. Verdict was right on 88 of them.
+Tries where the tester said what they really said: 172. Verdict was right on 89 of them.
 
 This is a small test log from a few voices. It is not a clinical accuracy figure.
 
@@ -96,6 +96,8 @@ This is a small test log from a few voices. It is not a clinical accuracy figure
 | Michael | Windows, Edge | practice | s at end | not answered | 14 | 5 | 3 | 6 | - |
 | Michael | Windows, Edge | practice | s at start | not answered | 5 | 3 | 2 | 0 | - |
 | Michael | Windows, Edge | practice | sh at end | not answered | 9 | 1 | 5 | 3 | - |
+| Michael | iPhone or iPad, Safari | lab | s at start | with-sound | 1 | 0 | 0 | 1 | 0 of 1 |
+| Michael | iPhone or iPad, Safari | lab | sh at start | with-sound | 1 | 1 | 0 | 0 | 1 of 1 |
 
 ## Tries where the verdict was wrong
 
@@ -183,5 +185,6 @@ This is a small test log from a few voices. It is not a clinical accuracy figure
 | 2026-11-15T07:59:56.811Z | Michael | sip | s at start | with-sound | miss | 55 / 19 / 0.41 |
 | 2026-11-15T08:00:01.132Z | Michael | sip | s at start | with-sound | miss | none |
 | 2026-11-15T08:25:54.928Z | Michael | lab-sh-end | sh at end | with-sound | miss | 483 / 392 / 0.01; 497 / 412 / 0.12; 483 / 412 / 0.03; 496 / 451 / 0.26; 461 / 392 / 0.21; 462 / 372 / 0.31; 458 / 372 / 0.17; 495 / 392 / 0.25; 443 / 372 / 0.27 |
+| 2026-11-15T18:09:25.658Z | Michael | sip | s at start | with-sound | miss | 71 / 24 / 0.49 |
 
 Every try, with its frame-by-frame numbers, is in `attempts.jsonl` (one JSON object per line).
