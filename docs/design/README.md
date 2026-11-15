@@ -4,12 +4,13 @@
 
 Served from `public/brand/`, so the app can use them as `/brand/<file>`:
 
-| File                     | Use                                                |
-| ------------------------ | -------------------------------------------------- |
-| `seespeak-logo.png`      | Wordmark on light backgrounds                      |
-| `seespeak-logo-dark.png` | Wordmark on dark backgrounds ("Speak" turns white) |
-| `seespeak-icon.png`      | Bird only, white background (app icon, favicon)    |
-| `seespeak-icon-dark.png` | Bird only, black background                        |
+| File                     | Use                                                                                                               |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `seespeak-logo.png`      | Wordmark on light backgrounds                                                                                     |
+| `seespeak-logo-dark.png` | Wordmark on dark backgrounds ("Speak" turns white)                                                                |
+| `seespeak-wordmark.png`  | New wordmark (Nov 14): singing bird plus "See Speak AI", light backgrounds. Mason: use this one in the new design |
+| `seespeak-icon.png`      | Bird only, white background (app icon, favicon)                                                                   |
+| `seespeak-icon-dark.png` | Bird only, black background                                                                                       |
 
 Colors: teal `#2A9D8F` (bird, "See"), sunny yellow `#FFD166` (beak, notes), dark navy `#1E2A3A` ("Speak" on light). The bird is the mascot: it can sing when a sound lands. The logo was made with ChatGPT image generation (listed in the AI disclosure in `docs/HACKATHON.md`).
 
