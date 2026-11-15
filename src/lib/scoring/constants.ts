@@ -55,9 +55,13 @@ export const SUSTAIN_REL_LEVEL = 0.5;
 
 /**
  * Stop-release check, part 3: a hiss run needs at least this many ms of held frames to count as a held
- * hiss and not a release. Starting value from synthetic sounds, to be tuned on real voices.
+ * hiss and not a release. Was 60, which sat exactly on 3 held frames at a 20 ms hop. Measured 2026-11-15,
+ * sip drill on /lab/guided, one adult tester, Windows laptop, Edge: the browser gave hops of 18 to 19 ms,
+ * so 4 clear "sip" tries with 3 held frames read 54 to 57 ms and failed as "a short burst" while the same
+ * hiss at a 20 ms hop passed. 50 still needs 3 held frames at any hop from 17 to 25 ms. Synthetic "t" and
+ * "k" releases (10.7 ms hop) hold at most 43 ms, so release.test.ts still rejects them.
  */
-export const MIN_SUSTAINED_MS = 60;
+export const MIN_SUSTAINED_MS = 50;
 
 /** A hiss run may bridge this many non-hiss frames (real "s" sounds flicker a little). */
 export const MAX_GAP_FRAMES = 1;
@@ -253,6 +257,15 @@ export const SHAPE_SEGMENT_GAP_MS = 150;
 export const SHAPE_MIN_SEGMENT_MS = 60;
 
 /**
+ * Shape: a beat counts only when its loudest frame is at least this share of the loudest beat's. Quieter voice
+ * is someone else talking in the room or a breath, not another word said into the mic. Measured 2026-11-15, sip
+ * drill on /lab/guided, one adult tester, Windows laptop, Edge: a clear "sip" (4 s recording) had 4 extra beats
+ * of background voice at 0.20 to 0.52 of its vowel and failed as "more than one word". Tries in the test log
+ * that really held several words had their extra beats at 0.63 to 0.81 of the loudest one.
+ */
+export const SHAPE_SEGMENT_REL_LEVEL = 0.6;
+
+/**
  * Shape: a try fails for "no vowel" only when not even a quiet vowel is found: low-pitched frames at this share
  * of the loudest frame for SHAPE_MIN_SEGMENT_MS. Lower than VOICED_REL_LEVEL because a hiss said close to the
  * mic can be ten times louder than the vowel: a logged "dogs" said with the sound and a "cash" had their vowel
@@ -260,6 +273,16 @@ export const SHAPE_MIN_SEGMENT_MS = 60;
  * such stretch.
  */
 export const SHAPE_LOOSE_VOWEL_REL_LEVEL = 0.05;
+
+/**
+ * Shape: a try with no vowel at all fails only when its longest hiss is at least this long (ms), so a held
+ * "sssss" said for "sip" still fails. A shorter hiss with no vowel goes on to the normal scoring. Measured
+ * 2026-11-15, sip drill on /lab/guided, one adult tester, Windows laptop, Edge: in 2 clear "sip" tries the
+ * mic cut the vowel off right after the hiss (the level dropped to 0 within 40 ms), with hisses of 120 and
+ * 203 ms. Every held "s" or "sh" alone in the test log ran 517 to 920 ms. 250 also keeps the 300 ms
+ * synthetic "sh" for "chip" failing.
+ */
+export const SHAPE_NO_VOWEL_MIN_HISS_MS = 250;
 
 /**
  * Shape: a single word may have this many more beats than its syllables before the try fails. Test log

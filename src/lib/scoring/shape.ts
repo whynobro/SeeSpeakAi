@@ -9,7 +9,9 @@ import {
   SHAPE_EXTRA_SEGMENTS_WORD,
   SHAPE_MAX_VOICED_MS_PER_SYLLABLE,
   SHAPE_MIN_SEGMENT_MS,
+  SHAPE_NO_VOWEL_MIN_HISS_MS,
   SHAPE_SEGMENT_GAP_MS,
+  SHAPE_SEGMENT_REL_LEVEL,
   SHAPE_VOICED_MARGIN_MS,
 } from '@/lib/scoring/constants';
 
@@ -75,15 +77,22 @@ export interface MeasuredShape {
 }
 
 export function measureShape(frames: FrameFeatures[], a: Analysis): MeasuredShape {
-  const spans: { start: number; end: number }[] = [];
+  const spans: { start: number; end: number; peak: number }[] = [];
   for (const v of a.vowels) {
     const start = frames[v.start].tMs;
     const end = frames[v.end].tMs + a.hopMs;
+    let peak = 0;
+    for (let i = v.start; i <= v.end; i++) peak = Math.max(peak, frames[i].level);
     const last = spans[spans.length - 1];
-    if (last && start - last.end < SHAPE_SEGMENT_GAP_MS) last.end = end;
-    else spans.push({ start, end });
+    if (last && start - last.end < SHAPE_SEGMENT_GAP_MS) {
+      last.end = end;
+      last.peak = Math.max(last.peak, peak);
+    } else spans.push({ start, end, peak });
   }
-  const kept = spans.filter((s) => s.end - s.start >= SHAPE_MIN_SEGMENT_MS);
+  const long = spans.filter((s) => s.end - s.start >= SHAPE_MIN_SEGMENT_MS);
+  // Voice much quieter than the loudest beat is someone else in the room or a breath, not another word.
+  const loudest = Math.max(0, ...long.map((s) => s.peak));
+  const kept = long.filter((s) => s.peak >= SHAPE_SEGMENT_REL_LEVEL * loudest);
   return { segments: kept.length, voicedMs: kept.reduce((sum, s) => sum + s.end - s.start, 0) };
 }
 
@@ -107,6 +116,11 @@ export function hasAnyVowel(frames: FrameFeatures[], a: Analysis): boolean {
   return false;
 }
 
+/** Length of the longest hiss run in the recording, ms (0 when there is none). */
+function longestHissMs(frames: FrameFeatures[], a: Analysis): number {
+  return a.runs.reduce((ms, r) => Math.max(ms, frames[r.end].tMs - frames[r.start].tMs + a.hopMs), 0);
+}
+
 /**
  * Does the recording fit the word? Returns the plain reason when it clearly does not, or null when it fits
  * (or cannot be judged: a sound said on its own, or a text with no vowel letters).
@@ -119,7 +133,11 @@ export function shapeProblem(
 ): string | null {
   const expected = syllablesOf(word.text);
   if (alone || expected === 0) return null;
-  if (!hasAnyVowel(frames, a)) return SHAPE_REASON_NO_VOWEL;
+  // No vowel at all fails only after a long hiss (a held "sssss" for "sip"). A short hiss with no vowel is
+  // left to the scoring: the laptop mic can cut a quiet vowel off right after a loud hiss.
+  if (!hasAnyVowel(frames, a) && longestHissMs(frames, a) >= SHAPE_NO_VOWEL_MIN_HISS_MS) {
+    return SHAPE_REASON_NO_VOWEL;
+  }
   const shape = measureShape(frames, a);
   // The same word said again in one recording ("ship, ship") brings its own hiss each time. That is not a
   // different word, so the word's beats and voice time are allowed once per long hiss run.
