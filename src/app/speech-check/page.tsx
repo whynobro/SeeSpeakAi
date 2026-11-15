@@ -138,7 +138,12 @@ export default function SpeechCheckPage() {
           {SOUNDS.map((sound) => {
             const { hits, total } = summary(results, sound);
             return (
-              <Card as="li" key={sound} className="flex items-center gap-4">
+              <Card
+                as="li"
+                key={sound}
+                className="flex items-center gap-4 motion-safe:animate-rise"
+                style={{ animationDelay: `${150 + SOUNDS.indexOf(sound) * 120}ms` }}
+              >
                 <IconTile size="lg" className="text-2xl font-extrabold">
                   {sound}
                 </IconTile>
@@ -210,7 +215,10 @@ export default function SpeechCheckPage() {
           Word {index + 1} of {words.length}
         </p>
         {heading('Say this word')}
-        <Card className="flex min-h-40 items-center justify-center">
+        <Card
+          key={word.id}
+          className="flex min-h-40 items-center justify-center motion-safe:animate-spring-in"
+        >
           <p className="text-6xl font-extrabold tracking-tight">{word.text}</p>
         </Card>
         <SoundMeter reading={meter.reading} status={meter.status} />
@@ -221,21 +229,30 @@ export default function SpeechCheckPage() {
         )}
         {gotIt ? (
           <div className="flex flex-col gap-4">
-            <p
-              role="status"
-              className="flex items-center gap-3 rounded-2xl bg-hit-soft p-4 text-xl font-bold text-hit-strong motion-safe:animate-result-pulse"
-            >
-              <CheckCircleIcon className="h-7 w-7" />
-              Got it
-            </p>
+            <div className="motion-safe:animate-spring-in">
+              <p
+                role="status"
+                className="flex items-center gap-3 rounded-2xl bg-hit-soft p-4 text-xl font-bold text-hit-strong motion-safe:animate-result-pulse"
+              >
+                <CheckCircleIcon className="h-7 w-7" />
+                Got it
+              </p>
+            </div>
             <Button size="lg" onClick={onNext}>
               {index + 1 >= words.length ? 'See where I am starting' : 'Next word'}
             </Button>
           </div>
         ) : listening ? (
-          <Button size="xl" variant="violet" onClick={onDone}>
-            Done
-          </Button>
+          <div className="relative">
+            {/* A ring pulses out from the button while the mic listens, so it is clear it is recording. */}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 rounded-2xl border-4 border-accent-edge motion-safe:animate-listen-ring"
+            />
+            <Button size="xl" onClick={onDone}>
+              Listening. Tap when done
+            </Button>
+          </div>
         ) : (
           <Button size="xl" onClick={() => meter.start()} disabled={meter.status === 'starting'}>
             <MicIcon className="h-7 w-7" />

@@ -23,7 +23,11 @@ function HowItWorks() {
       </h2>
       <ol className="flex flex-col gap-3">
         {STEPS.map(({ Icon, text }, i) => (
-          <li key={text} className="flex items-center gap-4">
+          <li
+            key={text}
+            className="flex items-center gap-4 motion-safe:animate-rise"
+            style={{ animationDelay: `${700 + i * 90}ms` }}
+          >
             <IconTile tone="soft" size="sm">
               <Icon className="h-5 w-5" />
             </IconTile>
@@ -44,24 +48,28 @@ function StartChoice({
   detail,
   icon,
   tone,
+  order,
 }: {
   href: string;
   title: string;
   detail: string;
   icon: ReactNode;
   tone: 'accent' | 'violet';
+  /** Position in the list: cards arrive one after another. */
+  order: number;
 }) {
   return (
     <Link
       href={href}
-      className="flex items-center gap-4 rounded-3xl border-2 border-line bg-surface p-4 shadow-clay transition-[transform,box-shadow] duration-75 active:translate-y-1 active:shadow-none"
+      style={{ animationDelay: `${350 + order * 90}ms` }}
+      className="group flex items-center gap-4 rounded-3xl border-2 border-line bg-surface p-4 shadow-clay transition-[transform,box-shadow,border-color] duration-150 hover:-translate-y-0.5 hover:border-accent active:translate-y-1 active:shadow-none motion-safe:animate-rise"
     >
       <IconTile tone={tone}>{icon}</IconTile>
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="text-lg leading-snug font-bold">{title}</span>
         <span className="text-base text-muted">{detail}</span>
       </span>
-      <ArrowRightIcon className="h-6 w-6 shrink-0 text-accent-edge" />
+      <ArrowRightIcon className="h-6 w-6 shrink-0 text-accent-edge transition-transform duration-200 group-hover:translate-x-1" />
     </Link>
   );
 }
@@ -70,11 +78,16 @@ function FirstVisit() {
   return (
     <>
       <section aria-labelledby="start-heading" className="flex flex-col gap-4">
-        <h2 id="start-heading" className="text-xl font-bold">
+        <h2
+          id="start-heading"
+          className="text-xl font-bold motion-safe:animate-rise"
+          style={{ animationDelay: '280ms' }}
+        >
           How do you want to start?
         </h2>
         <StartChoice
           href="/profile"
+          order={0}
           tone="accent"
           title="Hearing check"
           detail="Which sounds reach you, about 1 minute"
@@ -82,6 +95,7 @@ function FirstVisit() {
         />
         <StartChoice
           href="/speech-check"
+          order={1}
           tone="accent"
           title="Speech check"
           detail="Say 6 words, about 1 minute"
@@ -89,13 +103,19 @@ function FirstVisit() {
         />
         <StartChoice
           href="/report"
+          order={2}
           tone="violet"
           title="Upload a previous report"
           detail="From a speech therapist or audiologist"
           icon={<UploadIcon className="h-7 w-7" />}
         />
         {/* TODO(#4): add the "Enter audiogram" choice here once typed audiogram entry lands. */}
-        <Button href="/practice?sound=s" variant="ghost" block={false} className="self-start">
+        <Button
+          href="/practice?sound=s"
+          variant="ghost"
+          block={false}
+          className="self-start motion-safe:animate-rise motion-safe:[animation-delay:650ms]"
+        >
           Skip and try a word
         </Button>
       </section>

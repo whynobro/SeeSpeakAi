@@ -9,7 +9,12 @@ function StepCard({ step, index, first }: { step: PlanStep; index: number; first
     .map((w) => w.text)
     .join(', ');
   return (
-    <Card as="li" highlight={first} className="flex flex-col gap-4">
+    <Card
+      as="li"
+      highlight={first}
+      className="flex flex-col gap-4 motion-safe:animate-rise"
+      style={{ animationDelay: `${450 + index * 120}ms` }}
+    >
       <div className="flex items-start gap-4">
         <IconTile tone={step.scored ? 'accent' : 'violet-soft'} size="lg" className="text-2xl font-extrabold">
           {step.sound}
@@ -50,8 +55,8 @@ export function PlanView({ plan }: { plan: PracticePlan }) {
   const firstScored = plan.steps.findIndex((s) => s.scored);
   return (
     <div className="flex flex-col gap-6">
-      <Card tone="violet" className="flex flex-col gap-2">
-        <p className="text-sm font-bold text-violet-edge">
+      <Card tone="accent" className="flex flex-col gap-2 motion-safe:animate-wipe-in">
+        <p className="text-sm font-bold text-accent-edge">
           {plan.source === 'ai' ? 'Made by the SeeSpeak coach (AI)' : 'Made from built-in rules'}
         </p>
         <p className="text-lg leading-relaxed">{plan.summary}</p>
