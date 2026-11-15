@@ -11,6 +11,7 @@ import { Button, Card, IconTile, buttonClass } from '@/components/ui';
 import { CoachCard } from '@/components/CoachCard';
 import { VerdictBadge } from '@/components/VerdictBadge';
 import { WordCard } from '@/components/WordCard';
+import { setBirdLevel } from '@/components/bird/birdSignal';
 import { COPY } from '@/content/copy';
 import { CUES } from '@/content/cues';
 import { wordsFor } from '@/content/words';
@@ -146,6 +147,11 @@ function PracticeLoop() {
   const suggestRetry = coach.feedback?.nextAction === 'repeat' || coach.feedback?.nextAction === 'easier';
   const listening = meter.status === 'listening';
   const busy = meter.status === 'starting';
+
+  // The bird mascot opens its beak with the mic level. Loudness only, never a verdict.
+  useEffect(() => {
+    setBirdLevel(listening ? (meter.reading?.level ?? 0) : 0);
+  }, [listening, meter.reading]);
 
   async function onStart() {
     setScore(null);

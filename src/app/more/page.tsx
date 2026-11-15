@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import { BirdSwitch } from '@/components/bird/BirdSwitch';
 import { HowItWorks } from '@/components/HomeStart';
 import { LandingSections } from '@/components/LandingSections';
 import { COPY } from '@/content/copy';
@@ -26,6 +27,16 @@ export default function MorePage() {
       </header>
       <HowItWorks />
       <LandingSections />
+      <section aria-labelledby="settings-heading" className="flex flex-col gap-3">
+        <h2 id="settings-heading" className="text-xl font-bold">
+          Settings
+        </h2>
+        <ul className="flex flex-col gap-3">
+          <li>
+            <BirdSwitch />
+          </li>
+        </ul>
+      </section>
       <footer className="flex flex-col gap-2 border-t border-line pt-6 text-[15px] leading-relaxed text-muted">
         <p>{COPY.optIn}</p>
         <p>{COPY.notTherapy}</p>
