@@ -3,10 +3,20 @@
 import { useEffect, useState } from 'react';
 import { BeforeAfterBars } from '@/components/BeforeAfterBars';
 import { ArrowDownIcon, ArrowUpIcon, EqualsIcon, ShareIcon, TrashIcon } from '@/components/Icons';
+import { loadAssignment, quotedSounds, type Assignment } from '@/components/assignmentStore';
 import { Button, Card, IconTile } from '@/components/ui';
 import { COPY } from '@/content/copy';
+import { ASSIGN, THERAPIST_SUMMARY } from '@/content/therapist';
+import { LEVELS, levelById, levelKey, type LevelResults } from '@/lib/levels';
 import { TARGET_SOUNDS } from '@/lib/scoring/constants';
-import { MIN_TRIES_FOR_CHANGE, clearAll, loadAttempts, progressFor, progressWindow } from '@/lib/store';
+import {
+  MIN_TRIES_FOR_CHANGE,
+  clearAll,
+  loadAttempts,
+  loadLevelResults,
+  progressFor,
+  progressWindow,
+} from '@/lib/store';
 import type { Attempt, SoundProgress, TargetSound } from '@/lib/types';
 
 /** "s" and "sh" always show. "z" and "ch" show once there is a try, so a new learner sees two cards, not four. */
@@ -47,6 +57,52 @@ function summaryLine({ p, hits }: SoundView): string {
   }
   return `${p.sound}: ${hits} of ${tries(p.attempts)} so far`;
 }
+
+/** On how many of the last 7 days (today included) there was at least one saved try. */
+function daysPracticed(attempts: Attempt[], now: Date): number {
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - 6);
+  const days = new Set<string>();
+  for (const a of attempts) {
+    const at = new Date(a.createdAt);
+    if (at >= start && at <= now) days.add(at.toDateString());
+  }
+  return days.size;
+}
+
+/** One line per sound that has a passed level, from the saved level results. */
+function levelLines(results: LevelResults): string[] {
+  const lines: string[] = [];
+  for (const sound of TARGET_SOUNDS) {
+    const done = LEVELS.filter((l) => results[levelKey(sound, l.id)]?.passed === true);
+    if (done.length > 0) {
+      lines.push(`${sound}: ${done.map((l) => THERAPIST_SUMMARY.levelPassed(l.number, l.title)).join(', ')}`);
+    }
+  }
+  return lines;
+}
+
+/** The line that repeats what the speech therapist set, so they can match the summary to their link. */
+function assignedLine(a: Assignment): string {
+  const level = levelById(a.level);
+  return THERAPIST_SUMMARY.assigned(
+    quotedSounds(a.sounds),
+    THERAPIST_SUMMARY.levelPassed(level.number, level.title),
+    a.days === null ? '' : ASSIGN.days(a.days).toLowerCase(),
+  );
+}
+
+/** Everything in the summary besides the per-sound tries. All of it is read from this device. */
+interface Extra {
+  /** false until there is a saved try or a passed level: then there is nothing true to share. */
+  hasData: boolean;
+  days: number;
+  levels: string[];
+  assignment: Assignment | null;
+}
+
+const NO_EXTRA: Extra = { hasData: false, days: 0, levels: [], assignment: null };
 
 function Change({ p }: { p: SoundProgress }) {
   const diff = Math.round((p.latestAccuracy ?? 0) * 100) - Math.round((p.firstAccuracy ?? 0) * 100);
@@ -132,11 +188,21 @@ export default function ProgressPage() {
   const [confirming, setConfirming] = useState(false);
   const [today, setToday] = useState('');
   const [canShare, setCanShare] = useState(false);
+  const [extra, setExtra] = useState<Extra>(NO_EXTRA);
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
 
   // Browser storage, the date and the share check are read only here, after the page is on screen.
   useEffect(() => {
     const id = setTimeout(() => {
-      setViews(viewsFrom(loadAttempts()));
+      const attempts = loadAttempts();
+      const levels = levelLines(loadLevelResults());
+      setViews(viewsFrom(attempts));
+      setExtra({
+        hasData: attempts.length > 0 || levels.length > 0,
+        days: daysPracticed(attempts, new Date()),
+        levels,
+        assignment: loadAssignment(),
+      });
       setToday(new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }));
       setCanShare(typeof navigator !== 'undefined' && typeof navigator.share === 'function');
     }, 0);
@@ -146,22 +212,38 @@ export default function ProgressPage() {
   function clear() {
     clearAll();
     setViews(viewsFrom([]));
+    setExtra({ ...NO_EXTRA, assignment: extra.assignment });
+    setCopyState('idle');
     setConfirming(false);
   }
 
   const lines = views.map(summaryLine);
   const shareText = [
-    `SeeSpeak practice summary${today ? `, ${today}` : ''}`,
-    'Tries where the sound was there:',
+    THERAPIST_SUMMARY.heading(today),
+    ...(extra.assignment ? [assignedLine(extra.assignment)] : []),
+    THERAPIST_SUMMARY.daysPracticed(extra.days),
+    THERAPIST_SUMMARY.triesHeading,
     ...lines,
+    ...(extra.levels.length > 0
+      ? [THERAPIST_SUMMARY.levelsHeading, ...extra.levels]
+      : [THERAPIST_SUMMARY.noLevels]),
     COPY.notTherapy,
   ].join('\n');
 
   async function share() {
     try {
-      await navigator.share({ title: 'SeeSpeak practice summary', text: shareText });
+      await navigator.share({ title: THERAPIST_SUMMARY.heading(''), text: shareText });
     } catch {
       // The person closed the share sheet, or sharing failed. The summary is still on screen.
+    }
+  }
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setCopyState('copied');
+    } catch {
+      setCopyState('failed');
     }
   }
 
@@ -172,24 +254,34 @@ export default function ProgressPage() {
       </header>
 
       <Card as="section" tone="accent" aria-labelledby="summary-heading" className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-          <h2 id="summary-heading" className="text-xl font-bold">
-            SeeSpeak summary
-          </h2>
-          <span className="text-sm font-bold text-muted">{today}</span>
-        </div>
-        <p className="text-muted">Tries where the sound was there:</p>
-        <ul className="flex flex-col gap-1 text-lg font-semibold">
-          {lines.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-        </ul>
-        <p className="text-sm text-muted">{COPY.notTherapy}</p>
-        {canShare && (
-          <Button variant="secondary" onClick={share}>
-            <ShareIcon className="h-6 w-6" />
-            Share
-          </Button>
+        <h2 id="summary-heading" className="text-xl font-bold">
+          {THERAPIST_SUMMARY.title}
+        </h2>
+        {extra.hasData ? (
+          <>
+            <p className="text-[15px] text-muted">{THERAPIST_SUMMARY.exact}</p>
+            {/* The same string that is shared or copied, line for line, so the learner sees what leaves. */}
+            <p className="rounded-lg border border-line bg-surface px-4 py-3 text-[15px] leading-relaxed whitespace-pre-line">
+              {shareText}
+            </p>
+            <div className={`grid gap-3 ${canShare ? 'grid-cols-2' : ''}`}>
+              {canShare && (
+                <Button onClick={share}>
+                  <ShareIcon className="h-6 w-6" />
+                  {THERAPIST_SUMMARY.share}
+                </Button>
+              )}
+              <Button variant="secondary" onClick={copy}>
+                {THERAPIST_SUMMARY.copy}
+              </Button>
+            </div>
+            <p role="status" className="min-h-6 font-bold">
+              {copyState === 'copied' && THERAPIST_SUMMARY.copied}
+              {copyState === 'failed' && THERAPIST_SUMMARY.copyFailed}
+            </p>
+          </>
+        ) : (
+          <p className="text-[17px] text-muted">{THERAPIST_SUMMARY.empty}</p>
         )}
       </Card>
 
