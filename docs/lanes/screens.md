@@ -87,6 +87,8 @@ The demo flow is in [docs/DEMO.md](../DEMO.md). The practice is the game: points
 
 ## How your AI agent should work with you
 
+Before designing any screen, open `docs/design/README.md` and look at every picture in `docs/design/references/`. Use the brand files and colors listed there. Ask Mason which references matter most for this screen.
+
 Instructions for Mason's AI agent. Mason decides how it looks; the agent builds and checks.
 
 1. **Ask before building each screen.** Ask Mason 3 to 6 design questions, for example: How should it feel (calm, playful, bold)? Which colors? Is there a mascot, and what is it? What does the shop sell, and what would a 12-year-old want to buy? Should it look younger or older? Wait for the answers.
