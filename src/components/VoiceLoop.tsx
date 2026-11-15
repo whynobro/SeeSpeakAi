@@ -59,24 +59,10 @@ const CAT_WAVE = { outHeight: 14, backHeight: 12, wiggle: 30 };
 /** The "s" hiss: small, fast, tight. */
 const S_WAVE = { height: 5, wiggle: 5.5 };
 
-/*
- * The turn on the right: a loop the loop, not a flat running track. The line dips down and toward you
- * (thick), comes around, then crosses BEHIND itself (thin, faded, with a gap where the near line passes in
- * front) and rises to the lane it comes back on. The crossing is what makes it read as 3D.
- */
-/** Near half: out of the hiss, down, around the bottom and up to just past the crossing. */
-const LOOP_NEAR = `M ${X.sTo} ${OUT_Y} C 318 ${OUT_Y}, 346 ${OUT_Y + 4}, 346 ${OUT_Y + 20} C 346 ${OUT_Y + 36}, 312 ${OUT_Y + 40}, 302 ${OUT_Y + 28} C 297 ${OUT_Y + 21}, 297 ${OUT_Y + 12}, 299 ${OUT_Y + 4}`;
-/** Far half: from the crossing up and back to the lane the sound returns on. */
-const LOOP_FAR = `M 299 ${OUT_Y + 4} C 302 ${OUT_Y - 12}, 314 ${BACK_Y + 14}, 304 ${BACK_Y + 4} C 299 ${BACK_Y}, 292 ${BACK_Y}, ${X.sTo} ${BACK_Y}`;
-/** The whole middle line, used to reveal the loop in order. */
-const BEND_PATH = `${LOOP_NEAR} ${LOOP_FAR.replace(/^M [^C]*/, '')}`;
-/** Line widths: near is thick, far is thin, so the far half sits back. */
-const LOOP_WIDTH = { near: 4.6, far: 2 };
-/** A small arrowhead on the far half, pointing up, so the direction shows without motion. */
-const BEND_ARROW = `M 300.5 ${OUT_Y - 16} L 304.5 ${OUT_Y - 24} L 310 ${OUT_Y - 17}`;
-/** A soft shadow under the loop, so it stands up off the page. */
-const LOOP_SHADOW = { cx: 324, cy: OUT_Y + 45, rx: 24, ry: 3 };
-
+/** The turn on the right. Lopsided on purpose so it reads as drawn by hand. */
+const BEND_PATH = `M ${X.sTo} ${OUT_Y} C 316 ${OUT_Y + 3}, 348 ${OUT_Y - 5}, 345 66 C 343 45, 321 ${BACK_Y - 4}, ${X.sTo} ${BACK_Y}`;
+/** A small arrowhead on the turn, so the direction shows without motion. */
+const BEND_ARROW = 'M 339.5 71.5 L 345.2 63.5 L 351 70.5';
 /** The ear, in picture units, and the last stretch of line that lands on it. */
 const EAR = { x: BIRD.x + 44, y: BIRD.y + 22, r: 4.5 };
 const ARRIVE_PATH = `M ${X.start + 3} ${BACK_Y} C 78 ${BACK_Y - 1}, 57 44, 51 63 C 48.5 71, 49 79, ${EAR.x} ${EAR.y - EAR.r}`;
@@ -277,53 +263,19 @@ export function VoiceLoop() {
           </text>
         </g>
 
-        {/* The turn: a loop the loop. The far half is drawn first so the near half passes in front of it. */}
-        <defs>
-          <mask id="vl-bend-reveal" maskUnits="userSpaceOnUse">
-            <path
-              className="vl-anim vl-draw vl-bend"
-              stroke="white"
-              strokeWidth={16}
-              pathLength={1}
-              d={BEND_PATH}
-              {...line}
-            />
-          </mask>
-        </defs>
-        <g className="vl-anim vl-bend-arrow">
-          <ellipse
-            className="fill-foreground"
-            opacity={0.08}
-            cx={LOOP_SHADOW.cx}
-            cy={LOOP_SHADOW.cy}
-            rx={LOOP_SHADOW.rx}
-            ry={LOOP_SHADOW.ry}
-          />
-        </g>
-        <g mask="url(#vl-bend-reveal)">
-          <path
-            className="stroke-accent"
-            strokeWidth={LOOP_WIDTH.far}
-            opacity={0.55}
-            d={LOOP_FAR}
-            {...line}
-          />
-          {/* A strip of page color under the near half makes the gap where it crosses in front. */}
-          <path className="stroke-background" strokeWidth={LOOP_WIDTH.near + 5} d={LOOP_NEAR} {...line} />
-          <path className="stroke-accent" strokeWidth={LOOP_WIDTH.near} d={LOOP_NEAR} {...line} />
-        </g>
+        {/* The turn. */}
         <path
-          className="vl-anim vl-bend-arrow stroke-accent"
-          strokeWidth={2}
-          opacity={0.7}
-          d={BEND_ARROW}
+          className="vl-anim vl-draw vl-bend stroke-accent"
+          strokeWidth={2.5}
+          pathLength={1}
+          d={BEND_PATH}
           {...line}
         />
+        <path className="vl-anim vl-bend-arrow stroke-accent" strokeWidth={2.5} d={BEND_ARROW} {...line} />
 
         {/* Coming back: "cat" is still there. Where the "s" was, only a faint flat dashed line. */}
         <g className="vl-anim vl-back">
-          {/* Farther away than the way out: a thinner, lighter line. */}
-          <path className="stroke-accent" strokeWidth={2.4} opacity={0.75} d={BACK_CAT_PATH} {...line} />
+          <path className="stroke-accent" strokeWidth={3.75} d={BACK_CAT_PATH} {...line} />
           <g transform={`translate(${X.sFrom} ${BACK_Y})`}>
             <path className="vl-anim vl-s-back stroke-foreground" strokeWidth={1.9} d={HISS} {...line} />
             <path
