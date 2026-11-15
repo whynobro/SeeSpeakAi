@@ -1,8 +1,8 @@
 # SeeSpeak shared test log
 
-Updated 2026-11-15T07:33:50.609Z. 173 tries. Numbers only, never audio.
+Updated 2026-11-15T07:47:23.774Z. 194 tries. Numbers only, never audio.
 
-Tries where the tester said what they really said: 126. Verdict was right on 61 of them.
+Tries where the tester said what they really said: 147. Verdict was right on 72 of them.
 
 This is a small test log from a few voices. It is not a clinical accuracy figure.
 
@@ -79,8 +79,8 @@ This is a small test log from a few voices. It is not a clinical accuracy figure
 | Michael | Windows, Edge | guided | ch at start | without-sound | 1 | 0 | 1 | 0 | 0 of 1 |
 | Michael | Windows, Edge | guided | s at end | with-sound | 3 | 0 | 1 | 2 | 0 of 3 |
 | Michael | Windows, Edge | guided | s at end | without-sound | 2 | 0 | 0 | 2 | 2 of 2 |
-| Michael | Windows, Edge | guided | s at start | other-sound | 12 | 4 | 2 | 6 | 2 of 12 |
-| Michael | Windows, Edge | guided | s at start | with-sound | 11 | 10 | 0 | 1 | 10 of 11 |
+| Michael | Windows, Edge | guided | s at start | other-sound | 22 | 4 | 9 | 9 | 9 of 22 |
+| Michael | Windows, Edge | guided | s at start | with-sound | 22 | 14 | 0 | 8 | 14 of 22 |
 | Michael | Windows, Edge | guided | sh at end | with-sound | 2 | 1 | 0 | 1 | 1 of 2 |
 | Michael | Windows, Edge | guided | sh at end | without-sound | 1 | 0 | 0 | 1 | 1 of 1 |
 | Michael | Windows, Edge | guided | sh at start | other-sound | 1 | 0 | 1 | 0 | 1 of 1 |
@@ -165,5 +165,15 @@ This is a small test log from a few voices. It is not a clinical accuracy figure
 | 2026-11-15T07:30:55.903Z | Michael | sip | s at start | other-sound | hit | 178 / 137 / 0.97; 137 / 98 / 0.85; 120 / 78 / 0.80; 79 / 39 / 0.25 |
 | 2026-11-15T07:31:01.964Z | Michael | sip | s at start | other-sound | hit | 494 / 332 / 0.51 |
 | 2026-11-15T07:31:16.648Z | Michael | sip | s at start | other-sound | hit | 198 / 156 / 0.62; 181 / 137 / 0.91 |
+| 2026-11-15T07:43:52.313Z | Michael | sip | s at start | other-sound | miss | 141 / 59 / 0.39 |
+| 2026-11-15T07:44:46.303Z | Michael | sip | s at start | other-sound | miss | 122 / 79 / 0.94; 39 / 0 / 0.80; 83 / 39 / 0.76 |
+| 2026-11-15T07:44:54.682Z | Michael | sip | s at start | other-sound | miss | 136 / 96 / 0.47; 19 / 0 / 0.42; 19 / 0 / 0.30; 34 / 0 / 0.00; 35 / 0 / 0.00 |
+| 2026-11-15T07:45:15.922Z | Michael | sip | s at start | with-sound | miss | 19 / 0 / 0.76; 140 / 57 / 0.67 |
+| 2026-11-15T07:45:21.629Z | Michael | sip | s at start | with-sound | miss | 19 / 0 / 0.53; 97 / 56 / 0.86 |
+| 2026-11-15T07:45:28.017Z | Michael | sip | s at start | with-sound | miss | 100 / 56 / 0.87 |
+| 2026-11-15T07:45:34.291Z | Michael | sip | s at start | with-sound | miss | 123 / 59 / 0.90 |
+| 2026-11-15T07:45:53.327Z | Michael | sip | s at start | with-sound | miss | 120 / 57 / 0.93 |
+| 2026-11-15T07:45:59.538Z | Michael | sip | s at start | with-sound | miss | 159 / 55 / 0.88 |
+| 2026-11-15T07:46:06.091Z | Michael | sip | s at start | with-sound | miss | 204 / 98 / 0.95 |
 
 Every try, with its frame-by-frame numbers, is in `attempts.jsonl` (one JSON object per line).
