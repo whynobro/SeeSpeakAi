@@ -641,88 +641,6 @@
         </p>
       </section>
 
-      <!-- 4. HOW THE AI WORKS -->
-      <section class="slide">
-        <p class="eyebrow">How the AI works</p>
-        <h1>The phone measures. Claude explains.</h1>
-        <div
-          style="
-            display: grid;
-            grid-template-columns: 1fr 44px 1fr 44px 1fr;
-            align-items: stretch;
-            margin-top: 34px;
-          "
-        >
-          <div class="panel">
-            <p class="eyebrow" style="font-size: 14px">1 · On the phone</p>
-            <p style="font-size: 20px; line-height: 1.4; margin-top: 10px">
-              Measures the hiss 50 times a second. Result at once.
-            </p>
-          </div>
-          <div style="display: grid; place-items: center; color: var(--faint); font-size: 30px">→</div>
-          <div class="panel" style="background: var(--blue-soft); border-color: #bfe0da">
-            <p class="eyebrow" style="font-size: 14px">2 · Numbers only</p>
-            <p style="font-size: 20px; line-height: 1.4; margin-top: 10px">
-              Never your voice. Never your video. Names removed from reports.
-            </p>
-          </div>
-          <div style="display: grid; place-items: center; color: var(--faint); font-size: 30px">→</div>
-          <div class="panel">
-            <p class="eyebrow" style="font-size: 14px">3 · Claude</p>
-            <p style="font-size: 20px; line-height: 1.4; margin-top: 10px">
-              Builds the practice plan. Writes one tip after every try.
-            </p>
-          </div>
-        </div>
-        <div class="panel" style="margin-top: 26px">
-          <p class="chart-title">
-            Why not speech recognition? It gets far more words wrong for deaf speakers
-          </p>
-          <p class="chart-sub">
-            Share of words transcribed wrong, average of four systems.
-          </p>
-          <div class="hbar" style="--label: 380px">
-            <div class="gridlines" style="left: 380px">
-              <i class="zero" style="left: 0%"></i><i style="left: 25%"></i><i style="left: 50%"></i
-              ><i style="left: 75%"></i><i style="left: 100%"></i>
-            </div>
-            <div class="row" style="height: 40px">
-              <span class="lab">Deaf and hard-of-hearing adults, all</span>
-              <div class="track">
-                <div class="bar" style="width: 65.75%; background: var(--orange)"></div>
-                <span class="val">52.6%</span>
-              </div>
-            </div>
-            <div class="row" style="height: 40px">
-              <span class="lab" style="font-weight: 500; color: var(--muted)">… who use speech only</span>
-              <div class="track">
-                <div class="bar" style="width: 24.6%; background: #f5d77f"></div>
-                <span class="val">19.7%</span>
-              </div>
-            </div>
-            <div class="row" style="height: 40px">
-              <span class="lab">Hearing adults</span>
-              <div class="track">
-                <div class="bar" style="width: 6.25%; background: var(--gray-bar)"></div>
-                <span class="val">5.0%</span>
-              </div>
-            </div>
-          </div>
-          <div class="axis" style="--label: 380px">
-            <span></span>
-            <div class="ticks">
-              <span style="left: 0%">0%</span><span style="left: 25%">20%</span
-              ><span style="left: 50%">40%</span><span style="left: 75%">60%</span
-              ><span style="left: 100%">80%</span>
-            </div>
-          </div>
-        </div>
-        <p class="src">
-          Source: Zhao et al., Laryngoscope 2025 (online 2024): 24 deaf and hard-of-hearing adults, 9 hearing
-          adults. Claude never hears audio and never decides the verdict.
-        </p>
-      </section>
-
       <!-- 5. MARKET -->
       <section class="slide">
         <p class="eyebrow">Market</p>
@@ -945,6 +863,87 @@
             </ul>
           </div>
         </div>
+      </section>
+      <!-- BACKUP: HOW THE AI WORKS (for questions) -->
+      <section class="slide">
+        <p class="eyebrow">Backup · How the AI works</p>
+        <h1>The phone measures. Claude explains.</h1>
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 1fr 44px 1fr 44px 1fr;
+            align-items: stretch;
+            margin-top: 34px;
+          "
+        >
+          <div class="panel">
+            <p class="eyebrow" style="font-size: 14px">1 · On the phone</p>
+            <p style="font-size: 20px; line-height: 1.4; margin-top: 10px">
+              Measures the hiss 50 times a second. Result at once.
+            </p>
+          </div>
+          <div style="display: grid; place-items: center; color: var(--faint); font-size: 30px">→</div>
+          <div class="panel" style="background: var(--blue-soft); border-color: #bfe0da">
+            <p class="eyebrow" style="font-size: 14px">2 · Numbers only</p>
+            <p style="font-size: 20px; line-height: 1.4; margin-top: 10px">
+              Never your voice. Never your video. Names removed from reports.
+            </p>
+          </div>
+          <div style="display: grid; place-items: center; color: var(--faint); font-size: 30px">→</div>
+          <div class="panel">
+            <p class="eyebrow" style="font-size: 14px">3 · Claude</p>
+            <p style="font-size: 20px; line-height: 1.4; margin-top: 10px">
+              Builds the practice plan. Writes one tip after every try.
+            </p>
+          </div>
+        </div>
+        <div class="panel" style="margin-top: 26px">
+          <p class="chart-title">
+            Why not speech recognition? It gets far more words wrong for deaf speakers
+          </p>
+          <p class="chart-sub">
+            Share of words transcribed wrong, average of four systems.
+          </p>
+          <div class="hbar" style="--label: 380px">
+            <div class="gridlines" style="left: 380px">
+              <i class="zero" style="left: 0%"></i><i style="left: 25%"></i><i style="left: 50%"></i
+              ><i style="left: 75%"></i><i style="left: 100%"></i>
+            </div>
+            <div class="row" style="height: 40px">
+              <span class="lab">Deaf and hard-of-hearing adults, all</span>
+              <div class="track">
+                <div class="bar" style="width: 65.75%; background: var(--orange)"></div>
+                <span class="val">52.6%</span>
+              </div>
+            </div>
+            <div class="row" style="height: 40px">
+              <span class="lab" style="font-weight: 500; color: var(--muted)">… who use speech only</span>
+              <div class="track">
+                <div class="bar" style="width: 24.6%; background: #f5d77f"></div>
+                <span class="val">19.7%</span>
+              </div>
+            </div>
+            <div class="row" style="height: 40px">
+              <span class="lab">Hearing adults</span>
+              <div class="track">
+                <div class="bar" style="width: 6.25%; background: var(--gray-bar)"></div>
+                <span class="val">5.0%</span>
+              </div>
+            </div>
+          </div>
+          <div class="axis" style="--label: 380px">
+            <span></span>
+            <div class="ticks">
+              <span style="left: 0%">0%</span><span style="left: 25%">20%</span
+              ><span style="left: 50%">40%</span><span style="left: 75%">60%</span
+              ><span style="left: 100%">80%</span>
+            </div>
+          </div>
+        </div>
+        <p class="src">
+          Source: Zhao et al., Laryngoscope 2025 (online 2024): 24 deaf and hard-of-hearing adults, 9 hearing
+          adults. Claude never hears audio and never decides the verdict.
+        </p>
       </section>
     </div>
     <p class="hint" id="hint">→ or Space: next · ←: back · F: full screen</p>
