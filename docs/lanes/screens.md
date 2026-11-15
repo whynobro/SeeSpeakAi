@@ -107,7 +107,7 @@ from how it really sounds, so they cannot tell their own "s" is missing.
 
 ## Bird mascot: "your little guy" (Mason, from the Nov 14 call)
 
-The teal bird from the logo becomes a companion that lives on the site.
+The teal bird from the logo becomes a companion that lives on the site. **Mason builds it** (decided Nov 14). No outside preview build.
 
 - **On load:** the bird flies a loop around the screen, then after about 2 seconds lands and perches on the
   cursor. On phones (no cursor) it lands in a corner, or on the spot the finger last touched.
