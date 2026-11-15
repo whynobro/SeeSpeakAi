@@ -32,6 +32,7 @@ export function BackLink({ href, label }: { href: string; label: string }) {
 /**
  * The top of a page: an optional back link, an optional small line above the title, the title and an optional
  * intro line. `ref` goes to the title, so a page can move focus to it (it takes focus from code only).
+ * `aside` is for one small thing in the top right corner.
  */
 export function PageHeader({
   back,
@@ -39,6 +40,7 @@ export function PageHeader({
   title,
   lede,
   children,
+  aside,
   ref,
 }: {
   back?: { href: string; label: string };
@@ -47,10 +49,13 @@ export function PageHeader({
   lede?: ReactNode;
   /** Anything else that belongs under the title. */
   children?: ReactNode;
+  /** Something pinned to the top right corner, level with the back link (the practice bird). It brings its own position. */
+  aside?: ReactNode;
   ref?: Ref<HTMLHeadingElement>;
 }) {
   return (
-    <header className="flex flex-col gap-2">
+    <header className={`flex flex-col gap-2 ${aside ? 'relative' : ''}`.trim()}>
+      {aside}
       {back && <BackLink href={back.href} label={back.label} />}
       {eyebrow && <p className="text-[15px] font-bold text-muted">{eyebrow}</p>}
       <h1

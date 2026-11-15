@@ -8,15 +8,16 @@ import { loadGoals } from '@/lib/store';
 import type { LipSummary } from '@/lib/lips/types';
 import type { AttemptScore, PracticeWord } from '@/lib/types';
 
-/** Tries in a row on one word that did not count before the "Stuck?" button shows. */
+/** Tries in a row on one word that did not count before the bird offers "Stuck? Tap me". */
 const STUCK_AFTER = 3;
 /** The last tries kept and sent. */
 const MAX_TRIES = 6;
 
 /**
- * "Stuck? Ask Claude for a closer look". The screen calls `record` right after each scored try (right after
- * the mic stops, so the last recording is that try). After three tries in a row that did not count on the
- * same word, `canAsk` turns true. `ask` sends ONE request per streak: numbers only (scores, the shape of
+ * "Stuck? Ask Claude for a closer look", started by tapping the bird. The screen calls `record` right after each
+ * scored try (right after the mic stops, so the last recording is that try). `hasTries` is true once a try on
+ * this word did not count (the bird can ask). After three in a row, `canAsk` turns true (the bird shows
+ * its "Stuck? Tap me" bubble). `ask` sends ONE request per streak: numbers only (scores, the shape of
  * each sound, lip numbers), never audio or a picture. A try that counts, or a new word, starts a new streak.
  */
 export function useStuckHelp() {
@@ -101,5 +102,14 @@ export function useStuckHelp() {
 
   useEffect(() => () => request.current?.abort(), []);
 
-  return { canAsk: streak >= STUCK_AFTER && !help, loading, help, failed, record, ask, reset };
+  return {
+    hasTries: streak > 0,
+    canAsk: streak >= STUCK_AFTER && !help && !loading,
+    loading,
+    help,
+    failed,
+    record,
+    ask,
+    reset,
+  };
 }

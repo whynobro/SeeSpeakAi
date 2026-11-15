@@ -19,7 +19,7 @@ export function BirdSwitch() {
         <span className="text-[17px] font-bold">Show the bird</span>
         <span id="bird-switch-note" className="text-[15px] leading-snug text-muted">
           A small bird sits in the corner of the practice screen. Its beak moves with how loud you are,
-          nothing else.
+          nothing else. Tap it when you want help.
         </span>
       </span>
       <span aria-hidden="true" className="w-7 shrink-0 text-right text-[15px] font-bold">
