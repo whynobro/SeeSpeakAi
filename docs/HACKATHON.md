@@ -93,6 +93,13 @@ A chatbot added for show scores about 3 of 15 on the AI row. See "What the AI do
 - The learner enters their age group at the start, and the plan and wording follow it.
 - Ideas raised, not decided: a feedback prompt inside the app, and reading public forum posts for user needs.
 
+## Result (Sunday Nov 15)
+
+- Room judging: we did not win the room. It went to Northstar, a personal finance tracker with a dashboard.
+- Startup Launch Award (our challenge entry, 1:59 video): result not recorded yet.
+- Lesson for the next pitch: lead with one screen that looks finished (a therapist view of each kid's progress), and keep a recorded backup for the live mic demo.
+- Next: other competitions for SeeSpeak, see the list Michael has (CIE Builder Bootcamp, Innovation Quest, Imagine Cup).
+
 ## Help
 
 Discord, the help desk outside the room (HQ is Business 0126), or anyone with an organizer badge.
